@@ -10,8 +10,13 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.1",
+    "bulma": "^0.9.2",
     "core-js": "^3.9.1",
     "nuxt": "^2.15.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "dotenv": "^9.0.0",
+    "sass-loader": "^10.1.1",
+    "node-sass": "^5.0.0"
+  }
 }
