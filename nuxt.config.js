@@ -1,3 +1,6 @@
+// eslint-disable-next-line nuxt/no-cjs-in-config
+require('./config.js')
+
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
@@ -30,6 +33,9 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    { src: '@/plugins/transit.js', mode: 'client' },
+    { src: '@/plugins/wallet.js', mode: 'client' },
+    { src: '@/plugins/eos.js', mode: 'client' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
