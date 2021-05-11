@@ -5,7 +5,7 @@
                 <h2 class="title">Welcome to the Effect Bridge</h2>
                 <div v-if="!wallet">
                     <a class="button is-secondary" @click="$wallet.loginModal = true">
-                    <strong>Connect EOS Wallet 🖖</strong>
+                    <strong>Connect EOS 🖖</strong>
                   </a>
                 </div>
                 <div v-else>
@@ -13,11 +13,19 @@
                 </div>
 
                 <br>
-                <div v-if="isMetaMaskInstalled">
+
+                <div v-if="isMetaMaskConnected">
+                  <a class="button is-secondary " @click="this.onClickDisconnect">
+                    <strong>Metamask Connected 🦊</strong>
+                  </a>
+                </div>
+
+                <div v-else-if="isMetaMaskInstalled">
                     <a class="button is-primary" @click="this.onClickConnect">
                     <strong>Connect Metamask 🦊</strong>
                   </a>
                 </div>
+
                 <div v-else>
                     <a class="button is-primary" href="https://metamask.io/download.html" target="_blank">
                     <strong>Install MetaMask 🦊</strong>
@@ -25,11 +33,13 @@
                 </div>
 
                 <br>
+
                 <div v-if="isMetaMaskInstalled">
                     <a class="button is-primary" @click="this.onClickConnect">
                     <strong>Connect Web3 🤘</strong>
                   </a>
                 </div>
+
                 <div v-else>
                     <a class="button is-primary" href="https://metamask.io/download.html" target="_blank">
                     <strong>Foo Web3 🤘</strong>
@@ -37,8 +47,7 @@
                 </div>
 
                 <br>
-                <div v-if="accounts.length != 0">
-                  Make this dyncamic
+                <div v-if="currentAccount.length != 0">
                   Selected Account: {{selectedAccount}}
                 </div>
 
@@ -48,14 +57,14 @@
 </template>
 
 <script>
-// import web3 from "web3";
-// import Web3Modal from "web3modal"
 
 export default {
     data() {
         return {
-            ethereum: window.ethereum,
-            accounts: []
+            ethereum: window.ethereum || false,
+            currentAccount: [],
+            metaMaskConnected: window.ethereum.isConnected(),
+            metaMaskInstalled: false
 
         }
     },
@@ -70,18 +79,18 @@ export default {
         },
 
         isMetaMaskConnected() {
-            return accounts && accounts.length > 0
+            return this.currentAccount.length > 0
         },
 
         selectedAccount() {
-          return this.accounts[0];
+          return this.currentAccount[0];
         }
     },
 
     methods: {
         async onClickConnect() {
             try {
-                this.accounts = await this.ethereum.request({
+                this.currentAccount = await this.ethereum.request({
                     method: 'eth_requestAccounts'
                 })
             } catch (error) {
@@ -89,14 +98,47 @@ export default {
             }
         },
 
-        async onClickInstall() {
-            onboarding.startOnBoarding()
-        }
-
+        async onClickDisconnect(){
+          console.log('Disconnecting')
+          try {
+            await this.ethereum.emit('disconnect')
+            // this.metaMaskConnected = false;
+          } catch (disconnectError) {
+            console.error('Error disconnecting from metaMask', disconnectError)
+          }
+        },
 
     },
 
-    mounted() {
+    created() {
+
+      console.log(`Ethereum`, this.ethereum);
+      if(this.isMetaMaskInstalled){
+        this.ethereum.on('connect', () => {
+          console.log('Connecting')
+          this.metaMaskConnected = true
+        })
+
+
+        this.ethereum.on('disconnect', () => {
+          console.log('Diconnecting')
+          this.metaMaskConnected = false
+        })
+
+        // Inform vue which account is the selected account in metamask
+        this.ethereum.on('accountsChanged', (newAccount) => {
+          console.log("Changing selected account")
+          this.currentAccount = newAccount
+        })
+
+        // inform user that they are not on the right chain
+        this.ethereum.on('chainChanged', console.log)
+
+        // Inform user that they are not on the right network.
+        this.ethereum.on('networkChanged', console.log)
+
+      }
+
 
         // const providerOptions = {
 
