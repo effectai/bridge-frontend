@@ -3,6 +3,17 @@
         <div class="container">
             <div class="has-text-centered">
                 <h2 class="title">Welcome to the Effect Bridge</h2>
+
+                <!-- Educational Resources -->
+                <br>
+                <div>
+                  <a class="button is-secondary" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
+                    <strong>Learn how to connect 📞</strong>
+                  </a>
+                </div>
+
+                <!-- EOS -->
+                <br>
                 <div v-if="!wallet">
                     <a class="button is-secondary" @click="$wallet.loginModal = true">
                     <strong>Connect EOS 🖖</strong>
@@ -12,43 +23,54 @@
                     <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
                 </div>
 
+                <!-- MetaMask -->
                 <br>
-
-                <div v-if="isMetaMaskConnected">
+                <div v-if="isAccountConnected">
                   <a class="button is-secondary " @click="this.onClickDisconnect">
                     <strong>Metamask Connected 🦊</strong>
                   </a>
                 </div>
-
                 <div v-else-if="isMetaMaskInstalled">
-                    <a class="button is-primary" @click="this.onClickConnect">
+                    <a class="button is-secondary" @click="this.onClickConnect">
                     <strong>Connect Metamask 🦊</strong>
                   </a>
                 </div>
-
                 <div v-else>
-                    <a class="button is-primary" href="https://metamask.io/download.html" target="_blank">
+                    <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
                     <strong>Install MetaMask 🦊</strong>
                   </a>
                 </div>
 
+                <!-- WalletConnect -->
                 <br>
-
                 <div v-if="true">
-                    <a class="button is-primary" @click="this.walletConnectQrCode">
-                    <strong>Connect Web3 🤘</strong>
+                    <a class="button is-secondary" @click="this.walletConnectQrCode">
+                    <strong>WalletConnect 🤘</strong>
                   </a>
                 </div>
-
                 <div v-else>
-                    <a class="button is-primary" href="https://metamask.io/download.html" target="_blank">
-                    <strong>Foo Web3 🤘</strong>
+                    <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
+                    <strong>WalletConnect 🤘</strong>
                   </a>
                 </div>
 
+                <!-- Binance -->
+                <br>
+                <div v-if="isBinanceInstalled">
+                    <a class="button is-secondary" @click="this.onBinanceConnect">
+                    <strong>BSC Wallet 🏹</strong>
+                  </a>
+                </div>
+                <div v-else>
+                    <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
+                    <strong>Install BSC Wallet 🏹</strong>
+                  </a>
+                </div>
+
+                <!-- Disconnect -->
                 <br>
                 <div>
-                  <a class="button is-primary" @click="this.walletDisconnect">
+                  <a class="button is-secondary" @click="this.walletDisconnect">
                     <strong>Disconnect 🚧</strong>
                   </a>
                 </div>
@@ -95,6 +117,7 @@ export default {
     data() {
         return {
             ethereum: provider || window.ethereum,
+            binance: window.BinanceChain || null,
             currentAccount: [],
             metaMaskConnected: window.ethereum.isConnected(),
             metaMaskInstalled: false
@@ -111,7 +134,11 @@ export default {
             return Boolean(this.ethereum && this.ethereum.isMetaMask)
         },
 
-        isMetaMaskConnected() {
+        isBinanceInstalled() {
+          return Boolean(this.binance)
+        },
+
+        isAccountConnected() {
             return this.currentAccount.length > 0
         },
 
@@ -130,6 +157,17 @@ export default {
             } catch (error) {
                 console.error(error)
             }
+        },
+
+        async onBinanceConnect() {
+          try {
+            console.debug('Connecting Binance')
+            this.currentAccount = await this.binance.request({
+              method: 'eth_requestAccounts'
+            })
+          } catch (bscConnectError) {
+
+          }
         },
 
         //Does not properly work at the moment.
