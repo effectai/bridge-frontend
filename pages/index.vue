@@ -47,6 +47,13 @@
                 </div>
 
                 <br>
+                <div>
+                  <a class="button is-primary" @click="this.walletDisconnect">
+                    <strong>Disconnect 🚧</strong>
+                  </a>
+                </div>
+
+                <br>
                 <div v-if="currentAccount.length != 0">
                   Selected Account: {{selectedAccount}}
                 </div>
@@ -87,7 +94,7 @@ const web3 = new Web3(provider)
 export default {
     data() {
         return {
-            ethereum: provider || false,
+            ethereum: provider || window.ethereum,
             currentAccount: [],
             metaMaskConnected: window.ethereum.isConnected(),
             metaMaskInstalled: false
@@ -139,6 +146,10 @@ export default {
         //Connect with wallet Connect
         async walletConnectQrCode() {
           await provider.enable()
+        },
+
+        async walletDisconnect() {
+          await provider.disconnect();
         }
 
     },
@@ -147,6 +158,7 @@ export default {
 
       console.log(`Ethereum`, this.ethereum);
       if(web3){
+
         this.ethereum.on('connect', () => {
           console.log('Connecting')
           this.metaMaskConnected = true
@@ -171,19 +183,6 @@ export default {
         this.ethereum.on('networkChanged', console.log)
 
       }
-
-
-        // const providerOptions = {
-
-        // }
-
-        // const web3Modal = new Web3Modal({
-        //   network: 'Smart Chain',
-        //   cacheProvider: true,
-        //   providerOptions
-        // });
-
-        // const provider = await web3Modal.connect()
 
     },
 }
