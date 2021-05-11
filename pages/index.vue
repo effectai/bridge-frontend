@@ -34,8 +34,8 @@
 
                 <br>
 
-                <div v-if="isMetaMaskInstalled">
-                    <a class="button is-primary" @click="this.onClickConnect">
+                <div v-if="true">
+                    <a class="button is-primary" @click="this.walletConnectQrCode">
                     <strong>Connect Web3 🤘</strong>
                   </a>
                 </div>
@@ -57,11 +57,37 @@
 </template>
 
 <script>
+import Web3 from 'web3';
+import Web3Modal from "web3modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+
+//  Create WalletConnect Provider
+const provider = new WalletConnectProvider({
+  rpc: {
+    1: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    3: "https://bsc-dataseed.binance.org/"
+  },
+})
+
+// providerOptions = {}
+
+// //  Enable session (triggers QR Code modal)
+// provider.enable().then().catch();
+
+// const web3Modal = new Web3Modal({
+//   network:'Chapel',
+//   chacheProvider: true,
+//   disableInjectedProvider: false,
+//   providerOptions
+// })
+
+// const provider = await web3Modal.connect()
+const web3 = new Web3(provider)
 
 export default {
     data() {
         return {
-            ethereum: window.ethereum || false,
+            ethereum: provider || false,
             currentAccount: [],
             metaMaskConnected: window.ethereum.isConnected(),
             metaMaskInstalled: false
@@ -90,6 +116,7 @@ export default {
     methods: {
         async onClickConnect() {
             try {
+              console.log('connecting')
                 this.currentAccount = await this.ethereum.request({
                     method: 'eth_requestAccounts'
                 })
@@ -98,6 +125,7 @@ export default {
             }
         },
 
+        //Does not properly work at the moment.
         async onClickDisconnect(){
           console.log('Disconnecting')
           try {
@@ -108,12 +136,17 @@ export default {
           }
         },
 
+        //Connect with wallet Connect
+        async walletConnectQrCode() {
+          await provider.enable()
+        }
+
     },
 
     created() {
 
       console.log(`Ethereum`, this.ethereum);
-      if(this.isMetaMaskInstalled){
+      if(web3){
         this.ethereum.on('connect', () => {
           console.log('Connecting')
           this.metaMaskConnected = true
