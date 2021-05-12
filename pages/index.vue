@@ -4,20 +4,12 @@
             <div class="has-text-centered">
                 <h2 class="title">Welcome to the Effect Bridge</h2>
 
-                <!-- Educational Resources -->
-                <br>
-                <div>
-                  <a class="button is-secondary" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
-                    <strong>Learn how to connect 📞</strong>
-                  </a>
-                </div>
-
                 <!-- EOS -->
                 <br>
                 <div v-if="!wallet">
                     <a class="button is-secondary" @click="$wallet.loginModal = true">
-                    <strong>Connect EOS 🖖</strong>
-                  </a>
+                                    <strong>Connect EOS 🖖</strong>
+                                  </a>
                 </div>
                 <div v-else>
                     <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
@@ -26,58 +18,66 @@
                 <!-- MetaMask -->
                 <br>
                 <div v-if="isAccountConnected">
-                  <a class="button is-secondary " @click="this.onClickDisconnect">
-                    <strong>Metamask Connected 🦊</strong>
-                  </a>
+                    <a class="button is-secondary" :disabled="currentProvider != null">
+                                    <strong>Metamask Connected 🦊</strong>
+                                  </a>
                 </div>
-                <div v-else-if="isMetaMaskInstalled">
-                    <a class="button is-secondary" @click="this.onClickConnect">
-                    <strong>Connect Metamask 🦊</strong>
-                  </a>
-                </div>
-                <div v-else>
-                    <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
-                    <strong>Install MetaMask 🦊</strong>
-                  </a>
-                </div>
-
-                <!-- WalletConnect -->
-                <br>
-                <div v-if="true">
-                    <a class="button is-secondary" @click="this.walletConnectQrCode">
-                    <strong>WalletConnect 🤘</strong>
-                  </a>
+                <div v-else-if="!this.isMetaMaskInstalled">
+                    <a class="button is-secondary" @click="this.onMetaMaskConnect">
+                                    <strong>Connect Metamask 🦊</strong>
+                                  </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
-                    <strong>WalletConnect 🤘</strong>
-                  </a>
+                                    <strong>Install MetaMask 🦊</strong>
+                                  </a>
                 </div>
 
                 <!-- Binance -->
                 <br>
-                <div v-if="isBinanceInstalled">
+                <div v-if="isAccountConnected">
+                    <a class="button is-secondary" :disabled="currentProvider != null">
+                                    <strong>Binance Connected🔶</strong>
+                                  </a>
+                </div>
+                <div v-else-if="isBinanceInstalled">
                     <a class="button is-secondary" @click="this.onBinanceConnect">
-                    <strong>BSC Wallet 🏹</strong>
-                  </a>
+                                    <strong>Connect BSC Wallet 🔶</strong>
+                                  </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
-                    <strong>Install BSC Wallet 🏹</strong>
-                  </a>
+                                            <strong>Install BSC Wallet 🔶</strong>
+                                          </a>
                 </div>
 
-                <!-- Disconnect -->
+                <!-- WalletConnect -->
                 <br>
                 <div>
-                  <a class="button is-secondary" @click="this.walletDisconnect">
-                    <strong>Disconnect 🚧</strong>
-                  </a>
+                    <a class="button is-secondary" @click="this.onWalletConnect" :disabled="currentProvider != null">
+                                            <strong>WalletConnect 📱</strong>
+                                          </a>
+                </div>
+
+                <!-- Disconnect // Figure out how we can do this.  -->
+                <br>
+                <div>
+                    <a class="button is-danger" :disabled="this.walletConnected || this.currentProvider == null">
+                                    <strong>Disconnect 🚧</strong>
+                                  </a>
+                </div>
+
+                <!-- Educational Resources -->
+                <br>
+                <div>
+                    <a class="button is-warning" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
+                                    <strong>Learn how to connect 📞</strong>
+                                  </a>
                 </div>
 
                 <br>
                 <div v-if="currentAccount.length != 0">
-                  Selected Account: {{selectedAccount}}
+                    <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
 
             </div>
@@ -86,46 +86,41 @@
 </template>
 
 <script>
-import Web3 from 'web3';
-import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
-//  Create WalletConnect Provider
-const provider = new WalletConnectProvider({
-  rpc: {
-    1: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-    3: "https://bsc-dataseed.binance.org/"
-  },
+const walletProvider = new WalletConnectProvider({
+    rpc: {
+        97: "https://data-seed-prebsc-1-s1.binance.org:8545/", //testnet
+        56: "https://bsc-dataseed.binance.org/" //mainnet
+    },
+    qrcodeModalOptions: {
+        mobileLinks: [
+            "metamask",
+            "trust",
+            "rainbow",
+            "argent",
+            "imtoken",
+            "pillar"
+        ]
+    }
 })
 
-// providerOptions = {}
-
-// //  Enable session (triggers QR Code modal)
-// provider.enable().then().catch();
-
-// const web3Modal = new Web3Modal({
-//   network:'Chapel',
-//   chacheProvider: true,
-//   disableInjectedProvider: false,
-//   providerOptions
-// })
-
-// const provider = await web3Modal.connect()
-const web3 = new Web3(provider)
 
 export default {
     data() {
         return {
-            ethereum: provider || window.ethereum,
+            metamask: window.ethereum || null,
             binance: window.BinanceChain || null,
+            walletConnect: walletProvider || null, //connect to mobile wallet; trust, metamask, ...
+            web3Provider: null,
             currentAccount: [],
-            metaMaskConnected: window.ethereum.isConnected(),
-            metaMaskInstalled: false
-
+            walletConnected: null, //Figure out how to update this dynamically. Probably during `mounted`
+            currentProvider: null
         }
     },
 
     computed: {
+        // EOS
         wallet() {
             return (this.$wallet) ? this.$wallet.wallet : null
         },
@@ -135,92 +130,106 @@ export default {
         },
 
         isBinanceInstalled() {
-          return Boolean(this.binance)
+            return Boolean(this.binance)
         },
 
         isAccountConnected() {
             return this.currentAccount.length > 0
         },
 
-        selectedAccount() {
-          return this.currentAccount[0];
-        }
+        // currentAccount() {
+        //     return this.currentAccount[0];
+        // },
+
+        // currentProvider() {
+        //     return this.currentProvider
+        // }
+
     },
 
     methods: {
-        async onClickConnect() {
+        async onMetaMaskConnect() {
             try {
-              console.log('connecting')
-                this.currentAccount = await this.ethereum.request({
+                console.log('Connecting MetaMask')
+                this.currentProvider = this.metamask
+                this.currentAccount = await this.currentProvider.request({
                     method: 'eth_requestAccounts'
                 })
-            } catch (error) {
-                console.error(error)
+            } catch (mmError) {
+                console.error(mmError)
             }
         },
 
         async onBinanceConnect() {
-          try {
-            console.debug('Connecting Binance')
-            this.currentAccount = await this.binance.request({
-              method: 'eth_requestAccounts'
-            })
-          } catch (bscConnectError) {
-
-          }
+            try {
+                console.log('Connecting Binance')
+                this.currentProvider = this.binance
+                this.currentAccount = await this.binance.request({
+                    method: 'eth_requestAccounts'
+                })
+            } catch (bscError) {
+                console.error(bscError)
+            }
         },
 
-        //Does not properly work at the moment.
-        async onClickDisconnect(){
-          console.log('Disconnecting')
-          try {
-            await this.ethereum.emit('disconnect')
-            // this.metaMaskConnected = false;
-          } catch (disconnectError) {
-            console.error('Error disconnecting from metaMask', disconnectError)
-          }
-        },
+        async onWalletConnect() {
 
-        //Connect with wallet Connect
-        async walletConnectQrCode() {
-          await provider.enable()
+            //  Create WalletConnect Provider this is for the qr code mdal pop up at the moment.
+            this.currentProvider = walletProvider
+
+            await this.currentProvider.enable()
+
+            //Integrate dapp with the provider
+            // const web3 = new Web3(walletConnectProvider)
         },
 
         async walletDisconnect() {
-          await provider.disconnect();
+            await this.currentProvider.disconnect();
+        },
+
+        //Does not properly work at the moment.
+        async disconnectAccount() {
+            console.log('Disconnecting')
+
+            try {
+                await this.currentProvider.request({
+                    method: "wallet_requestPermissions",
+                    params: [{ eth_accounts: {} }]
+                })
+            } catch (disconnectError) {
+                console.error('Error disconnecting from metaMask', disconnectError)
+            }
         }
 
     },
 
     created() {
 
-      console.log(`Ethereum`, this.ethereum);
-      if(web3){
+        if (this.web3Provider) {
 
-        this.ethereum.on('connect', () => {
-          console.log('Connecting')
-          this.metaMaskConnected = true
-        })
+            // this.web3Provider.on('connect', () => {
+            //     console.log('Connecting')
+            //     this.walletConnected = true
+            // })
 
+            // this.web3Provider.on('disconnect', () => {
+            //     console.log('Diconnecting')
+            //     this.walletConnected = false
+            // })
 
-        this.ethereum.on('disconnect', () => {
-          console.log('Diconnecting')
-          this.metaMaskConnected = false
-        })
+            // // Inform vue which account is the selected account in metamask
+            // this.web3Provider.on('accountsChanged', (newAccount) => {
+            //     console.log("Changing selected account")
+            //     this.currentAccount = newAccount
+            // })
 
-        // Inform vue which account is the selected account in metamask
-        this.ethereum.on('accountsChanged', (newAccount) => {
-          console.log("Changing selected account")
-          this.currentAccount = newAccount
-        })
+            // // inform user that they are not on the right chain
+            // this.web3Provider.on('chainChanged', console.log)
 
-        // inform user that they are not on the right chain
-        this.ethereum.on('chainChanged', console.log)
+            // // Inform user that they are not on the right network.
+            // this.web3Provider.on('networkChanged', console.log)
 
-        // Inform user that they are not on the right network.
-        this.ethereum.on('networkChanged', console.log)
-
-      }
+        }
 
     },
 }
