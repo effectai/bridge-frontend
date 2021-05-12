@@ -8,8 +8,8 @@
                 <br>
                 <div v-if="!wallet">
                     <a class="button is-secondary" @click="$wallet.loginModal = true">
-                                    <strong>Connect EOS 🖖</strong>
-                                  </a>
+                                        <strong>Connect EOS 🖖</strong>
+                                      </a>
                 </div>
                 <div v-else>
                     <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
@@ -19,60 +19,60 @@
                 <br>
                 <div v-if="isAccountConnected">
                     <a class="button is-secondary" :disabled="currentProvider != null">
-                                    <strong>Metamask Connected 🦊</strong>
-                                  </a>
+                                        <strong>Metamask Connected 🦊</strong>
+                                      </a>
                 </div>
                 <div v-else-if="!this.isMetaMaskInstalled">
                     <a class="button is-secondary" @click="this.onMetaMaskConnect">
-                                    <strong>Connect Metamask 🦊</strong>
-                                  </a>
+                                        <strong>Connect Metamask 🦊</strong>
+                                      </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
-                                    <strong>Install MetaMask 🦊</strong>
-                                  </a>
+                                        <strong>Install MetaMask 🦊</strong>
+                                      </a>
                 </div>
 
                 <!-- Binance -->
                 <br>
                 <div v-if="isAccountConnected">
                     <a class="button is-secondary" :disabled="currentProvider != null">
-                                    <strong>Binance Connected🔶</strong>
-                                  </a>
+                                        <strong>Binance Connected🔶</strong>
+                                      </a>
                 </div>
                 <div v-else-if="isBinanceInstalled">
                     <a class="button is-secondary" @click="this.onBinanceConnect">
-                                    <strong>Connect BSC Wallet 🔶</strong>
-                                  </a>
+                                        <strong>Connect BSC Wallet 🔶</strong>
+                                      </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
-                                            <strong>Install BSC Wallet 🔶</strong>
-                                          </a>
+                                                <strong>Install BSC Wallet 🔶</strong>
+                                              </a>
                 </div>
 
                 <!-- WalletConnect -->
                 <br>
                 <div>
                     <a class="button is-secondary" @click="this.onWalletConnect" :disabled="currentProvider != null">
-                                            <strong>WalletConnect 📱</strong>
-                                          </a>
+                                                <strong>WalletConnect 📱</strong>
+                                              </a>
                 </div>
 
                 <!-- Disconnect // Figure out how we can do this.  -->
                 <br>
                 <div>
                     <a class="button is-danger" :disabled="this.walletConnected || this.currentProvider == null">
-                                    <strong>Disconnect 🚧</strong>
-                                  </a>
+                                        <strong>Disconnect 🚧</strong>
+                                      </a>
                 </div>
 
                 <!-- Educational Resources -->
                 <br>
                 <div>
                     <a class="button is-warning" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
-                                    <strong>Learn how to connect 📞</strong>
-                                  </a>
+                                        <strong>Learn how to connect 📞</strong>
+                                      </a>
                 </div>
 
                 <br>
@@ -86,7 +86,13 @@
 </template>
 
 <script>
+//web3 provider
 import WalletConnectProvider from "@walletconnect/web3-provider";
+
+//StandaloneClient
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
+
 
 const walletProvider = new WalletConnectProvider({
     rpc: {
@@ -134,7 +140,9 @@ export default {
         },
 
         isAccountConnected() {
-            return this.currentAccount.length > 0
+            // const web3Provider
+            // walletProvider.
+            // return this.metamask.listAccounts()
         },
 
         // currentAccount() {
@@ -172,15 +180,22 @@ export default {
             }
         },
 
+        // Web3provider
+        // async onWalletConnect() {
+        //     //  Create WalletConnect Provider this is for the qr code mdal pop up at the moment.
+        //     this.currentProvider = walletProvider
+        //     await this.currentProvider.enable()
+        //     //Integrate dapp with the provider
+        //     // const web3 = new Web3(walletConnectProvider)
+        // },
+
         async onWalletConnect() {
-
-            //  Create WalletConnect Provider this is for the qr code mdal pop up at the moment.
-            this.currentProvider = walletProvider
-
-            await this.currentProvider.enable()
-
-            //Integrate dapp with the provider
-            // const web3 = new Web3(walletConnectProvider)
+          // Create a connector
+          const connector = new WalletConnect({
+            bridge: "https://bridge.walletconnect.org", // Required
+            qrcodeModal: QRCodeModal,
+          });
+          connector.createSession()
         },
 
         async walletDisconnect() {
@@ -199,7 +214,33 @@ export default {
             } catch (disconnectError) {
                 console.error('Error disconnecting from metaMask', disconnectError)
             }
-        }
+        },
+
+        // Handle when the user changes their account number - DOES NOT WORK AT THE MOMENT; CONCEPT
+        async handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                // MetaMask is locked or the user has not connected any accounts
+                console.log('Please connect to MetaMask.');
+            } else if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
+                // Do any other work!
+            }
+        },
+
+        // Hanlde chain (network) and chainchanged - DOES NOT WORK AT THE MOMENT; CONCEPT
+        async handleChainChange() {
+            const chainId = await ethereum.request({ method: 'eth_chainId' });
+            handleChainChanged(chainId);
+
+            ethereum.on('chainChanged', handleChainChanged);
+
+            function handleChainChanged(_chainId) {
+                // We recommend reloading the page, unless you must do otherwise
+                window.location.reload();
+            }
+        },
+
+        // async isConnected
 
     },
 
