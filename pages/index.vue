@@ -84,6 +84,9 @@
                   <a class="button is-danger" @click="onSwap('bsc')">
                     <strong>Test EOS -> ETH swap 🚧</strong>
                   </a>
+                  <a class="button is-danger" @click="onSwap('eos')">
+                    <strong>Test ETH -> EOS swap 🚧</strong>
+                  </a>
                 </div>
             </div>
         </div>
@@ -125,8 +128,7 @@ export default {
             web3Provider: null,
             currentAccount: [],
             walletConnected: null, //Figure out how to update this dynamically. Probably during `mounted`
-            currentProvider: null,
-            swapFrom: null
+            currentProvider: null
         }
     },
 
@@ -186,10 +188,11 @@ export default {
         },
 
         async onSwap(to) {
+          this.$ptokens.init(this.currentProvider, this.currentAccount)
           if (to == 'eos') {
-            // TODO
+            this.$ptokens.swapToEos()
           } else if (to == 'bsc') {
-            this.$ptokens.swapToBsc(this.currentAccount, this.currentProvider)
+            this.$ptokens.swapToBsc()
           }
         },
 

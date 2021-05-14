@@ -1,11 +1,14 @@
-import { Api, JsonRpc } from 'eosjs'
 import Vue from 'vue'
 import { pEosioToken } from 'ptokens-peosio-token'
 
 export default (context, inject) => {
+
   const ptokens = new Vue({
     data() {
-      return {}
+      return {
+        peos: null,
+        currentAccount: null,
+      }
     },
     computed: {
       eos () {
@@ -16,8 +19,9 @@ export default (context, inject) => {
       },
     },
     methods: {
-      async swapToBsc(currentAccount, currentProvider) { 
-        const peos = new pEosioToken({
+      init (currentProvider, currentAccount) {
+        this.currentAccount = currentAccount
+        this.peos = new pEosioToken({
           blockchain: process.env.NUXT_ENV_BSC,
           network: process.env.NUXT_ENV_BLOCKCHAIN_NETWORK, 
           pToken: process.env.NUXT_ENV_PTOKEN,
@@ -25,11 +29,17 @@ export default (context, inject) => {
           eosRpc: this.eos.rpc,
           eosSignatureProvider: this.wallet.provider.signatureProvider
         })
+      },
 
-        const start = () =>
+      async swapToBsc() { 
+        if(!this.peos || !this.currentAccount) {
+          console.error('init peos first');
+        }
+
+        const swap = () =>
           new Promise((resolve, reject) => {
             // TODO: amount from input
-            peos.issue('0.001', currentAccount[0], 
+            this.peos.issue('0.001', this.currentAccount[0], 
               { 
                 blocksBehind: 3, 
                 expireSeconds: 60, 
@@ -51,11 +61,40 @@ export default (context, inject) => {
             .then(() => resolve())
             .catch(_err => reject(_err))
           })
-        await start()
+        await swap()
 
       },
-      async swapToEos(currentAccount, currentProvider) { 
-        // TODO
+      async swapToEos() { 
+        if(!this.peos || !this.currentAccount) {
+          console.error('init peos first');
+        }
+
+        const swap = () =>
+          new Promise((resolve, reject) => {
+            // TODO: amount from input
+            this.peos.redeem('0.001', this.wallet.auth.accountName, 
+              { 
+                blocksBehind: 3, 
+                expireSeconds: 60, 
+                permission: 'active',
+                actor: this.wallet.auth.accountName
+              })
+            .once('nativeTxConfirmed', () => {
+              console.log('nativeTxConfirmed')
+            })
+            .once('nodeReceivedTx', () => {
+              console.log('nodeReceivedTx')
+            })
+            .once('nodeBroadcastedTx', () => {
+              console.log('nodeBroadcastedTx')
+            })
+            .once('hostTxConfirmed', () => {
+              console.log('hostTxConfirmed')
+            })
+            .then(() => resolve())
+            .catch(_err => reject(_err))
+          })
+        await swap()
       }
     }
   })
