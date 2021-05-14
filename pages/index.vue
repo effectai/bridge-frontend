@@ -79,7 +79,12 @@
                 <div v-if="currentAccount.length != 0">
                     <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
-
+   
+                <div v-if="currentAccount.length != 0">
+                  <a class="button is-danger" @click="onSwap('bsc')">
+                    <strong>Test EOS -> ETH swap 🚧</strong>
+                  </a>
+                </div>
             </div>
         </div>
     </section>
@@ -92,7 +97,6 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 //StandaloneClient
 import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
-
 
 const walletProvider = new WalletConnectProvider({
     rpc: {
@@ -121,7 +125,8 @@ export default {
             web3Provider: null,
             currentAccount: [],
             walletConnected: null, //Figure out how to update this dynamically. Probably during `mounted`
-            currentProvider: null
+            currentProvider: null,
+            swapFrom: null
         }
     },
 
@@ -178,6 +183,14 @@ export default {
             } catch (bscError) {
               console.error(bscError)
             }
+        },
+
+        async onSwap(to) {
+          if (to == 'eos') {
+            // TODO
+          } else if (to == 'bsc') {
+            this.$ptokens.swapToBsc(this.currentAccount, this.currentProvider)
+          }
         },
 
         // Web3provider
@@ -255,8 +268,7 @@ export default {
             }
         },
 
-        // async isConnected
-
+        // async isConnected   
     },
 
     created() {

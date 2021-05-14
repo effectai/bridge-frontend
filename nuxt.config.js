@@ -35,7 +35,8 @@ export default {
   plugins: [
     { src: '@/plugins/transit.js', mode: 'client' },
     { src: '@/plugins/wallet.js', mode: 'client' },
-    { src: '@/plugins/eos.js', mode: 'client' }
+    { src: '@/plugins/eos.js', mode: 'client' },
+    { src: '@/plugins/ptokens.js', mode: 'client' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
