@@ -46,6 +46,7 @@ export default (context, inject) => {
                 permission: 'active',
                 actor: this.wallet.auth.accountName
               })
+            // handle events
             .once('nativeTxConfirmed', () => {
               console.log('nativeTxConfirmed')
             })
@@ -64,6 +65,10 @@ export default (context, inject) => {
         await swap()
 
       },
+
+      // Haven't been able to test this one, because the minimal swap amount is like 1.000.000 EOS or something. 
+      // And it can only be tested on mainnet
+      // Error I get: 'Impossible to issue less than 1000000'
       async swapToEos() { 
         if(!this.peos || !this.currentAccount) {
           console.error('init peos first');
@@ -79,6 +84,7 @@ export default (context, inject) => {
                 permission: 'active',
                 actor: this.wallet.auth.accountName
               })
+            // handle events
             .once('nativeTxConfirmed', () => {
               console.log('nativeTxConfirmed')
             })

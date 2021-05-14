@@ -84,6 +84,7 @@
                   <a class="button is-danger" @click="onSwap('bsc')">
                     <strong>Test EOS -> ETH swap 🚧</strong>
                   </a>
+                  <br>
                   <a class="button is-danger" @click="onSwap('eos')">
                     <strong>Test ETH -> EOS swap 🚧</strong>
                   </a>
@@ -188,6 +189,7 @@ export default {
         },
 
         async onSwap(to) {
+          console.log('Start swap...')
           this.$ptokens.init(this.currentProvider, this.currentAccount)
           if (to == 'eos') {
             this.$ptokens.swapToEos()
@@ -272,6 +274,7 @@ export default {
         },
 
         // async isConnected   
+
     },
 
     created() {
