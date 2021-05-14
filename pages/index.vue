@@ -8,8 +8,8 @@
                 <br>
                 <div v-if="!wallet">
                     <a class="button is-secondary" @click="$wallet.loginModal = true">
-                                        <strong>Connect EOS 🖖</strong>
-                                      </a>
+                                            <strong>Connect EOS 🖖</strong>
+                                          </a>
                 </div>
                 <div v-else>
                     <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
@@ -19,60 +19,60 @@
                 <br>
                 <div v-if="isAccountConnected">
                     <a class="button is-secondary" :disabled="currentProvider != null">
-                                        <strong>Metamask Connected 🦊</strong>
-                                      </a>
+                                            <strong>Metamask Connected 🦊</strong>
+                                          </a>
                 </div>
                 <div v-else-if="!this.isMetaMaskInstalled">
                     <a class="button is-secondary" @click="this.onMetaMaskConnect">
-                                        <strong>Connect Metamask 🦊</strong>
-                                      </a>
+                                            <strong>Connect Metamask 🦊</strong>
+                                          </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
-                                        <strong>Install MetaMask 🦊</strong>
-                                      </a>
+                                            <strong>Install MetaMask 🦊</strong>
+                                          </a>
                 </div>
 
                 <!-- Binance -->
                 <br>
                 <div v-if="isAccountConnected">
                     <a class="button is-secondary" :disabled="currentProvider != null">
-                                        <strong>Binance Connected🔶</strong>
-                                      </a>
+                                            <strong>Binance Connected🔶</strong>
+                                          </a>
                 </div>
                 <div v-else-if="isBinanceInstalled">
                     <a class="button is-secondary" @click="this.onBinanceConnect">
-                                        <strong>Connect BSC Wallet 🔶</strong>
-                                      </a>
+                                            <strong>Connect BSC Wallet 🔶</strong>
+                                          </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
-                                                <strong>Install BSC Wallet 🔶</strong>
-                                              </a>
+                                                    <strong>Install BSC Wallet 🔶</strong>
+                                                  </a>
                 </div>
 
                 <!-- WalletConnect -->
                 <br>
                 <div>
                     <a class="button is-secondary" @click="this.onWalletConnect" :disabled="currentProvider != null">
-                                                <strong>WalletConnect 📱</strong>
-                                              </a>
+                                                    <strong>WalletConnect 📱</strong>
+                                                  </a>
                 </div>
 
                 <!-- Disconnect // Figure out how we can do this.  -->
                 <br>
                 <div>
                     <a class="button is-danger" :disabled="this.walletConnected || this.currentProvider == null">
-                                        <strong>Disconnect 🚧</strong>
-                                      </a>
+                                            <strong>Disconnect 🚧</strong>
+                                          </a>
                 </div>
 
                 <!-- Educational Resources -->
                 <br>
                 <div>
                     <a class="button is-warning" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
-                                        <strong>Learn how to connect 📞</strong>
-                                      </a>
+                                            <strong>Learn how to connect 📞</strong>
+                                          </a>
                 </div>
 
                 <br>
@@ -170,13 +170,13 @@ export default {
 
         async onBinanceConnect() {
             try {
-                console.log('Connecting Binance')
-                this.currentProvider = this.binance
-                this.currentAccount = await this.binance.request({
-                    method: 'eth_requestAccounts'
-                })
+              console.log('Connecting Binance')
+              this.currentProvider = this.binance
+              this.currentAccount = await this.binance.request({
+                method: 'eth_requestAccounts'
+              })
             } catch (bscError) {
-                console.error(bscError)
+              console.error(bscError)
             }
         },
 
@@ -189,13 +189,28 @@ export default {
         //     // const web3 = new Web3(walletConnectProvider)
         // },
 
+        // How does WalletConnect know that it needs to be on the binance chain?
         async onWalletConnect() {
-          // Create a connector
-          const connector = new WalletConnect({
-            bridge: "https://bridge.walletconnect.org", // Required
-            qrcodeModal: QRCodeModal,
-          });
-          connector.createSession()
+            // Create a connector
+            const connector = new WalletConnect({
+                bridge: "https://bridge.walletconnect.org", // Required
+                qrcodeModal: QRCodeModal,
+                qrcodeModalOptions: {
+                    mobileLinks: [
+                        "metamask",
+                        "trust",
+                        "rainbow",
+                        "argent"
+                    ]
+                }
+            });
+            if(!connector.connected){
+              connector.createSession()
+              console.log(`
+                ChainID: ${connector.chainId}
+                networkID: ${connector.networkId}
+              `)
+            }
         },
 
         async walletDisconnect() {
@@ -246,29 +261,29 @@ export default {
 
     created() {
 
-        if (this.web3Provider) {
+        if (this.currentProvider) {
 
-            // this.web3Provider.on('connect', () => {
-            //     console.log('Connecting')
-            //     this.walletConnected = true
-            // })
+            this.currentProvider.on('connect', () => {
+                console.log('Connecting')
+                this.walletConnected = true
+            })
 
-            // this.web3Provider.on('disconnect', () => {
-            //     console.log('Diconnecting')
-            //     this.walletConnected = false
-            // })
+            this.currentProvider.on('disconnect', () => {
+                console.log('Diconnecting')
+                this.walletConnected = false
+            })
 
-            // // Inform vue which account is the selected account in metamask
-            // this.web3Provider.on('accountsChanged', (newAccount) => {
-            //     console.log("Changing selected account")
-            //     this.currentAccount = newAccount
-            // })
+            // Inform vue which account is the selected account in metamask
+            this.currentProvider.on('accountsChanged', (newAccount) => {
+                console.log("Changing selected account")
+                this.currentAccount = newAccount
+            })
 
-            // // inform user that they are not on the right chain
-            // this.web3Provider.on('chainChanged', console.log)
+            // inform user that they are not on the right chain
+            this.currentProvider.on('chainChanged', console.log)
 
-            // // Inform user that they are not on the right network.
-            // this.web3Provider.on('networkChanged', console.log)
+            // Inform user that they are not on the right network.
+            this.currentProvider.on('networkChanged', console.log)
 
         }
 
