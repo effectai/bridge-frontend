@@ -351,7 +351,6 @@ export default {
                 Metamask: ${this.metamask}
                 Binance: ${this.binance}
                 WalletConnect: ${this.walletConnect}
-                isEthereumConnected: ${this.metamask.isConnected()}
             `)
 
         }
