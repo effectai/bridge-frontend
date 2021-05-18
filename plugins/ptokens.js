@@ -31,15 +31,14 @@ export default (context, inject) => {
         })
       },
 
-      async swapToBsc() { 
+      async swapToBsc(amount) { 
         if(!this.peos || !this.currentAccount) {
           console.error('init peos first');
         }
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            // TODO: amount from input
-            this.peos.issue('0.001', this.currentAccount[0], 
+            this.peos.issue(amount, this.currentAccount[0], 
               { 
                 blocksBehind: 3, 
                 expireSeconds: 60, 
@@ -66,18 +65,17 @@ export default (context, inject) => {
 
       },
 
-      // Haven't been able to test this one, because the minimal swap amount is like 1.000.000 EOS or something. 
+      // Haven't been able to test this one, because the minimal swap amount is like 1.000.000.000 EOS or 10?
       // And it can only be tested on mainnet
-      // Error I get: 'Impossible to issue less than 1000000'
-      async swapToEos() { 
+      // Error I get: 'Impossible to issue less than 1000000000'
+      async swapToEos(amount) { 
         if(!this.peos || !this.currentAccount) {
           console.error('init peos first');
         }
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            // TODO: amount from input
-            this.peos.redeem('1000000000', this.wallet.auth.accountName, 
+            this.peos.redeem(amount, this.wallet.auth.accountName, 
               { 
                 blocksBehind: 3, 
                 expireSeconds: 60, 

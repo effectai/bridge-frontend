@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@binance-chain/bsc-connector": "^1.0.0",
+    "@fortawesome/fontawesome-free": "^5.15.3",
     "@nuxtjs/axios": "^5.13.1",
     "@walletconnect/client": "^1.4.1",
     "@walletconnect/qrcode-modal": "^1.4.1",

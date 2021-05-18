@@ -28,6 +28,7 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
+    '@fortawesome/fontawesome-free/css/all.css',
     '@/assets/scss/global.scss'
   ],
 

@@ -95,16 +95,9 @@
                 <div v-if="currentAccount.length != 0">
                     <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
-   
-                <div v-if="currentAccount.length != 0">
-                  <a class="button is-danger" @click="onSwap('bsc')">
-                    <strong>Test EOS -> ETH swap 🚧</strong>
-                  </a>
-                  <br>
-                  <a class="button is-danger" @click="onSwap('eos')">
-                    <strong>Test ETH -> EOS swap 🚧</strong>
-                  </a>
-                </div>
+
+                <swap-form :account="currentAccount" :provider="currentProvider"></swap-form>
+                
             </div>
         </div>
     </section>
@@ -116,14 +109,8 @@
  * https://docs.binance.org/walletconnect.html
  */
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import SwapForm from '@/components/SwapForm';
 
-<<<<<<< HEAD
-//StandaloneClient
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
-
-=======
->>>>>>> 27b81be92abb660ffd579915ee91759cc07ad6b6
 const walletProvider = new WalletConnectProvider({
     chainId: 1, // For some reason chainID needs to be 1.
     rpc: {
@@ -138,6 +125,9 @@ const walletProvider = new WalletConnectProvider({
 })
 
 export default {
+    components: {
+        SwapForm
+    },
     data() {
         return {
             metamask: window.ethereum || null,
@@ -184,7 +174,6 @@ export default {
                 this.currentAccount = await this.currentProvider.request({
                     method: 'eth_requestAccounts'
                 })
-                this.registerProviderListener()
             } catch (mmError) {
                 console.error(mmError)
             }
@@ -198,20 +187,9 @@ export default {
                 this.currentAccount = await this.currentProvider.request({
                     method: 'eth_requestAccounts'
                 })
-                this.registerProviderListener()
             } catch (bscError) {
                 console.error(bscError)
             }
-        },
-
-        async onSwap(to) {
-          console.log('Start swap...')
-          this.$ptokens.init(this.currentProvider, this.currentAccount)
-          if (to == 'eos') {
-            this.$ptokens.swapToEos()
-          } else if (to == 'bsc') {
-            this.$ptokens.swapToBsc()
-          }
         },
 
         // Web3provider
@@ -292,11 +270,7 @@ export default {
                 }
             }
 
-<<<<<<< HEAD
-        // async isConnected   
-=======
         },
->>>>>>> 27b81be92abb660ffd579915ee91759cc07ad6b6
 
         async addChain() {
 
