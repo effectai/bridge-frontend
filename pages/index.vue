@@ -61,20 +61,12 @@
 
 
                 <!-- Disconnect // Figure out how we can do this.  -->
-                <br>
+                <!-- <br>
                 <div>
                     <a class="button is-warning" @click="this.disconnectAccount" :disabled="this.currentProvider == null">
                                                                                                 <strong>Disconnect 🚧</strong>
                                                                                               </a>
-                </div>
-
-                <!-- Educational Resources -->
-                <br>
-                <div>
-                    <a class="button is-warning" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
-                                                                                                <strong>Learn how to connect 📞</strong>
-                                                                                              </a>
-                </div>
+                </div> -->
 
                 <br>
                 <div v-if="currentAccount.length != 0">
@@ -83,6 +75,15 @@
 
                 <!-- // TODO: when both wallets are connected and swapfield filled in with number -->
                 <swap-form :disabled="swapDisabled" :account="currentAccount" :provider="currentProvider"></swap-form>
+
+
+                <!-- Educational Resources -->
+                <br>
+                <div>
+                    <a class="button is-warning" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
+                                                                                                <strong>Learn how to connect 📞</strong>
+                                                                                              </a>
+                </div>
 
             </div>
         </div>
@@ -101,7 +102,7 @@ import QRCodeModal from "@walletconnect/qrcode-modal";
 const walletProvider = new WalletConnectProvider({
     chainId: 1, // For some reason chainID needs to be 1.
     rpc: {
-        1: "https://data-seed-prebsc-1-s3.binance.org:8545/"
+        1: process.env.NUXT_ENV_BSC_RPC
     },
     bridge: "https://bridge.walletconnect.org", // redundant?
     qrcode: true, // redundant?
@@ -120,7 +121,7 @@ export default {
             metamask: window.ethereum || null,
             binance: window.BinanceChain || null,
             walletConnect: walletProvider || null, //connect to mobile wallet; trust, metamask, ...
-            web3Provider: null,
+            walletProvider: walletProvider || null,
             currentAccount: [],
             walletConnected: null, // Does it make sense to do this at the beginning?
             currentProvider: null,
@@ -152,7 +153,6 @@ export default {
             try {
                 console.log('Connecting MetaMask')
                 this.registerProviderListener(this.metamask)
-                this.addChain()
                 this.currentAccount = await this.currentProvider.request({
                     method: 'eth_requestAccounts'
                 })
@@ -168,7 +168,6 @@ export default {
             try {
                 console.log('Connecting Binance')
                 this.registerProviderListener(this.binance)
-                this.addChain()
                 this.currentAccount = await this.currentProvider.request({
                     method: 'eth_requestAccounts'
                 })
@@ -181,7 +180,6 @@ export default {
 
             try {
                 this.registerProviderListener(walletProvider)
-                this.addChain()
                 console.log('Does this work here?')
                 // Launches QR-Code Modal
                 await walletProvider.enable()
@@ -231,23 +229,22 @@ export default {
         async addChain() {
             const chainId = this.getCurrentChainNetwork();
 
-            if (chainId != this.bscTestnetHexId) {
+            if (chainId != process.env.NUXT_ENV_BSC_HEX_ID) {
                 try {
 
                     if (this.currentProvider == this.metamask) {
 
                         // Create BSC network configuration object.
-                        // TODO: This needs to be changed to the correct configuration. This should be properly defined above, or in a configuration file.
                         const chainObject = {
-                            chainId: this.bscTestnetHexId,
-                            chainName: "Binance Smart Chain Testnet",
+                            chainId: process.env.NUXT_ENV_BSC_NETWORK_ID,
+                            chainName: process.env.NUXT_ENV_CHAIN_NAME,
                             nativeCurrency: {
-                                name: "Binance Chain Token",
-                                symbol: 'BNB',
+                                name: process.env.NUXT_ENV_TOKEN_NAME,
+                                symbol: process.env.NUXT_ENV_TOKEN_SYMBOL,
                                 decimals: 18
                             },
-                            rpcUrls: ['https://data-seed-prebsc-1-s3.binance.org:8545/'],
-                            blockExplorerUrls: ['https://testnet.bscscan.com']
+                            rpcUrls: [process.env.NUXT_ENV_BSC_RPC],
+                            blockExplorerUrls: [process.env.NUXT_ENV_BLOCKEXPLORER]
                         }
                         // This method is only available for metamask right now.
                         const updatedChainId = await this.currentProvider.request({
@@ -300,7 +297,8 @@ export default {
             // Change boolean of walletconnected status
             this.walletConnected = true
 
-            // Connection status does not refer to connection with wallet, it just means that connection with provider is available and thus requests can be made to it.
+            // Connection status does not refer to connection with wallet
+            // it just means that connection with provider is available and thus requests can be made to it.
 
             // Connected, requests can be made to provider.
             this.currentProvider.on('connect', () => {
@@ -322,10 +320,12 @@ export default {
 
             // Inform user of chain change
             this.currentProvider.on('chainChanged', (_chainId) => {
-                if (_chainId != this.bscTestnetHexId) {
-                    alert(`Please switch to the correct chain: Binance Smart Chain, Mainnet, chainId: ${this.bscMainnetID}`)
+                if (_chainId != process.env.NUXT_ENV_BSC_HEX_ID) {
+                    alert(`Please switch to the correct chain: Binance Smart Chain, Mainnet, chainId: ${process.env.NUXT_ENV_BSC_NETWORK_ID}`)
                 }
             })
+
+            this.addChain()
 
         },
 
@@ -342,7 +342,6 @@ export default {
             isEthereumConnected: ${this.metamask.isConnected()}
         `)
 
-        this.binance.isConnected().then(console.log).catch(console.error)
     },
 }
 </script>
