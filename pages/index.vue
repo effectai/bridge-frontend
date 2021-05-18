@@ -8,8 +8,8 @@
                 <br>
                 <div v-if="!wallet">
                     <a class="button is-secondary" @click="$wallet.loginModal = true">
-                                            <strong>Connect EOS 🖖</strong>
-                                          </a>
+                                                                                                <strong>Connect EOS 🖖</strong>
+                                                                                              </a>
                 </div>
                 <div v-else>
                     <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
@@ -19,75 +19,83 @@
                 <br>
                 <div v-if="isAccountConnected">
                     <a class="button is-secondary" :disabled="currentProvider != null">
-                                            <strong>Metamask Connected 🦊</strong>
-                                          </a>
+                                                                                                <strong>Metamask Connected 🦊</strong>
+                                                                                              </a>
                 </div>
                 <div v-else-if="!this.isMetaMaskInstalled">
                     <a class="button is-secondary" @click="this.onMetaMaskConnect">
-                                            <strong>Connect Metamask 🦊</strong>
-                                          </a>
+                                                                                                <strong>Connect Metamask 🦊</strong>
+                                                                                              </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
-                                            <strong>Install MetaMask 🦊</strong>
-                                          </a>
+                                                                                                <strong>Install MetaMask 🦊</strong>
+                                                                                              </a>
                 </div>
 
                 <!-- Binance -->
                 <br>
                 <div v-if="isAccountConnected">
                     <a class="button is-secondary" :disabled="currentProvider != null">
-                                            <strong>Binance Connected🔶</strong>
-                                          </a>
+                                                                                                <strong>Binance Connected 🔶</strong>
+                                                                                              </a>
                 </div>
                 <div v-else-if="isBinanceInstalled">
                     <a class="button is-secondary" @click="this.onBinanceConnect">
-                                            <strong>Connect BSC Wallet 🔶</strong>
-                                          </a>
+                                                                                                <strong>Connect BSC Wallet 🔶</strong>
+                                                                                              </a>
                 </div>
                 <div v-else>
                     <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
-                                                    <strong>Install BSC Wallet 🔶</strong>
-                                                  </a>
+                                                                                                        <strong>Install BSC Wallet 🔶</strong>
+                                                                                                      </a>
                 </div>
 
-                <!-- WalletConnect -->
+                <!-- WalletConnect Web3 -->
                 <br>
                 <div>
-                    <a class="button is-secondary" @click="this.onWalletConnect" :disabled="currentProvider != null">
-                                                    <strong>WalletConnect 📱</strong>
-                                                  </a>
+                    <a class="button is-secondary" @click="this.onWalletConnectWeb3" :disabled="currentProvider != null">
+                                                                                                        <strong>WalletConnect Web3 📱</strong>
+                                                                                                      </a>
+                </div>
+
+                <!-- Change Chain -->
+                <br>
+                <div>
+                    <a class="button is-secondary" @click="this.addChain" :disabled="false">
+                                                                                                        <strong>Add Chain 🔌</strong>
+                                                                                                      </a>
                 </div>
 
                 <!-- Disconnect // Figure out how we can do this.  -->
                 <br>
                 <div>
-                    <a class="button is-danger" :disabled="this.walletConnected || this.currentProvider == null">
-                                            <strong>Disconnect 🚧</strong>
-                                          </a>
+                    <a class="button is-warning" @click="this.disconnectAccount" :disabled="this.currentProvider == null">
+                                                                                                <strong>Disconnect 🚧</strong>
+                                                                                              </a>
                 </div>
 
                 <!-- Educational Resources -->
                 <br>
                 <div>
                     <a class="button is-warning" href="https://docs.pancakeswap.finance/get-started/connection-guide" target="_blank">
-                                            <strong>Learn how to connect 📞</strong>
-                                          </a>
+                                                                                                <strong>Learn how to connect 📞</strong>
+                                                                                              </a>
                 </div>
 
                 <br>
                 <div v-if="currentAccount.length != 0">
                     <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
-   
+
                 <div v-if="currentAccount.length != 0">
-                  <a class="button is-danger" @click="onSwap('bsc')">
-                    <strong>Test EOS -> ETH swap 🚧</strong>
-                  </a>
-                  <br>
-                  <a class="button is-danger" @click="onSwap('eos')">
-                    <strong>Test ETH -> EOS swap 🚧</strong>
-                  </a>
+                    <a class="button is-danger" @click="onSwap('bsc')">
+                            <strong>Test EOS -> ETH swap 🚧</strong>
+                          </a>
+                    <br>
+                    <a class="button is-danger" @click="onSwap('eos')">
+                            <strong>Test ETH -> EOS swap 🚧</strong>
+                          </a>
                 </div>
             </div>
         </div>
@@ -95,30 +103,25 @@
 </template>
 
 <script>
-//web3 provider
+/**
+ * When using the walletconnect protocol we need to make sure to use the custom requests.
+ * https://docs.binance.org/walletconnect.html
+ */
 import WalletConnectProvider from "@walletconnect/web3-provider";
-
-//StandaloneClient
-import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
 
 const walletProvider = new WalletConnectProvider({
+    chainId: 1, // For some reason chainID needs to be 1.
     rpc: {
-        97: "https://data-seed-prebsc-1-s1.binance.org:8545/", //testnet
-        56: "https://bsc-dataseed.binance.org/" //mainnet
+        1: "https://data-seed-prebsc-1-s3.binance.org:8545/"
     },
+    bridge: "https://bridge.walletconnect.org", // redundant?
+    qrcode: true, // redundant?
+    qrcodeModal: QRCodeModal, //redundant?
     qrcodeModalOptions: {
-        mobileLinks: [
-            "metamask",
-            "trust",
-            "rainbow",
-            "argent",
-            "imtoken",
-            "pillar"
-        ]
+        mobileLinks: ["metamask", "trust", "rainbow", "argent"]
     }
 })
-
 
 export default {
     data() {
@@ -128,8 +131,14 @@ export default {
             walletConnect: walletProvider || null, //connect to mobile wallet; trust, metamask, ...
             web3Provider: null,
             currentAccount: [],
-            walletConnected: null, //Figure out how to update this dynamically. Probably during `mounted`
-            currentProvider: null
+            walletConnected: null, // Does it make sense to do this at the beginning?
+            currentProvider: null,
+            bscTestnetId: 97,
+            bscTestnetHexId: '0x61',
+            bscTestnetRPC: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+            bscMainnetID: 56,
+            bascMainnetHexId: '0x38',
+            bscMainnetRPC: 'https://bsc-dataseed.binance.org/'
         }
     },
 
@@ -148,163 +157,218 @@ export default {
         },
 
         isAccountConnected() {
-            // const web3Provider
-            // walletProvider.
-            // return this.metamask.listAccounts()
-        },
-
-        // currentAccount() {
-        //     return this.currentAccount[0];
-        // },
-
-        // currentProvider() {
-        //     return this.currentProvider
-        // }
-
+            return this.currentAccount > 0
+        }
     },
 
     methods: {
         async onMetaMaskConnect() {
             try {
                 console.log('Connecting MetaMask')
-                this.currentProvider = this.metamask
+                this.registerProviderListener(this.metamask)
+                this.addChain()
                 this.currentAccount = await this.currentProvider.request({
                     method: 'eth_requestAccounts'
                 })
             } catch (mmError) {
                 console.error(mmError)
+                if (mmError.code === 4001) { //User rejected request:: EIP-1193
+                    alert("Please connect to metamask.")
+                }
             }
         },
 
         async onBinanceConnect() {
             try {
-              console.log('Connecting Binance')
-              this.currentProvider = this.binance
-              this.currentAccount = await this.binance.request({
-                method: 'eth_requestAccounts'
-              })
+                console.log('Connecting Binance')
+                this.registerProviderListener(this.binance)
+                this.addChain()
+                this.currentAccount = await this.currentProvider.request({
+                    method: 'eth_requestAccounts'
+                })
             } catch (bscError) {
-              console.error(bscError)
+                console.error(bscError)
             }
         },
 
         async onSwap(to) {
-          console.log('Start swap...')
-          this.$ptokens.init(this.currentProvider, this.currentAccount)
-          if (to == 'eos') {
-            this.$ptokens.swapToEos()
-          } else if (to == 'bsc') {
-            this.$ptokens.swapToBsc()
-          }
-        },
-
-        // Web3provider
-        // async onWalletConnect() {
-        //     //  Create WalletConnect Provider this is for the qr code mdal pop up at the moment.
-        //     this.currentProvider = walletProvider
-        //     await this.currentProvider.enable()
-        //     //Integrate dapp with the provider
-        //     // const web3 = new Web3(walletConnectProvider)
-        // },
-
-        // How does WalletConnect know that it needs to be on the binance chain?
-        async onWalletConnect() {
-            // Create a connector
-            const connector = new WalletConnect({
-                bridge: "https://bridge.walletconnect.org", // Required
-                qrcodeModal: QRCodeModal,
-                qrcodeModalOptions: {
-                    mobileLinks: [
-                        "metamask",
-                        "trust",
-                        "rainbow",
-                        "argent"
-                    ]
-                }
-            });
-            if(!connector.connected){
-              connector.createSession()
-              console.log(`
-                ChainID: ${connector.chainId}
-                networkID: ${connector.networkId}
-              `)
+            console.log('Start swap...')
+            this.$ptokens.init(this.currentProvider, this.currentAccount)
+            if (to == 'eos') {
+                this.$ptokens.swapToEos()
+            } else if (to == 'bsc') {
+                this.$ptokens.swapToBsc()
             }
         },
 
-        async walletDisconnect() {
+
+
+        async onWalletConnectWeb3() {
+
+            try {
+                this.registerProviderListener(walletProvider)
+                this.addChain()
+                console.log('Does this work here?')
+                // Launches QR-Code Modal
+                await walletProvider.enable()
+
+                //Integrate dapp with the provider
+                // const web3 = new Web3(walletConnectProvider)
+
+            } catch (walletConnectError) {
+                console.error(walletConnectError)
+            }
+        },
+
+
+        // only works for wallet disconnect at the moment.
+        async walletConnectDisconnect() {
             await this.currentProvider.disconnect();
         },
 
-        //Does not properly work at the moment.
+        //Does not properly work at the moment, does not work at the moment - CONCEPT
         async disconnectAccount() {
             console.log('Disconnecting')
 
-            try {
-                await this.currentProvider.request({
-                    method: "wallet_requestPermissions",
-                    params: [{ eth_accounts: {} }]
-                })
-            } catch (disconnectError) {
-                console.error('Error disconnecting from metaMask', disconnectError)
-            }
+            // TODO: figure out how to disconnect wallets
+
+            // This method is accesible on the WalletConnectProvider interface.
+            // await this.currentProvider.disconnect();
         },
 
-        // Handle when the user changes their account number - DOES NOT WORK AT THE MOMENT; CONCEPT
+        // Handle when the user changes their account number
         async handleAccountsChanged(accounts) {
             if (accounts.length === 0) {
                 // MetaMask is locked or the user has not connected any accounts
                 console.log('Please connect to MetaMask.');
             } else if (accounts[0] !== currentAccount) {
                 currentAccount = accounts[0];
-                // Do any other work!
             }
         },
 
-        // Hanlde chain (network) and chainchanged - DOES NOT WORK AT THE MOMENT; CONCEPT
-        async handleChainChange() {
-            const chainId = await ethereum.request({ method: 'eth_chainId' });
-            handleChainChanged(chainId);
+        /**
+         * Method to add the correct chain to the wallet of the user.
+         * method `wallet_addEthereumChain` is not supported on the BinanceChain rpc provider.
+         * We cannot add or remove chains with the Binance Chain wallet.
+         *
+         * But it is currenlty implemented for Metamask
+         * https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain
+         */
+        async addChain() {
+            const chainId = this.getCurrentChainNetwork();
 
-            ethereum.on('chainChanged', handleChainChanged);
+            if (chainId != this.bscTestnetHexId) {
+                try {
 
-            function handleChainChanged(_chainId) {
-                // We recommend reloading the page, unless you must do otherwise
-                window.location.reload();
+                    if (this.currentProvider == this.metamask) {
+
+                        // Create BSC network configuration object.
+                        // TODO: This needs to be changed to the correct configuration. This should be properly defined above, or in a configuration file.
+                        const chainObject = {
+                            chainId: this.bscTestnetHexId,
+                            chainName: "Binance Smart Chain Testnet",
+                            nativeCurrency: {
+                                name: "Binance Chain Token",
+                                symbol: 'BNB',
+                                decimals: 18
+                            },
+                            rpcUrls: ['https://data-seed-prebsc-1-s3.binance.org:8545/'],
+                            blockExplorerUrls: ['https://testnet.bscscan.com']
+                        }
+                        // This method is only available for metamask right now.
+                        const updatedChainId = await this.currentProvider.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [chainObject]
+                        })
+
+                        if (updatedChainId = !null) throw Error(`AddChainError: ${updatedChainId}`)
+                    } else {
+                        // Notify the user to change the chain they are on manually.
+                        alert(`Please update the current chain in your wallet.`)
+                        return
+                    }
+
+                } catch (addChainError) {
+                    console.error(addChainError)
+                }
+            }
+
+        },
+
+        /**
+         * Retrieve current network the wallet is listening to. can be testnet or mainnet of either bsc or ethereum for example.
+         */
+        async getCurrentChainNetwork() {
+            try {
+                return await this.currentProvider({ method: 'eth_chainId' })
+            } catch (error) {
+                console.log('Error requesting currentChain')
             }
         },
 
-        // async isConnected   
+        /**
+         * Method for registering and provider with a web3 object
+         */
+        async registerWeb3(provider) {
+            console.debug(`web3 here.`)
+            const web3 = new Web3(provider)
+            return web3
+        },
 
-    },
+        /**
+         * Assign provider to currentProvider, and register eventlisteners.
+         *
+         */
+        async registerProviderListener(provider) {
+            // assign provider to this.currentProvider, there are differenct provider objects
+            this.currentProvider = provider
 
-    created() {
+            // Change boolean of walletconnected status
+            this.walletConnected = true
 
-        if (this.currentProvider) {
+            // Connection status does not refer to connection with wallet, it just means that connection with provider is available and thus requests can be made to it.
 
+            // Connected, requests can be made to provider.
             this.currentProvider.on('connect', () => {
                 console.log('Connecting')
                 this.walletConnected = true
             })
 
+            // Disconnected, requests can no longer be made with provider.
             this.currentProvider.on('disconnect', () => {
                 console.log('Diconnecting')
                 this.walletConnected = false
             })
 
-            // Inform vue which account is the selected account in metamask
+            // Inform user of account change, only one account can be selected
             this.currentProvider.on('accountsChanged', (newAccount) => {
                 console.log("Changing selected account")
                 this.currentAccount = newAccount
             })
 
-            // inform user that they are not on the right chain
-            this.currentProvider.on('chainChanged', console.log)
+            // Inform user of chain change
+            this.currentProvider.on('chainChanged', (_chainId) => {
+                if (_chainId != this.bscTestnetHexId) {
+                    alert(`Please switch to the correct chain: Binance Smart Chain, Mainnet, chainId: ${this.bscMainnetID}`)
+                }
+            })
 
-            // Inform user that they are not on the right network.
-            this.currentProvider.on('networkChanged', console.log)
+        },
 
-        }
 
+
+    },
+
+    created() {
+
+        console.log(`
+            Metamask: ${this.metamask}
+            Binance: ${this.binance}
+            WalletConnect: ${this.walletConnect}
+            isEthereumConnected: ${this.metamask.isConnected()}
+        `)
+
+        this.binance.isConnected().then(console.log).catch(console.error)
     },
 }
 </script>
