@@ -60,7 +60,10 @@ export default (context, inject) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
             })
             .then(() => resolve())
-            .catch(_err => reject(_err))
+            .catch((_err) =>  {
+              this.$nuxt.$emit('progressUpdate', {error: _err, text: 'Something went wrong'});
+              reject(_err)
+            })
           })
         await swap()
       },
@@ -96,7 +99,10 @@ export default (context, inject) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
             })
             .then(() => resolve())
-            .catch(_err => reject(_err))
+            .catch((_err) =>  {
+              this.$nuxt.$emit('progressUpdate', {error: _err, text: 'Something went wrong'});
+              reject(_err)
+            })
           })
         await swap()
       }

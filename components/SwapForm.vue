@@ -2,9 +2,10 @@
   <div class="columns is-centered mt-4">
     <div class="column is-5">
       <!-- Progress bar -->
-      <div class="progress-block my-6" v-if="this.inProgress">
-        <span>{{this.progressText}}</span>
-        <progress class="progress is-primary" :value="this.progress" max="100"></progress>
+      <div class="progress-block my-6" v-if="this.inProgress || this.swapError">
+        <div v-if="!this.swapError">{{this.progressText}}</div>
+        <div class="notification is-danger" v-if="this.swapError">{{this.swapError}}</div>
+        <progress v-if="!this.swapError" class="progress is-primary" :value="this.progress" max="100"></progress>
       </div>
 
       <!-- Forms -->
@@ -12,7 +13,7 @@
         <h3 class="title is-3">EOS -> BSC</h3>
         <div class="field has-addons">
           <div class="control is-flex-grow-1">
-            <input class="input is-medium" type="text" placeholder="Amount to swap" v-model="efxAmount">
+            <input class="input is-medium" type="number" placeholder="Amount to swap" onkeyup="if(this.value<0){this.value= this.value * -1}" v-model="efxAmount">
           </div>
           <p class="control">
             <a class="button is-static is-medium">
@@ -29,7 +30,7 @@
         <h3 class="title is-3">BSC -> EOS</h3>
         <div class="field has-addons ">
           <div class="control is-flex-grow-1">
-            <input class="input is-medium" type="text" placeholder="Amount to swap" v-model="pefxAmount">
+            <input class="input is-medium" type="number" placeholder="Amount to swap" onkeyup="if(this.value<0){this.value= this.value * -1}" v-model="pefxAmount">
           </div>
           <p class="control">
             <a class="button is-static is-medium">
@@ -41,7 +42,7 @@
           <i class="fas fa-exchange-alt"></i>
         </span>
       </div>
-      <button :disabled="disabled" class="button is-medium is-danger is-fullwidth mt-5" @click="onSwap()">
+      <button :disabled="disabled || (!efxAmount && !pefxAmount)" class="button is-medium is-danger is-fullwidth mt-5" @click="onSwap()">
         <strong>Swap</strong>
       </button>
     </div>
@@ -69,6 +70,7 @@ export default {
       this.inProgress = update.inProgress;
       this.progress = update.progress;
       this.progressText = update.text;
+      this.swapError = update.error;
     });
   },
   methods: {
