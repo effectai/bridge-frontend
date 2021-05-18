@@ -9,9 +9,10 @@
 
       <!-- Forms -->
       <div class="eos-bsc-form" v-if="swapFromEOS">
+        <h3 class="title is-3">EOS -> BSC</h3>
         <div class="field has-addons">
           <div class="control is-flex-grow-1">
-            <input class="input is-medium" type="text" placeholder="Amount" v-model="efxAmount">
+            <input class="input is-medium" type="text" placeholder="Amount to swap" v-model="efxAmount">
           </div>
           <p class="control">
             <a class="button is-static is-medium">
@@ -22,22 +23,13 @@
         <span class="icon" @click="swapFromEOS = !swapFromEOS">
           <i class="fas fa-exchange-alt"></i>
         </span>
-        <div class="field has-addons mt-2">
-          <div class="control is-flex-grow-1">
-            <input class="input is-medium" type="text" placeholder="Amount">
-          </div>
-          <p class="control">
-            <a class="button is-static is-medium">
-              pEFX
-            </a>
-          </p>
-        </div>
       </div>
 
       <div class="bsc-eos-form" v-if="!swapFromEOS">
+        <h3 class="title is-3">BSC -> EOS</h3>
         <div class="field has-addons ">
           <div class="control is-flex-grow-1">
-            <input class="input is-medium" type="text" placeholder="Amount" v-model="pefxAmount">
+            <input class="input is-medium" type="text" placeholder="Amount to swap" v-model="pefxAmount">
           </div>
           <p class="control">
             <a class="button is-static is-medium">
@@ -48,18 +40,8 @@
         <span class="icon" @click="swapFromEOS = !swapFromEOS">
           <i class="fas fa-exchange-alt"></i>
         </span>
-        <div class="field has-addons mt-2">
-          <div class="control is-flex-grow-1">
-            <input class="input is-medium" type="text" placeholder="Amount">
-          </div>
-          <p class="control">
-            <a class="button is-static is-medium">
-              EFX
-            </a>
-          </p>
-        </div>
       </div>
-      <button class="button is-medium is-danger is-fullwidth mt-5" @click="onSwap()">
+      <button :disabled="disabled" class="button is-medium is-danger is-fullwidth mt-5" @click="onSwap()">
         <strong>Swap</strong>
       </button>
     </div>
@@ -69,13 +51,14 @@
 export default {
   props: {
     account: Array,
-    provider: Object
+    provider: Object,
+    disabled: Boolean
   },
   data () {
     return {
       swapFromEOS: true,
-      efxAmount: 0,
-      pefxAmount: 0,
+      efxAmount: null,
+      pefxAmount: null,
       inProgress: false,
       progress: null,
       progressText: null,
