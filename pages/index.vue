@@ -124,12 +124,6 @@ export default {
             currentAccount: [],
             walletConnected: null, // Does it make sense to do this at the beginning?
             currentProvider: null,
-            bscTestnetId: 97,
-            bscTestnetHexId: '0x61',
-            bscTestnetRPC: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-            bscMainnetID: 56,
-            bascMainnetHexId: '0x38',
-            bscMainnetRPC: 'https://bsc-dataseed.binance.org/',
             swapDisabled: true,
         }
     },
