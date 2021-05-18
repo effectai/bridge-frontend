@@ -50,13 +50,13 @@ export default (context, inject) => {
             .once('nativeTxConfirmed', (tx) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 25, text: 'nativeTxConfirmed', tx: tx});
             })
-            .once('nodeReceivedTx', () => {
+            .once('nodeReceivedTx', (tx) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 50, text: 'nodeBroadcastedTx', tx: tx});
             })
-            .once('nodeBroadcastedTx', () => {
+            .once('nodeBroadcastedTx', (tx) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 75, text: 'hostTxConfirmed', tx: tx});
             })
-            .once('hostTxConfirmed', () => {
+            .once('hostTxConfirmed', (tx) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
             })
             .then(() => resolve())
@@ -83,17 +83,17 @@ export default (context, inject) => {
                 actor: this.wallet.auth.accountName
               })
             // handle events
-            .once('nativeTxConfirmed', () => {
-              console.log('nativeTxConfirmed')
+            .once('nativeTxConfirmed', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 25, text: 'nativeTxConfirmed', tx: tx});
             })
-            .once('nodeReceivedTx', () => {
-              console.log('nodeReceivedTx')
+            .once('nodeReceivedTx', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 50, text: 'nodeBroadcastedTx', tx: tx});
             })
-            .once('nodeBroadcastedTx', () => {
-              console.log('nodeBroadcastedTx')
+            .once('nodeBroadcastedTx', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 75, text: 'hostTxConfirmed', tx: tx});
             })
-            .once('hostTxConfirmed', () => {
-              console.log('hostTxConfirmed')
+            .once('hostTxConfirmed', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
             })
             .then(() => resolve())
             .catch(_err => reject(_err))

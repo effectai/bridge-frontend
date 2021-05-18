@@ -81,8 +81,7 @@
                     <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
 
-                <swap-form :account="currentAccount" :provider="currentProvider"></swap-form>
-
+                <swap-form :disabled="swapDisabled" :account="currentAccount" :provider="currentProvider"></swap-form>
 
             </div>
         </div>
@@ -129,7 +128,8 @@ export default {
             bscTestnetRPC: "https://data-seed-prebsc-1-s1.binance.org:8545/",
             bscMainnetID: 56,
             bascMainnetHexId: '0x38',
-            bscMainnetRPC: 'https://bsc-dataseed.binance.org/'
+            bscMainnetRPC: 'https://bsc-dataseed.binance.org/',
+            swapDisabled: true,
         }
     },
 
