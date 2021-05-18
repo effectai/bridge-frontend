@@ -81,7 +81,6 @@
                     <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
 
-                <!-- // TODO: when both wallets are connected and swapfield filled in with number -->
                 <swap-form :disabled="swapDisabled" :account="currentAccount" :provider="currentProvider"></swap-form>
 
             </div>
@@ -144,7 +143,20 @@ export default {
 
         isAccountConnected() {
             return this.currentAccount > 0
-        }
+        },
+        
+        areBothWalletsConnected() {
+          return [this.$wallet.wallet, this.currentProvider];
+        },
+        
+    },
+
+    watch: {
+        areBothWalletsConnected(values) {
+            if (values[0] !== null && values[1] !== null) {
+                this.swapDisabled = false;
+            }
+        },
     },
 
     methods: {
@@ -329,20 +341,20 @@ export default {
 
         },
 
-
-
     },
 
     created() {
 
-        console.log(`
-            Metamask: ${this.metamask}
-            Binance: ${this.binance}
-            WalletConnect: ${this.walletConnect}
-            isEthereumConnected: ${this.metamask.isConnected()}
-        `)
+        if (this.binance && this.metamask !== null) {
+            console.log(`
+                Metamask: ${this.metamask}
+                Binance: ${this.binance}
+                WalletConnect: ${this.walletConnect}
+                isEthereumConnected: ${this.metamask.isConnected()}
+            `)
 
-        this.binance.isConnected().then(console.log).catch(console.error)
+            this.binance.isConnected().then(console.log).catch(console.error)
+        }
     },
 }
 </script>
