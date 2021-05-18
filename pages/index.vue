@@ -15,49 +15,71 @@
                     <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
                 </div>
 
-                <!-- MetaMask -->
-                <br>
-                <div v-if="isAccountConnected">
-                    <a class="button is-secondary" :disabled="currentProvider != null">
-                        <strong>Metamask Connected 🦊</strong>
-                    </a>
-                </div>
-                <div v-else-if="!this.isMetaMaskInstalled">
-                    <a class="button is-secondary" @click="this.onMetaMaskConnect">
-                        <strong>Connect Metamask 🦊</strong>
-                    </a>
-                </div>
-                <div v-else>
-                    <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
-                        <strong>Install MetaMask 🦊</strong>
-                    </a>
-                </div>
-
-                <!-- Binance -->
-                <br>
-                <div v-if="isAccountConnected">
-                    <a class="button is-secondary" :disabled="currentProvider != null">
-                        <strong>Binance Connected 🔶</strong>
-                    </a>
-                </div>
-                <div v-else-if="isBinanceInstalled">
-                    <a class="button is-secondary" @click="this.onBinanceConnect">
-                        <strong>Connect BSC Wallet 🔶</strong>
-                    </a>
-                </div>
-                <div v-else>
-                    <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
-                        <strong>Install BSC Wallet 🔶</strong>
-                    </a>
-                </div>
-
-                <!-- WalletConnect Web3 -->
                 <br>
                 <div>
-                    <a class="button is-secondary" @click="this.onWalletConnectWeb3" :disabled="currentProvider != null">
-                        <strong>WalletConnect Web3 📱</strong>
+                    <a class="button is-secondary" @click="this.toggleBSCModal">
+                        <strong>Connect BSC 🔌</strong>
                     </a>
                 </div>
+
+
+                <div class="modal" :class="{'is-active': this.bscModal}" >
+                  <div class="modal-background"></div>
+                  <div class="modal-card">
+                    <header class="modal-card-head">
+                      <p class="modal-card-title">Connect BSC 🔌</p>
+                      <button class="delete" aria-label="close" @click="this.toggleBSCModal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                       <!-- MetaMask -->
+                      <br>
+                      <div v-if="isAccountConnected">
+                          <a class="button is-secondary" :disabled="currentProvider != null">
+                              <strong>Metamask Connected 🦊</strong>
+                          </a>
+                      </div>
+                      <div v-else-if="!this.isMetaMaskInstalled">
+                          <a class="button is-secondary" @click="this.onMetaMaskConnect">
+                              <strong>Connect Metamask 🦊</strong>
+                          </a>
+                      </div>
+                      <div v-else>
+                          <a class="button is-secondary" href="https://metamask.io/download.html" target="_blank">
+                              <strong>Install MetaMask 🦊</strong>
+                          </a>
+                      </div>
+
+                      <!-- Binance -->
+                      <br>
+                      <div v-if="isAccountConnected">
+                          <a class="button is-secondary" :disabled="currentProvider != null">
+                              <strong>Binance Connected 🔶</strong>
+                          </a>
+                      </div>
+                      <div v-else-if="isBinanceInstalled">
+                          <a class="button is-secondary" @click="this.onBinanceConnect">
+                              <strong>Connect BSC Wallet 🔶</strong>
+                          </a>
+                      </div>
+                      <div v-else>
+                          <a class="button is-secondary" href="https://docs.binance.org/smart-chain/wallet/binance.html" target="_blank">
+                              <strong>Install BSC Wallet 🔶</strong>
+                          </a>
+                      </div>
+
+                      <!-- WalletConnect Web3 -->
+                      <br>
+                      <div>
+                          <a class="button is-secondary" @click="this.onWalletConnectWeb3" :disabled="currentProvider != null">
+                              <strong>WalletConnect Web3 📱</strong>
+                          </a>
+                      </div>
+                    </section>
+                    <footer class="modal-card-foot"></footer>
+                  </div>
+                </div>
+
+
 
 
                 <!-- Disconnect // Figure out how we can do this.  -->
@@ -126,6 +148,7 @@ export default {
             walletConnected: null, // Does it make sense to do this at the beginning?
             currentProvider: null,
             swapDisabled: true,
+            bscModal: false
         }
     },
 
@@ -162,6 +185,11 @@ export default {
     },
 
     methods: {
+
+      toggleBSCModal(){
+        this.bscModal = !this.bscModal
+      },
+
         async onMetaMaskConnect() {
             try {
                 console.log('Connecting MetaMask')
