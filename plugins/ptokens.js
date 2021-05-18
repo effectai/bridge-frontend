@@ -77,7 +77,7 @@ export default (context, inject) => {
         const swap = () =>
           new Promise((resolve, reject) => {
             // TODO: amount from input
-            this.peos.redeem('0.001', this.wallet.auth.accountName, 
+            this.peos.redeem('1000000000', this.wallet.auth.accountName, 
               { 
                 blocksBehind: 3, 
                 expireSeconds: 60, 
