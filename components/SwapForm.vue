@@ -1,6 +1,13 @@
 <template>
   <div class="columns is-centered mt-4">
     <div class="column is-5">
+      <!-- Progress bar -->
+      <div class="progress-block my-6" v-if="this.inProgress">
+        <span>{{this.progressText}}</span>
+        <progress class="progress is-primary" :value="this.progress" max="100"></progress>
+      </div>
+
+      <!-- Forms -->
       <div class="eos-bsc-form" v-if="swapFromEOS">
         <div class="field has-addons">
           <div class="control is-flex-grow-1">
@@ -15,7 +22,7 @@
         <span class="icon" @click="swapFromEOS = !swapFromEOS">
           <i class="fas fa-exchange-alt"></i>
         </span>
-        <div class="field has-addons">
+        <div class="field has-addons mt-2">
           <div class="control is-flex-grow-1">
             <input class="input is-medium" type="text" placeholder="Amount">
           </div>
@@ -41,7 +48,7 @@
         <span class="icon" @click="swapFromEOS = !swapFromEOS">
           <i class="fas fa-exchange-alt"></i>
         </span>
-        <div class="field has-addons">
+        <div class="field has-addons mt-2">
           <div class="control is-flex-grow-1">
             <input class="input is-medium" type="text" placeholder="Amount">
           </div>
@@ -69,8 +76,18 @@ export default {
       swapFromEOS: true,
       efxAmount: 0,
       pefxAmount: 0,
+      inProgress: false,
+      progress: null,
+      progressText: null,
     }
   }, 
+  mounted() {
+    this.$nuxt.$on('progressUpdate', (update) => {
+      this.inProgress = update.inProgress;
+      this.progress = update.progress;
+      this.progressText = update.text;
+    });
+  },
   methods: {
       async onSwap() {
         console.log('Start swap...');
@@ -84,3 +101,8 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.progress::-webkit-progress-value {
+  transition: width 0.5s ease;
+}
+</style>
