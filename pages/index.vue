@@ -81,6 +81,7 @@
                     <strong>Selected Account: {{currentAccount}}</strong>
                 </div>
 
+                <!-- // TODO: when both wallets are connected and swapfield filled in with number -->
                 <swap-form :disabled="swapDisabled" :account="currentAccount" :provider="currentProvider"></swap-form>
 
             </div>
