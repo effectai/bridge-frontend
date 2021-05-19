@@ -21,7 +21,11 @@
 
         <div class="mb-6">
           <h4 v-if="wallet" class="subtitle">Connected EOS account: {{ wallet.auth.accountName }}</h4>
-          <h4 v-if="currentAccount.length != 0" class="subtitle">Connected BSC account: {{ currentAccount[0] }}</h4>
+
+          <div v-if="currentAccount.lenght != 0">
+            <h4 class="subtitle">Connected BSC address: {{ currentAccount[0] }}</h4>
+            <p>Balance BSC: {{ this.bscWalletBalance }}</p>
+          </div>
         </div>
 
         <div class="modal" :class="{'is-active': this.bscModal}">
@@ -139,6 +143,10 @@
   import SwapForm from '@/components/SwapForm';
   import QRCodeModal from "@walletconnect/qrcode-modal";
 
+  import Web3 from 'web3'
+  const web3 = new Web3()
+
+
   const walletProvider = new WalletConnectProvider({
     chainId: 1, // For some reason chainID needs to be 1.
     rpc: {
@@ -166,7 +174,8 @@
         walletConnected: null, // Does it make sense to do this at the beginning?
         currentProvider: null,
         swapDisabled: true,
-        bscModal: false
+        bscModal: false,
+        bscWalletBalance: 0
       }
     },
 
@@ -185,12 +194,12 @@
       },
 
       isAccountConnected() {
-        return this.currentAccount > 0
+        return this.currentAccount.length > 0
       },
 
       areBothWalletsConnected() {
         return [this.$wallet.wallet, this.currentProvider];
-      },
+      }
 
     },
 
@@ -204,6 +213,24 @@
 
     methods: {
 
+      async getBscBalance() {
+
+        console.log(this.currentAccount)
+
+        try {
+          const response = await this.currentProvider.request({
+            method: 'eth_getBalance',
+            params: [
+              this.currentAccount[0]
+            ]
+          })
+          this.bscWalletBalance = web3.utils.fromWei(response)
+        } catch (balanceError) {
+          console.error(balanceError)
+        }
+
+      },
+
       toggleBSCModal() {
         this.bscModal = !this.bscModal
       },
@@ -215,6 +242,8 @@
           this.currentAccount = await this.currentProvider.request({
             method: 'eth_requestAccounts'
           })
+          this.getBscBalance()
+
         } catch (mmError) {
           console.error(mmError)
           if (mmError.code === 4001) { //User rejected request:: EIP-1193
@@ -230,6 +259,7 @@
           this.currentAccount = await this.currentProvider.request({
             method: 'eth_requestAccounts'
           })
+          this.getBscBalance()
         } catch (bscError) {
           console.error(bscError)
         }
@@ -242,6 +272,8 @@
           console.log('Does this work here?')
           // Launches QR-Code Modal
           await walletProvider.enable()
+
+          this.getBscBalance()
 
           //Integrate dapp with the provider
           // const web3 = new Web3(walletConnectProvider)
@@ -295,7 +327,7 @@
 
               // Create BSC network configuration object.
               const chainObject = {
-                chainId: process.env.NUXT_ENV_BSC_NETWORK_ID,
+                chainId: process.env.NUXT_ENV_BSC_HEX_ID,
                 chainName: process.env.NUXT_ENV_CHAIN_NAME,
                 nativeCurrency: {
                   name: process.env.NUXT_ENV_TOKEN_NAME,
@@ -311,7 +343,7 @@
                 params: [chainObject]
               })
 
-              if (updatedChainId = !null) throw Error(`AddChainError: ${updatedChainId}`)
+              if (updatedChainId =! null) throw Error(`AddChainError: ${updatedChainId}`)
             } else {
               // Notify the user to change the chain they are on manually.
               alert(`Please update the current chain in your wallet.`)
@@ -389,7 +421,6 @@
         })
 
         this.addChain()
-
       },
 
     },
