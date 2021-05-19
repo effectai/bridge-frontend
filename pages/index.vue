@@ -3,25 +3,26 @@
         <div class="container">
             <div class="has-text-centered">
                 <h2 class="title">Welcome to the Effect Bridge</h2>
-
-                <!-- EOS -->
-                <br>
-                <div v-if="!wallet">
-                    <a class="button is-secondary" @click="$wallet.loginModal = true">
-                        <strong>Connect EOS 🖖</strong>
-                    </a>
-                </div>
-                <div v-else>
-                    <h4 class="subtitle">{{ wallet.auth.accountName }}</h4>
-                </div>
-
-                <br>
-                <div>
-                    <a class="button is-secondary" @click="this.toggleBSCModal">
-                        <strong>Connect BSC 🔌</strong>
-                    </a>
+                <div class="columns is-centered my-6" v-if="!wallet || currentAccount.length == 0">
+                    <div class="field is-grouped">
+                        <!-- EOS -->
+                        <p class="control">
+                            <a v-if="!wallet" class="button is-secondary" @click="$wallet.loginModal = true">
+                                <strong>Connect EOS 🖖</strong>
+                            </a>
+                        </p>
+                        <p class="control">
+                            <a v-if="currentAccount.length == 0" class="button is-secondary" @click="this.toggleBSCModal">
+                                <strong>Connect BSC 🔌</strong>
+                            </a>
+                        </p>
+                    </div>
                 </div>
 
+                <div class="mb-6">
+                    <h4 v-if="wallet" class="subtitle">Connected EOS account: {{ wallet.auth.accountName }}</h4>
+                    <h4 v-if="currentAccount.length != 0" class="subtitle">Connected BSC account: {{ currentAccount[0] }}</h4>
+                </div>
 
                 <div class="modal" :class="{'is-active': this.bscModal}" >
                   <div class="modal-background"></div>
@@ -90,10 +91,6 @@
                                                                                                           </a>
                             </div> -->
 
-                <br>
-                <div v-if="currentAccount.length != 0">
-                    <strong>Selected Account: {{currentAccount}}</strong>
-                </div>
 
                 <!-- // TODO: when both wallets are connected and swapfield filled in with number -->
                 <swap-form :disabled="swapDisabled" :account="currentAccount" :provider="currentProvider"></swap-form>

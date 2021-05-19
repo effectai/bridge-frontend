@@ -2,7 +2,7 @@
   <div class="columns is-centered mt-4">
     <div class="column is-5">
       <!-- Progress bar -->
-      <div class="progress-block my-6" v-if="this.inProgress || this.swapError">
+      <div class="progress-block mb-6" v-if="this.inProgress || this.swapError">
         <div v-if="!this.swapError">{{this.progressText}}</div>
         <div class="notification is-danger" v-if="this.swapError">{{this.swapError}}</div>
         <progress v-if="!this.swapError" class="progress is-primary" :value="this.progress" max="100"></progress>
@@ -63,6 +63,7 @@ export default {
       inProgress: false,
       progress: null,
       progressText: null,
+      swapError: null
     }
   }, 
   mounted() {
