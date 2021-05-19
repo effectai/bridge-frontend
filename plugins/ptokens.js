@@ -11,11 +11,8 @@ export default (context, inject) => {
       }
     },
     computed: {
-      eos () {
-        return context.$eos
-      },
-      wallet() {
-        return (context.$wallet) ? context.$wallet.wallet : null
+      eosWallet() {
+        return (context.$eos) ? context.$eos.wallet : null
       },
     },
     methods: {
@@ -23,28 +20,28 @@ export default (context, inject) => {
         this.currentAccount = currentAccount
         this.peos = new pEosioToken({
           blockchain: process.env.NUXT_ENV_BSC,
-          network: process.env.NUXT_ENV_BLOCKCHAIN_NETWORK, 
+          network: process.env.NUXT_ENV_BLOCKCHAIN_NETWORK,
           pToken: process.env.NUXT_ENV_PTOKEN,
           ethProvider: currentProvider,
-          eosRpc: this.eos.rpc,
-          eosSignatureProvider: this.wallet.provider.signatureProvider
+          eosRpc: context.$eos.api.rpc,
+          eosSignatureProvider: this.eosWallet.provider.signatureProvider
         })
       },
 
-      async swapToBsc(amount) { 
+      async swapToBsc(amount) {
         if(!this.peos || !this.currentAccount) {
           console.error('init peos first');
         }
-      
+
         this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 0, text: 'Start swap'});
         const swap = () =>
           new Promise((resolve, reject) => {
-            this.peos.issue(amount, this.currentAccount[0], 
-              { 
-                blocksBehind: 3, 
-                expireSeconds: 60, 
+            this.peos.issue(amount, this.currentAccount[0],
+              {
+                blocksBehind: 3,
+                expireSeconds: 60,
                 permission: 'active',
-                actor: this.wallet.auth.accountName
+                actor: this.eosWallet.auth.accountName
               })
             // handle events
             .once('nativeTxConfirmed', (tx) => {
@@ -71,19 +68,19 @@ export default (context, inject) => {
       // Haven't been able to test this one, because the minimal swap amount is like 1.000.000.000 EOS or 10?
       // And it can only be tested on mainnet
       // Error I get: 'Impossible to issue less than 1000000000'
-      async swapToEos(amount) { 
+      async swapToEos(amount) {
         if(!this.peos || !this.currentAccount) {
           console.error('init peos first');
         }
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            this.peos.redeem(amount, this.wallet.auth.accountName, 
-              { 
-                blocksBehind: 3, 
-                expireSeconds: 60, 
+            this.peos.redeem(amount, this.eosWallet.auth.accountName,
+              {
+                blocksBehind: 3,
+                expireSeconds: 60,
                 permission: 'active',
-                actor: this.wallet.auth.accountName
+                actor: this.eosWallet.auth.accountName
               })
             // handle events
             .once('nativeTxConfirmed', (tx) => {

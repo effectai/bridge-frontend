@@ -65,7 +65,7 @@ export default {
       progressText: null,
       swapError: null
     }
-  }, 
+  },
   mounted() {
     this.$nuxt.$on('progressUpdate', (update) => {
       this.inProgress = update.inProgress;

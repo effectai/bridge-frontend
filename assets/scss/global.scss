@@ -16,6 +16,9 @@ a {
 .has-text-shadow {
   text-shadow: 2px 2px 4px #000000;
 }
+.has-border {
+  border: 2px solid $grey-lightest;
+}
 .card {
   //transition: box-shadow 0.2s;
   display: block;
