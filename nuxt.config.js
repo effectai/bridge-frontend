@@ -34,9 +34,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    { src: '@/plugins/transit.js', mode: 'client' },
-    { src: '@/plugins/wallet.js', mode: 'client' },
     { src: '@/plugins/eos.js', mode: 'client' },
+    { src: '@/plugins/bsc.js', mode: 'client' },
     { src: '@/plugins/ptokens.js', mode: 'client' }
   ],
 
