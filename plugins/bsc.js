@@ -63,7 +63,7 @@ export default (context, inject) => {
         if (this.currentProvider) {
           // TODO: figure out how to properly disconnect
           // This method is accesible on the WalletConnectProvider interface.
-          await this.currentProvider.disconnect();
+          // await this.currentProvider.disconnect();
         }
         this.clear()
       },
