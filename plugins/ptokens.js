@@ -6,7 +6,12 @@ export default (context, inject) => {
   const ptokens = new Vue({
     data() {
       return {
-        peos: null
+        peos: null,
+        status: null,
+        error: null,
+        statusText: null,
+        efxAmount: null,
+        progress: null
       }
     },
     computed: {
@@ -30,14 +35,21 @@ export default (context, inject) => {
       },
 
       async swapToBsc(amount) {
+        this.efxAmount = amount
         if(!this.peos) {
-          console.error('init peos first')
+          this.status = 'failed'
+          this.error = 'Something went wrong setting up the swap';
+          return
         }
         if(!this.eosWallet || !this.bscWallet) {
-          console.error('login first')
+          this.status = 'failed'
+          this.error = 'Connect your wallets first';
+          return
         }
 
-        this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 0, text: 'Start swap'});
+        this.status = 'start'
+        this.statusText = 'Setup swap...'
+
         const swap = () =>
           new Promise((resolve, reject) => {
             this.peos.issue(amount, this.bscWallet[0],
@@ -49,36 +61,53 @@ export default (context, inject) => {
               })
             // handle events
             .once('nativeTxConfirmed', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 25, text: 'nativeTxConfirmed', tx: tx});
+              this.progress = 25
+              this.status = 'progress'
+              this.statusText = 'nativeTxConfirmed'        
             })
-            .once('nodeReceivedTx', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 50, text: 'nodeBroadcastedTx', tx: tx});
+            .once('nodeReceivedTx', (tx) => {        
+              this.progress = 50    
+              this.statusText = 'nodeReceivedTx'
             })
             .once('nodeBroadcastedTx', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 75, text: 'hostTxConfirmed', tx: tx});
+              this.progress = 75
+              this.statusText = 'nodeBroadcastedTx'
             })
             .once('hostTxConfirmed', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
+              this.progress = 100
+              this.statusText = 'hostTxConfirmed'
             })
             .then(() => resolve())
             .catch((_err) =>  {
-              this.$nuxt.$emit('progressUpdate', {error: _err, text: 'Something went wrong'});
+              this.status = 'failed'
+              this.error = _err
               reject(_err)
             })
           })
         await swap()
+
+        this.status = 'finished'
+        this.statusText = 'Finished swap'     
       },
 
       // Haven't been able to test this one, because the minimal swap amount is like 1.000.000.000 EOS or 10?
       // And it can only be tested on mainnet
       // Error I get: 'Impossible to issue less than 1000000000'
       async swapToEos(amount) {
+        this.efxAmount = amount
         if(!this.peos) {
-          console.error('init peos first');
+          this.status = 'failed'
+          this.error = 'Something went wrong setting up the swap';
+          return
         }
         if(!this.eosWallet || !this.bscWallet) {
-          console.error('login first')
+          this.status = 'failed'
+          this.error = 'Connect your wallets first';
+          return
         }
+
+        this.status = 'start'
+        this.statusText = 'Setup swap...'
 
         const swap = () =>
           new Promise((resolve, reject) => {
@@ -86,29 +115,38 @@ export default (context, inject) => {
             // in the unit tests redeem is structured like this: (ETH -> EOS)
             this.peos.redeem(amount, this.eosWallet.auth.accountName,
               {
-                gasPrice: 100e9,
-                gas: 200000
+                //gasPrice: 100e9,
+                gas: 80000
               })
             // handle events
             .once('hostTxBroadcasted', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 25, text: 'hostTxBroadcasted', tx: tx});
+              this.progress = 25
+              this.status = 'progress'
+              this.statusText = 'hostTxBroadcasted'
             })
             .once('hostTxConfirmed', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 50, text: 'hostTxConfirmed', tx: tx});
+              this.progress = 50
+              this.statusText = 'hostTxConfirmed'
             })
             .once('nodeReceivedTx', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 75, text: 'nodeReceivedTx', tx: tx});
+              this.progress = 75
+              this.statusText = 'nodeReceivedTx'
             })
             .once('nativeTxConfirmed', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
+              this.progress = 100
+              this.statusText = 'nativeTxConfirmed'
             })
             .then(() => resolve())
             .catch((_err) =>  {
-              this.$nuxt.$emit('progressUpdate', {error: _err, text: 'Something went wrong'});
+              this.status = 'failed'
+              this.statusText = _err
               reject(_err)
             })
           })
         await swap()
+
+        this.status = 'finished'
+        this.statusText = 'Completed swap'        
       }
     }
   })

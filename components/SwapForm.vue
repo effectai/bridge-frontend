@@ -85,16 +85,6 @@
         <strong>Swap</strong>
       </button>
     </div>
-    <div class="columns is-centered mt-4">
-      <div class="column is-5">
-        <!-- Progress bar -->
-        <div class="progress-block mb-6" v-if="this.inProgress || this.swapError">
-          <div v-if="!this.swapError">{{ this.progressText }}</div>
-          <div class="notification is-danger" v-if="this.swapError">{{ this.swapError }}</div>
-          <progress v-if="!this.swapError" class="progress is-primary" :value="this.progress" max="100"></progress>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script>
@@ -103,10 +93,6 @@ export default {
     return {
       swapFromEOS: true,
       efxAmount: null,
-      inProgress: false,
-      progress: null,
-      progressText: null,
-      swapError: null
     }
   },
   computed: {
@@ -118,14 +104,6 @@ export default {
       return (this.$bsc) ? this.$bsc.wallet : null
     }
   },
-  mounted () {
-    this.$nuxt.$on('progressUpdate', (update) => {
-      this.inProgress = update.inProgress;
-      this.progress = update.progress;
-      this.progressText = update.text;
-      this.swapError = update.error;
-    });
-  },
   methods: {
     switchChains () {
       this.swapFromEOS = !this.swapFromEOS
@@ -134,11 +112,13 @@ export default {
     async onSwap () {
       console.log('Start swap...');
       this.$ptokens.init(this.$bsc.currentProvider)
+      
       if (this.swapFromEOS) {
         this.$ptokens.swapToBsc(this.efxAmount)
       } else {
         this.$ptokens.swapToEos(this.efxAmount)
       }
+       this.$router.push('/swap-progress')
     },
   }
 }
@@ -151,9 +131,5 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   display: block;
-}
-
-.progress::-webkit-progress-value {
-  transition: width 0.5s ease;
 }
 </style>
