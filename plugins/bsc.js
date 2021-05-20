@@ -5,6 +5,8 @@ import Vue from 'vue'
  */
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCodeModal from "@walletconnect/qrcode-modal";
+import Web3 from 'web3'
+const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
   chainId: 1, // For some reason chainID needs to be 1.
@@ -48,17 +50,6 @@ export default (context, inject) => {
     },
 
     methods: {
-      async login(provider) {
-        const providers = accessContext.getWalletProviders()
-        const selectedProvider = providers.find(r => r.id === provider)
-        const wallet = accessContext.initWallet(selectedProvider)
-        await wallet.connect()
-        await wallet.login()
-
-        this.wallet = wallet
-        this.updateAccount()
-      },
-
       async logout() {
         if (this.currentProvider) {
           // TODO: figure out how to properly disconnect
@@ -80,8 +71,18 @@ export default (context, inject) => {
       },
 
       async getAccountBalance() {
-        if (this.wallet) {
-            this.efxAvailable = -1 // TODO: get bsc balance
+        if (this.currentProvider) {
+          try {
+            const response = await this.currentProvider.request({
+              method: 'eth_getBalance',
+              params: [
+                this.currentAccount[0]
+              ]
+            })
+            this.efxAvailable = web3.utils.fromWei(response)
+          } catch (balanceError) {
+            console.error(balanceError)
+          }
         }
       },
 
@@ -181,7 +182,7 @@ export default (context, inject) => {
                 method: 'wallet_addEthereumChain',
                 params: [chainObject]
               })
-
+              //if (updatedChainId =! null) throw Error(`AddChainError: ${updatedChainId}`)
               if (updatedChainId) {
                 console.log(updatedChainId)
               }
