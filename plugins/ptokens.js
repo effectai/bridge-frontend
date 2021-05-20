@@ -6,18 +6,19 @@ export default (context, inject) => {
   const ptokens = new Vue({
     data() {
       return {
-        peos: null,
-        currentAccount: null,
+        peos: null
       }
     },
     computed: {
       eosWallet() {
         return (context.$eos) ? context.$eos.wallet : null
       },
+      bscWallet() {
+        return (context.$bsc) ? context.$bsc.wallet : null
+      },
     },
     methods: {
-      init (currentProvider, currentAccount) {
-        this.currentAccount = currentAccount
+      init (currentProvider) {
         this.peos = new pEosioToken({
           blockchain: process.env.NUXT_ENV_BSC,
           network: process.env.NUXT_ENV_BLOCKCHAIN_NETWORK,
@@ -29,14 +30,17 @@ export default (context, inject) => {
       },
 
       async swapToBsc(amount) {
-        if(!this.peos || !this.currentAccount) {
-          console.error('init peos first');
+        if(!this.peos) {
+          console.error('init peos first')
+        }
+        if(!this.eosWallet || !this.bscWallet) {
+          console.error('login first')
         }
 
         this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 0, text: 'Start swap'});
         const swap = () =>
           new Promise((resolve, reject) => {
-            this.peos.issue(amount, this.currentAccount[0],
+            this.peos.issue(amount, this.bscWallet[0],
               {
                 blocksBehind: 3,
                 expireSeconds: 60,
@@ -69,12 +73,16 @@ export default (context, inject) => {
       // And it can only be tested on mainnet
       // Error I get: 'Impossible to issue less than 1000000000'
       async swapToEos(amount) {
-        if(!this.peos || !this.currentAccount) {
+        if(!this.peos) {
           console.error('init peos first');
+        }
+        if(!this.eosWallet || !this.bscWallet) {
+          console.error('login first')
         }
 
         const swap = () =>
           new Promise((resolve, reject) => {
+            // TODO: fix redeem
             this.peos.redeem(amount, this.eosWallet.auth.accountName,
               {
                 blocksBehind: 3,

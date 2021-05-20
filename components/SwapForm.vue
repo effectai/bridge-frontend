@@ -133,7 +133,7 @@ export default {
     },
     async onSwap () {
       console.log('Start swap...');
-      this.$ptokens.init(this.$bsc.currentProvider, this.$bsc.currentAccount)
+      this.$ptokens.init(this.$bsc.currentProvider)
       if (this.swapFromEOS) {
         this.$ptokens.swapToBsc(this.efxAmount)
       } else {
