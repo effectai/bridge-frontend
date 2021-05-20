@@ -76,7 +76,7 @@ export default (context, inject) => {
             const response = await this.currentProvider.request({
               method: 'eth_getBalance',
               params: [
-                this.currentAccount[0]
+                this.wallet[0]
               ]
             })
             this.efxAvailable = web3.utils.fromWei(response)

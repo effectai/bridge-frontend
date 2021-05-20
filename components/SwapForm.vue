@@ -58,9 +58,7 @@
           <span v-else>-</span>
         </span>
           <span v-else>
-          <span v-if="$bsc.efxAvailable !== null"><a @click="efxAmount = $bsc.efxAvailable">{{
-              bsc.efxAvailable
-            }}</a></span>
+          <span v-if="$bsc.efxAvailable !== null"><a @click="efxAmount = $bsc.efxAvailable">{{$bsc.efxAvailable}}</a></span>
           <span v-else>-</span>
         </span>
         </div>
