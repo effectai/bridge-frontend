@@ -52,9 +52,16 @@ export default (context, inject) => {
     methods: {
       async logout() {
         if (this.currentProvider) {
-          // TODO: figure out how to properly disconnect
-          // This method is accesible on the WalletConnectProvider interface.
-          // await this.currentProvider.disconnect();
+          if(this.currentProvider == this.walletConnect) {
+            // This method is only available for WalletConnect
+            this.currentProvider.disconnect()
+          } else {
+            // TODO: figure out how to properly disconnect.
+            // IDEA: Inform user that they only can disconnect from inside their wallet?
+            // Otherwise set this current wallet to null.
+            this.wallet = null
+            alert("Disconnect in your wallet.")
+          }
         }
         this.clear()
       },
@@ -71,7 +78,7 @@ export default (context, inject) => {
       },
 
       async getAccountBalance() {
-        if (this.currentProvider) {
+        if (this.currentProvider && this.wallet) { // make sure that there is a wallet as well
           try {
             const response = await this.currentProvider.request({
               method: 'eth_getBalance',
@@ -90,6 +97,10 @@ export default (context, inject) => {
         this.clearTransaction()
 
         // TODO: handle bsc transaction
+      },
+
+      checkBscFormat(bscAddress) {
+        return web3.utils.isAddress(bscAddress)
       },
 
       clearTransaction() {
@@ -212,15 +223,6 @@ export default (context, inject) => {
       },
 
       /**
-       * Method for registering and provider with a web3 object
-       */
-      async registerWeb3(provider) {
-        console.debug(`web3 here.`)
-        const web3 = new Web3(provider)
-        return web3
-      },
-
-      /**
        * Assign provider to currentProvider, and register eventlisteners.
        *
        */
@@ -247,9 +249,10 @@ export default (context, inject) => {
         })
 
         // Inform user of account change, only one account can be selected
-        this.currentProvider.on('accountsChanged', (newAccount) => {
+        this.currentProvider.on('accountsChanged', (newWallet) => {
           console.log("Changing selected account")
-          this.wallet = newAccount
+          console.log(this.checkBscFormat(newWallet))
+          this.wallet = newWallet
         })
 
         // Inform user of chain change
