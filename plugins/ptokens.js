@@ -82,25 +82,24 @@ export default (context, inject) => {
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            // TODO: fix redeem
+            // TODO: fix redeem? 
+            // in the unit tests redeem is structured like this: (ETH -> EOS)
             this.peos.redeem(amount, this.eosWallet.auth.accountName,
               {
-                blocksBehind: 3,
-                expireSeconds: 60,
-                permission: 'active',
-                actor: this.eosWallet.auth.accountName
+                gasPrice: 100e9,
+                gas: 200000
               })
             // handle events
-            .once('nativeTxConfirmed', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 25, text: 'nativeTxConfirmed', tx: tx});
-            })
-            .once('nodeReceivedTx', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 50, text: 'nodeBroadcastedTx', tx: tx});
-            })
-            .once('nodeBroadcastedTx', (tx) => {
-              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 75, text: 'hostTxConfirmed', tx: tx});
+            .once('hostTxBroadcasted', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 25, text: 'hostTxBroadcasted', tx: tx});
             })
             .once('hostTxConfirmed', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 50, text: 'hostTxConfirmed', tx: tx});
+            })
+            .once('nodeReceivedTx', (tx) => {
+              this.$nuxt.$emit('progressUpdate', {inProgress: true, progress: 75, text: 'nodeReceivedTx', tx: tx});
+            })
+            .once('nativeTxConfirmed', (tx) => {
               this.$nuxt.$emit('progressUpdate', {inProgress: false, progress: 100, text: 'Finished swap!', tx: tx});
             })
             .then(() => resolve())
