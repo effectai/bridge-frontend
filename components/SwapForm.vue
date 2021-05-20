@@ -21,7 +21,7 @@
             </div>
           </div>
         </div>
-        <div class="column is-2 has-text-centered">
+        <div class="column switch is-2 has-text-centered">
           <a class="has-text-centered" @click="switchChains">
             <i class="fas fa-exchange-alt"></i><br>
             <small class="is-size-7"><a @click="">switch</a></small>
@@ -131,5 +131,10 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   display: block;
+}
+.switch {
+  @media screen and (max-width: $tablet) {
+    padding-bottom: 0;
+  }
 }
 </style>

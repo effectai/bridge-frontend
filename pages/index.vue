@@ -46,4 +46,10 @@ export default {
 .site-title {
   font-size: 64px;
 }
+
+.learn {
+  @media screen and (max-width: $tablet) {
+    color: #000 !important;
+  }
+}
 </style>
