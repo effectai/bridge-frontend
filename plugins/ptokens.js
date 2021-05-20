@@ -44,7 +44,7 @@ export default (context, inject) => {
               {
                 blocksBehind: 3,
                 expireSeconds: 60,
-                permission: 'active',
+                permission: this.eosWallet.auth.permission,
                 actor: this.eosWallet.auth.accountName
               })
             // handle events
@@ -87,7 +87,7 @@ export default (context, inject) => {
               {
                 blocksBehind: 3,
                 expireSeconds: 60,
-                permission: 'active',
+                permission: this.eosWallet.auth.permission,
                 actor: this.eosWallet.auth.accountName
               })
             // handle events
