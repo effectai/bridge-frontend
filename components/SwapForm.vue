@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="box is-horizontal-centered px-6" style="max-width: 550px">
+    <div class="box is-horizontal-centered px-6 content" style="max-width: 550px">
       <div class="columns is-vcentered" :class="{'is-flex-direction-row-reverse': !swapFromEOS}">
         <div class="column is-align-self-stretch is-5 ">
           <small class="is-size-7"><span v-if="swapFromEOS">From</span><span v-else>To</span></small>
@@ -112,7 +112,7 @@ export default {
     async onSwap () {
       console.log('Start swap...');
       this.$ptokens.init(this.$bsc.currentProvider)
-      
+
       if (this.swapFromEOS) {
         this.$ptokens.swapToBsc(this.efxAmount)
       } else {

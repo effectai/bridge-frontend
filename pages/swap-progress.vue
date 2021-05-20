@@ -1,13 +1,16 @@
 <template>
-  <section class="section">
+  <div>
+    <section class="section">
+      <div class="container">
+        <div class="has-text-centered block">
+          <img :src="require('@/assets/img/logo.svg')" width="130" class="mb-5">
+          <h2 class="site-title is-spaced title">Bridge</h2>
+          <h4 class="subtitle">Transfer EFX between EOS and your BSC Wallet.</h4>
+        </div>  
+      </div>
+    </section>
     <div class="container">
-      <div class="has-text-centered block">
-        <img :src="require('@/assets/img/logo.svg')" width="130" class="mb-5">
-        <h2 class="site-title is-spaced title">Bridge</h2>
-        <h4 class="subtitle">Transfer EFX between EOS and your BSC Wallet.</h4>
-      </div>      
-
-      <div class="box is-horizontal-centered px-6 has-text-centered" style="max-width: 550px">
+      <div class="box is-horizontal-centered px-6 has-text-centered content" style="max-width: 550px">
         <div v-if="$ptokens.status == 'start'" class="loader-wrapper is-active">
           <div class="loader is-loading" />
         </div>
@@ -33,15 +36,14 @@
 
             </div>
           </div>
-        </div>
-      
+        </div>  
         <nuxt-link to="/" v-if="$ptokens.status == 'failed' || $ptokens.status =='finished' || !$ptokens.status" class="button is-medium is-accent is-fullwidth mt-5">
           <strong v-if="$ptokens.status == 'failed' || !$ptokens.status">Back to form</strong>
           <strong v-if="$ptokens.status == 'finished'">Swap again</strong>
         </nuxt-link> 
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -52,9 +54,6 @@ export default {
     }
   },
   mounted () {
-    this.$ptokens.status = 'finished'
-    this.$ptokens.statusText = 'finished'
-    this.$ptokens.efxAmount = '100'
     // if there's no swap in progress or an error, go back to form
     if(!this.$ptokens.status) {
       this.$router.push('/')
