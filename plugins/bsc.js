@@ -51,6 +51,7 @@ export default (context, inject) => {
 
     methods: {
       async logout() {
+
         if (this.currentProvider) {
           if(this.currentProvider == this.walletConnect) {
             // This method is only available for WalletConnect
@@ -59,11 +60,12 @@ export default (context, inject) => {
             // TODO: figure out how to properly disconnect.
             // IDEA: Inform user that they only can disconnect from inside their wallet?
             // Otherwise set this current wallet to null.
+            alert('Please note, that you will stay logged in your wallet.')
             this.wallet = null
-            alert("Disconnect in your wallet.")
           }
         }
         this.clear()
+
       },
 
       updateAccount() {
@@ -116,8 +118,8 @@ export default (context, inject) => {
           })
         } catch (mmError) {
           console.error(mmError)
-          if (mmError.code === 4001) { //User rejected request:: EIP-1193
-            alert("Please connect to metamask.")
+          if (mmError) {
+            return Promise.reject(mmError)
           }
         }
       },
@@ -130,7 +132,7 @@ export default (context, inject) => {
             method: 'eth_requestAccounts'
           })
         } catch (bscError) {
-          console.error(bscError)
+          return Promise.reject(bscError)
         }
       },
 
@@ -146,7 +148,7 @@ export default (context, inject) => {
           // const web3 = new Web3(walletConnectProvider)
 
         } catch (walletConnectError) {
-          console.error(walletConnectError)
+          return Promise.reject(walletConnectError)
         }
       },
 
