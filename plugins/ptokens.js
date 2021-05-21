@@ -50,7 +50,7 @@ export default (context, inject) => {
           return
         }
 
-        // Check if EOS account exists before contuining    
+        // Check if EOS account exists before contuining
         let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
         if (!validEosAccount) {
           this.status = 'failed'
@@ -71,10 +71,10 @@ export default (context, inject) => {
             .once('nativeTxConfirmed', (tx) => {
               this.progress = 25
               this.status = 'progress'
-              this.statusText = 'nativeTxConfirmed'        
+              this.statusText = 'nativeTxConfirmed'
             })
-            .once('nodeReceivedTx', (tx) => {        
-              this.progress = 50    
+            .once('nodeReceivedTx', (tx) => {
+              this.progress = 50
               this.statusText = 'nodeReceivedTx'
             })
             .once('nodeBroadcastedTx', (tx) => {
@@ -95,7 +95,7 @@ export default (context, inject) => {
         await swap()
 
         this.status = 'finished'
-        this.statusText = 'Finished swap'     
+        this.statusText = 'Finished swap'
       },
 
       // Haven't been able to test this one, because the minimal swap amount is like 1.000.000.000 EOS or 10?
@@ -117,7 +117,7 @@ export default (context, inject) => {
           return
         }
 
-        // Check if EOS account exists before contuining    
+        // Check if EOS account exists before contuining
         let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
         if (!validEosAccount) {
           this.status = 'failed'
@@ -127,7 +127,7 @@ export default (context, inject) => {
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            // TODO: fix redeem? 
+            // TODO: fix redeem?
             // in the unit tests redeem is structured like this: (ETH -> EOS)
             this.peos.redeem(amount, this.eosWallet.auth.accountName,
               {
@@ -162,7 +162,7 @@ export default (context, inject) => {
         await swap()
 
         this.status = 'finished'
-        this.statusText = 'Completed swap'        
+        this.statusText = 'Completed swap'
       },
     }
   })

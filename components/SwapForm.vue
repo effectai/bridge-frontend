@@ -115,9 +115,17 @@ export default {
       this.$router.push('/swap-progress')
 
       if (this.swapFromEOS) {
-        this.$ptokens.swapToBsc(this.efxAmount)
+        try {
+          await this.$ptokens.swapToBsc(this.efxAmount)
+        } catch (e) {
+          this.swapError = e.message
+        }
       } else {
-        this.$ptokens.swapToEos(this.efxAmount)
+        try {
+          await this.$ptokens.swapToEos(this.efxAmount)
+        } catch (e) {
+          this.swapError = e.message
+        }
       }
     },
   }
