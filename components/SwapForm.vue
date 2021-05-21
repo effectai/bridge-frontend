@@ -143,6 +143,8 @@ export default {
           } else {
             this.$ptokens.swapToEos(this.efxAmount)
           }
+        } else {
+          alert("There is something wrong with your BSC address.")
         }
       } else {
         alert(`You are currently not on the right chain network. Switch to "Binance Smart Chain Network." ChainId: ${process.env.NUXT_ENV_BSC_NETWORK_ID}`)
