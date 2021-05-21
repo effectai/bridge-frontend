@@ -112,13 +112,13 @@ export default {
     async onSwap () {
       console.log('Start swap...');
       this.$ptokens.init(this.$bsc.currentProvider)
+      this.$router.push('/swap-progress')
 
       if (this.swapFromEOS) {
         this.$ptokens.swapToBsc(this.efxAmount)
       } else {
         this.$ptokens.swapToEos(this.efxAmount)
       }
-       this.$router.push('/swap-progress')
     },
   }
 }

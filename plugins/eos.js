@@ -111,6 +111,15 @@ export default (context, inject) => {
       clearTransaction() {
         this.transaction = null
         this.transactionError = null
+      },
+
+      async isValidEosAccount(name) {
+        return context.$eos.api.rpc.get_account(name).then(() => {
+          return true
+        }).catch((e) => {
+          console.error('account not found', e)
+          return false;
+        });
       }
     }
   })

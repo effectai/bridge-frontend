@@ -35,7 +35,10 @@ export default (context, inject) => {
       },
 
       async swapToBsc(amount) {
+        this.status = 'start'
+        this.statusText = 'Setup swap...'
         this.efxAmount = amount
+
         if(!this.peos) {
           this.status = 'failed'
           this.error = 'Something went wrong setting up the swap';
@@ -47,8 +50,13 @@ export default (context, inject) => {
           return
         }
 
-        this.status = 'start'
-        this.statusText = 'Setup swap...'
+        // Check if EOS account exists before contuining    
+        let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
+        if (!validEosAccount) {
+          this.status = 'failed'
+          this.error = 'EOS account not found';
+          return
+        }
 
         const swap = () =>
           new Promise((resolve, reject) => {
@@ -78,10 +86,10 @@ export default (context, inject) => {
               this.statusText = 'hostTxConfirmed'
             })
             .then(() => resolve())
-            .catch((_err) =>  {
+            .catch((e) =>  {
               this.status = 'failed'
-              this.error = _err
-              reject(_err)
+              this.error = e
+              reject(e)
             })
           })
         await swap()
@@ -94,7 +102,10 @@ export default (context, inject) => {
       // And it can only be tested on mainnet
       // Error I get: 'Impossible to issue less than 1000000000'
       async swapToEos(amount) {
+        this.status = 'start'
+        this.statusText = 'Setup swap...'
         this.efxAmount = amount
+
         if(!this.peos) {
           this.status = 'failed'
           this.error = 'Something went wrong setting up the swap';
@@ -106,8 +117,13 @@ export default (context, inject) => {
           return
         }
 
-        this.status = 'start'
-        this.statusText = 'Setup swap...'
+        // Check if EOS account exists before contuining    
+        let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
+        if (!validEosAccount) {
+          this.status = 'failed'
+          this.error = 'EOS account not found';
+          return
+        }
 
         const swap = () =>
           new Promise((resolve, reject) => {
@@ -147,7 +163,7 @@ export default (context, inject) => {
 
         this.status = 'finished'
         this.statusText = 'Completed swap'        
-      }
+      },
     }
   })
 
