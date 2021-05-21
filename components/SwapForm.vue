@@ -133,13 +133,19 @@ export default {
     },
     async onSwap () {
       console.log('Start swap...');
-      this.$ptokens.init(this.$bsc.currentProvider)
-      if(this.$bsc.checkBscAddress(this.$bscWallet)){ // double check that address is legitimate
-        if (this.swapFromEOS) {
-          this.$ptokens.swapToBsc(this.efxAmount)
-        } else {
-          this.$ptokens.swapToEos(this.efxAmount)
+      if(await this.$bsc.onCorrectChain()) {
+        console.log('Initing ptokens')
+        if(this.$bsc.checkBscFormat(this.$bsc.wallet[0])){ // double check that address is legitimate
+          this.$ptokens.init(this.$bsc.currentProvider)
+          console.log('checks passed ')
+          if (this.swapFromEOS) {
+            this.$ptokens.swapToBsc(this.efxAmount)
+          } else {
+            this.$ptokens.swapToEos(this.efxAmount)
+          }
         }
+      } else {
+        alert(`You are currently not on the right chain network. Switch to "Binance Smart Chain Network." ChainId: ${process.env.NUXT_ENV_BSC_NETWORK_ID}`)
       }
     },
   }

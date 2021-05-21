@@ -102,7 +102,9 @@ export default (context, inject) => {
       },
 
       checkBscFormat(bscAddress) {
-        return web3.utils.isAddress(bscAddress)
+        const response =  web3.utils.isAddress(bscAddress, process.NUXT_ENV_BSC_NETWORK_ID)
+        console.log(`ResponseCheckBSCFormat: ${response}`)
+        return response
       },
 
       clearTransaction() {
@@ -116,6 +118,7 @@ export default (context, inject) => {
           this.wallet = await this.currentProvider.request({
             method: 'eth_requestAccounts'
           })
+          this.checkBscFormat(this.wallet[0])
         } catch (mmError) {
           console.error(mmError)
           if (mmError) {
@@ -138,6 +141,8 @@ export default (context, inject) => {
 
       async onWalletConnectWeb3() {
 
+        // TODO: Make sure that all sessions are disconnected
+
         try {
           this.registerProviderListener(walletProvider)
           console.log('Does this work here?')
@@ -156,7 +161,7 @@ export default (context, inject) => {
       async handleAccountsChanged(accounts) {
         if (accounts.length === 0) {
           // MetaMask is locked or the user has not connected any accounts
-          console.log('Please connect to MetaMask.');
+          console.log('Please connect your wallet.');
         } else if (accounts[0] !== this.wallet) {
           this.wallet = accounts[0];
         }
@@ -214,13 +219,24 @@ export default (context, inject) => {
 
       /**
        * Retrieve current network the wallet is listening to. can be testnet or mainnet of either bsc or ethereum for example.
+       * In what format does this method return the chain id?
        */
       async getCurrentChainNetwork() {
         try {
           return await this.currentProvider.request({method: 'eth_chainId'})
         } catch (error) {
           console.error(error)
-          console.log('Error requesting currentChain')
+          console.error('Error requesting currentChain')
+        }
+      },
+
+      async onCorrectChain(){
+        try {
+          const currentChain = await this.getCurrentChainNetwork()
+          const bool = Boolean(currentChain == process.env.NUXT_ENV_BSC_HEX_ID)
+          return bool
+        } catch (error) {
+          console.error('Something went wrong retrieving chain.')
         }
       },
 
