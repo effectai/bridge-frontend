@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="box is-horizontal-centered px-6" style="max-width: 550px">
+    <div class="box is-horizontal-centered px-6 content" style="max-width: 550px">
       <div class="columns is-vcentered" :class="{'is-flex-direction-row-reverse': !swapFromEOS}">
         <div class="column is-align-self-stretch is-5 ">
           <small class="is-size-7"><span v-if="swapFromEOS">From</span><span v-else>To</span></small>
@@ -21,7 +21,7 @@
             </div>
           </div>
         </div>
-        <div class="column is-2 has-text-centered">
+        <div class="column switch is-2 has-text-centered">
           <a class="has-text-centered" @click="switchChains">
             <i class="fas fa-exchange-alt"></i><br>
             <small class="is-size-7"><a @click="">switch</a></small>
@@ -85,16 +85,6 @@
         <strong>Swap</strong>
       </button>
     </div>
-    <div class="columns is-centered mt-4">
-      <div class="column is-5">
-        <!-- Progress bar -->
-        <div class="progress-block mb-6" v-if="this.inProgress || this.swapError">
-          <div v-if="!this.swapError">{{ this.progressText }}</div>
-          <div class="notification is-danger" v-if="this.swapError">{{ this.swapError }}</div>
-          <progress v-if="!this.swapError" class="progress is-primary" :value="this.progress" max="100"></progress>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script>
@@ -103,10 +93,6 @@ export default {
     return {
       swapFromEOS: true,
       efxAmount: null,
-      inProgress: false,
-      progress: null,
-      progressText: null,
-      swapError: null
     }
   },
   computed: {
@@ -118,14 +104,6 @@ export default {
       return (this.$bsc) ? this.$bsc.wallet : null
     }
   },
-  mounted () {
-    this.$nuxt.$on('progressUpdate', (update) => {
-      this.inProgress = update.inProgress;
-      this.progress = update.progress;
-      this.progressText = update.text;
-      this.swapError = update.error;
-    });
-  },
   methods: {
     switchChains () {
       this.swapFromEOS = !this.swapFromEOS
@@ -134,6 +112,8 @@ export default {
     async onSwap () {
       console.log('Start swap...');
       this.$ptokens.init(this.$bsc.currentProvider)
+      this.$router.push('/swap-progress')
+
       if (this.swapFromEOS) {
         this.$ptokens.swapToBsc(this.efxAmount)
       } else {
@@ -152,8 +132,9 @@ export default {
   overflow: hidden;
   display: block;
 }
-
-.progress::-webkit-progress-value {
-  transition: width 0.5s ease;
+.switch {
+  @media screen and (max-width: $tablet) {
+    padding-bottom: 0;
+  }
 }
 </style>
