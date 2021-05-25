@@ -9,17 +9,19 @@ import Web3 from 'web3'
 const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
-  chainId: 1, // For some reason chainID needs to be 1.
+  // For some reason, chainID needs to be 1
+  chainId: 1,
   rpc: {
     1: process.env.NUXT_ENV_BSC_RPC
   },
-  bridge: "https://bridge.walletconnect.org", // redundant?
-  qrcode: true, // redundant?
-  qrcodeModal: QRCodeModal, //redundant?
+  bridge: "https://bridge.walletconnect.org",
+  qrcodeModal: QRCodeModal,
   qrcodeModalOptions: {
     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
   }
 })
+
+
 
 export default (context, inject) => {
   const bsc = new Vue({
@@ -35,7 +37,6 @@ export default (context, inject) => {
         metamask: window.ethereum || null,
         binance: window.BinanceChain || null,
         walletConnect: walletProvider || null, //connect to mobile wallet; trust, metamask, ...
-        walletProvider: walletProvider || null,
         walletConnected: null, // Does it make sense to do this at the beginning?
         currentProvider: null
       }
@@ -51,12 +52,19 @@ export default (context, inject) => {
 
     methods: {
       async logout() {
+
         if (this.currentProvider) {
-          // TODO: figure out how to properly disconnect
-          // This method is accesible on the WalletConnectProvider interface.
-          // await this.currentProvider.disconnect();
+          if(this.currentProvider == this.walletConnect) {
+            // This method is only available for WalletConnect
+            await this.walletConnect.disconnect()
+            this.wallet = null
+            window.location.reload()
+          } else {
+            this.wallet = null
+          }
         }
         this.clear()
+
       },
 
       updateAccount() {
@@ -71,7 +79,7 @@ export default (context, inject) => {
       },
 
       async getAccountBalance() {
-        if (this.currentProvider) {
+        if (this.currentProvider && this.wallet) { // make sure that there is a wallet as well
           try {
             const response = await this.currentProvider.request({
               method: 'eth_getBalance',
@@ -79,7 +87,7 @@ export default (context, inject) => {
                 this.wallet[0]
               ]
             })
-            this.efxAvailable = web3.utils.fromWei(response)
+            this.efxAvailable = web3.utils.fromWei(response.toString())
           } catch (balanceError) {
             console.error(balanceError)
           }
@@ -90,6 +98,16 @@ export default (context, inject) => {
         this.clearTransaction()
 
         // TODO: handle bsc transaction
+      },
+
+      checkBinanceInstalled() {
+        return Boolean(this.binance)
+      },
+
+      checkBscFormat(bscAddress) {
+        const response =  web3.utils.isAddress(bscAddress, process.NUXT_ENV_BSC_NETWORK_ID)
+        console.log(`ResponseCheckBSCFormat: ${response}`)
+        return response
       },
 
       clearTransaction() {
@@ -103,10 +121,11 @@ export default (context, inject) => {
           this.wallet = await this.currentProvider.request({
             method: 'eth_requestAccounts'
           })
+          this.checkBscFormat(this.wallet[0])
         } catch (mmError) {
           console.error(mmError)
-          if (mmError.code === 4001) { //User rejected request:: EIP-1193
-            alert("Please connect to metamask.")
+          if (mmError) {
+            return Promise.reject(mmError)
           }
         }
       },
@@ -119,23 +138,27 @@ export default (context, inject) => {
             method: 'eth_requestAccounts'
           })
         } catch (bscError) {
-          console.error(bscError)
+          return Promise.reject(bscError)
         }
       },
 
       async onWalletConnectWeb3() {
 
-        try {
-          this.registerProviderListener(walletProvider)
-          console.log('Does this work here?')
-          // Launches QR-Code Modal
-          await walletProvider.enable()
+        // TODO: Make sure that all sessions are disconnected
+        // TODO when disconnecting and reconnecting there is an error with login modal
 
-          //Integrate dapp with the provider
-          // const web3 = new Web3(walletConnectProvider)
+        try {
+
+          // Launches QR-Code Modal
+          await this.walletConnect.enable()
+
+
+          this.registerProviderListener(this.walletConnect)
+          this.wallet = this.walletConnect.accounts
+
 
         } catch (walletConnectError) {
-          console.error(walletConnectError)
+          return Promise.reject(walletConnectError)
         }
       },
 
@@ -143,7 +166,7 @@ export default (context, inject) => {
       async handleAccountsChanged(accounts) {
         if (accounts.length === 0) {
           // MetaMask is locked or the user has not connected any accounts
-          console.log('Please connect to MetaMask.');
+          console.log('Please connect your wallet.');
         } else if (accounts[0] !== this.wallet) {
           this.wallet = accounts[0];
         }
@@ -201,23 +224,25 @@ export default (context, inject) => {
 
       /**
        * Retrieve current network the wallet is listening to. can be testnet or mainnet of either bsc or ethereum for example.
+       * In what format does this method return the chain id?
        */
       async getCurrentChainNetwork() {
         try {
           return await this.currentProvider.request({method: 'eth_chainId'})
         } catch (error) {
           console.error(error)
-          console.log('Error requesting currentChain')
+          console.error('Error requesting currentChain')
         }
       },
 
-      /**
-       * Method for registering and provider with a web3 object
-       */
-      async registerWeb3(provider) {
-        console.debug(`web3 here.`)
-        const web3 = new Web3(provider)
-        return web3
+      async onCorrectChain(){
+        try {
+          const currentChain = await this.getCurrentChainNetwork()
+          const bool = Boolean(currentChain == process.env.NUXT_ENV_BSC_HEX_ID)
+          return bool
+        } catch (error) {
+          console.error('Something went wrong retrieving chain.')
+        }
       },
 
       /**
@@ -247,9 +272,10 @@ export default (context, inject) => {
         })
 
         // Inform user of account change, only one account can be selected
-        this.currentProvider.on('accountsChanged', (newAccount) => {
+        this.currentProvider.on('accountsChanged', (newWallet) => {
           console.log("Changing selected account")
-          this.wallet = newAccount
+          console.log(this.checkBscFormat(newWallet))
+          this.wallet = newWallet
         })
 
         // Inform user of chain change
