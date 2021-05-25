@@ -130,3 +130,13 @@ a.card {
     z-index: 1;
   }
 }
+
+.box {
+  position: relative;
+}
+
+.content {
+  @include until($tablet) {
+    padding: 25px !important;
+  }
+}
