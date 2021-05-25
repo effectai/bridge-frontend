@@ -9,9 +9,9 @@ import Web3 from 'web3'
 const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
-  chainId: 1, // For some reason chainID needs to be 1.
+  chainId: 56, // For some reason chainID needs to be 1.
   rpc: {
-    1: process.env.NUXT_ENV_BSC_RPC
+    56: process.env.NUXT_ENV_BSC_RPC
   },
   bridge: "https://bridge.walletconnect.org", // redundant?
   qrcode: true, // redundant?
@@ -20,6 +20,16 @@ const walletProvider = new WalletConnectProvider({
     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
   }
 })
+
+// const walletProvider = new WalletConnectProvider({
+//   rpc: {
+//     1: process.env.NUXT_ENV_BSC_RPC
+//   },
+//   qrcodeModal: QRCodeModal, //redundant?
+//   qrcodeModalOptions: {
+//     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
+//   }
+// })
 
 export default (context, inject) => {
   const bsc = new Vue({
@@ -88,7 +98,7 @@ export default (context, inject) => {
                 this.wallet[0]
               ]
             })
-            this.efxAvailable = web3.utils.fromWei(response)
+            this.efxAvailable = web3.utils.fromWei(response.toString())
           } catch (balanceError) {
             console.error(balanceError)
           }
@@ -144,13 +154,19 @@ export default (context, inject) => {
         // TODO: Make sure that all sessions are disconnected
 
         try {
-          this.registerProviderListener(walletProvider)
-          console.log('Does this work here?')
-          // Launches QR-Code Modal
-          await walletProvider.enable()
 
-          //Integrate dapp with the provider
-          // const web3 = new Web3(walletConnectProvider)
+          if(!walletProvider.connected){
+            // Launches QR-Code Modal
+            await walletProvider.enable()
+          } else {
+            await walletProvider.disconnect()
+            await walletProvider.enable()
+          }
+
+          this.registerProviderListener(walletProvider)
+
+          this.wallet = walletProvider.accounts
+
 
         } catch (walletConnectError) {
           return Promise.reject(walletConnectError)

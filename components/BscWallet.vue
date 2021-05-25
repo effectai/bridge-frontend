@@ -31,12 +31,12 @@
             <div class="column is-half">
               <div v-if="isBinanceInstalled" class="provider has-radius" @click="selectWallet('bsc')">
                 <img src="@/assets/img/providers/bsc.svg">
-                Binance Chain Wallet
+                Binance Chain
               </div>
               <a v-else-if="!isMobileDevice" class="provider has-radius" href="https://docs.binance.org/smart-chain/wallet/binance.html"
                  target="_blank">
                 <img src="@/assets/img/providers/bsc.svg">
-                Install BSC Wallet
+                Install Binance Chain
               </a>
             </div>
             <div class="column is-half">
