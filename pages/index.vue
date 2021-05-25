@@ -11,10 +11,10 @@
     </section>
     <div class="container">
       <swap-form />
-    </div> 
+    </div>
     <!-- Educational Resources -->
     <div class="has-text-centered my-5">
-      <a class="has-text-white learn" href="https://docs.pancakeswap.finance/get-started/connection-guide"
+      <a class="has-text-white learn" href="https://effect-dao-docs.gitbook.io/dao-guides/"
         target="_blank">
         <strong>Learn how to connect</strong>
       </a>

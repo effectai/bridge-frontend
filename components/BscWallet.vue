@@ -29,7 +29,7 @@
               </a>
             </div>
             <div class="column is-half">
-              <div v-if="isBinanceInstalled" class="provider has-radius" @click="selectWallet('bsc')">
+              <div v-if="this.$bsc.checkBinanceInstalled" class="provider has-radius" @click="selectWallet('bsc')">
                 <img src="@/assets/img/providers/bsc.svg">
                 Binance Chain
               </div>

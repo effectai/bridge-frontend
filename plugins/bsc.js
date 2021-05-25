@@ -9,27 +9,19 @@ import Web3 from 'web3'
 const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
-  chainId: 56, // For some reason chainID needs to be 1.
+  // For some reason, chainID needs to be 1
+  chainId: 1,
   rpc: {
-    56: process.env.NUXT_ENV_BSC_RPC
+    1: process.env.NUXT_ENV_BSC_RPC
   },
-  bridge: "https://bridge.walletconnect.org", // redundant?
-  qrcode: true, // redundant?
-  qrcodeModal: QRCodeModal, //redundant?
+  bridge: "https://bridge.walletconnect.org",
+  qrcodeModal: QRCodeModal,
   qrcodeModalOptions: {
     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
   }
 })
 
-// const walletProvider = new WalletConnectProvider({
-//   rpc: {
-//     1: process.env.NUXT_ENV_BSC_RPC
-//   },
-//   qrcodeModal: QRCodeModal, //redundant?
-//   qrcodeModalOptions: {
-//     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
-//   }
-// })
+
 
 export default (context, inject) => {
   const bsc = new Vue({
@@ -45,7 +37,6 @@ export default (context, inject) => {
         metamask: window.ethereum || null,
         binance: window.BinanceChain || null,
         walletConnect: walletProvider || null, //connect to mobile wallet; trust, metamask, ...
-        walletProvider: walletProvider || null,
         walletConnected: null, // Does it make sense to do this at the beginning?
         currentProvider: null
       }
@@ -65,12 +56,10 @@ export default (context, inject) => {
         if (this.currentProvider) {
           if(this.currentProvider == this.walletConnect) {
             // This method is only available for WalletConnect
-            this.currentProvider.disconnect()
+            await this.walletConnect.disconnect()
+            this.wallet = null
+            window.location.reload()
           } else {
-            // TODO: figure out how to properly disconnect.
-            // IDEA: Inform user that they only can disconnect from inside their wallet?
-            // Otherwise set this current wallet to null.
-            alert('Please note, that you will stay logged in your wallet.')
             this.wallet = null
           }
         }
@@ -109,6 +98,10 @@ export default (context, inject) => {
         this.clearTransaction()
 
         // TODO: handle bsc transaction
+      },
+
+      checkBinanceInstalled() {
+        return Boolean(this.binance)
       },
 
       checkBscFormat(bscAddress) {
@@ -152,20 +145,16 @@ export default (context, inject) => {
       async onWalletConnectWeb3() {
 
         // TODO: Make sure that all sessions are disconnected
+        // TODO when disconnecting and reconnecting there is an error with login modal
 
         try {
 
-          if(!walletProvider.connected){
-            // Launches QR-Code Modal
-            await walletProvider.enable()
-          } else {
-            await walletProvider.disconnect()
-            await walletProvider.enable()
-          }
+          // Launches QR-Code Modal
+          await this.walletConnect.enable()
 
-          this.registerProviderListener(walletProvider)
 
-          this.wallet = walletProvider.accounts
+          this.registerProviderListener(this.walletConnect)
+          this.wallet = this.walletConnect.accounts
 
 
         } catch (walletConnectError) {
