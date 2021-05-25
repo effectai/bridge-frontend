@@ -11,7 +11,9 @@ export default (context, inject) => {
         error: null,
         statusText: null,
         efxAmount: null,
-        progress: null
+        progress: null,
+        eosTransactionId: null,
+        bscTransactionId: null
       }
     },
     computed: {
@@ -38,6 +40,7 @@ export default (context, inject) => {
         this.status = 'start'
         this.statusText = 'Setup swap...'
         this.efxAmount = amount
+        this.error = null
 
         if(!this.peos) {
           this.status = 'failed'
@@ -69,21 +72,23 @@ export default (context, inject) => {
               })
             // handle events
             .once('nativeTxConfirmed', (tx) => {
+              this.eosTransactionId = tx.transaction_id
               this.progress = 25
               this.status = 'progress'
-              this.statusText = 'nativeTxConfirmed'        
+              this.statusText = 'Transaction on EOS confirmed'
             })
             .once('nodeReceivedTx', (tx) => {        
               this.progress = 50    
-              this.statusText = 'nodeReceivedTx'
+              this.statusText = 'Node received the transaction'
             })
             .once('nodeBroadcastedTx', (tx) => {
               this.progress = 75
-              this.statusText = 'nodeBroadcastedTx'
+              this.statusText = 'Broadcasted transaction'
             })
             .once('hostTxConfirmed', (tx) => {
+              this.bscTransactionId = tx.transactionHash
               this.progress = 100
-              this.statusText = 'hostTxConfirmed'
+              this.statusText = 'Transaction on BSC confirmed'
             })
             .then(() => resolve())
             .catch((e) =>  {
@@ -98,13 +103,14 @@ export default (context, inject) => {
         this.statusText = 'Finished swap'     
       },
 
-      // Haven't been able to test this one, because the minimal swap amount is like 1.000.000.000 EOS or 10?
+      // Haven't been able to test this one, because the minimal swap amount is 1.000.000.000 EFX
       // And it can only be tested on mainnet
       // Error I get: 'Impossible to issue less than 1000000000'
       async swapToEos(amount) {
         this.status = 'start'
         this.statusText = 'Setup swap...'
         this.efxAmount = amount
+        this.error = null
 
         if(!this.peos) {
           this.status = 'failed'
@@ -138,19 +144,21 @@ export default (context, inject) => {
             .once('hostTxBroadcasted', (tx) => {
               this.progress = 25
               this.status = 'progress'
-              this.statusText = 'hostTxBroadcasted'
+              this.statusText = 'Broadcasted transaction'
             })
             .once('hostTxConfirmed', (tx) => {
+              this.bscTransactionId = tx.transactionHash
               this.progress = 50
-              this.statusText = 'hostTxConfirmed'
+              this.statusText = 'Transaction on BSC confirmed'
             })
             .once('nodeReceivedTx', (tx) => {
               this.progress = 75
-              this.statusText = 'nodeReceivedTx'
+              this.statusText = 'Node received the transaction'
             })
             .once('nativeTxConfirmed', (tx) => {
+              this.eosTransactionId = tx.transaction_id
               this.progress = 100
-              this.statusText = 'nativeTxConfirmed'
+              this.statusText = 'Transaction on EOS confirmed'
             })
             .then(() => resolve())
             .catch((_err) =>  {
