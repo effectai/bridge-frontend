@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import BigNumber from "bignumber.js";
 import { pEosioToken } from 'ptokens-peosio-token'
 
 export default (context, inject) => {
@@ -11,7 +12,6 @@ export default (context, inject) => {
         error: null,
         statusText: null,
         efxAmount: null,
-        progress: null,
         eosTransactionId: null,
         bscTransactionId: null
       }
@@ -73,21 +73,17 @@ export default (context, inject) => {
             // handle events
             .once('nativeTxConfirmed', (tx) => {
               this.eosTransactionId = tx.transaction_id
-              this.progress = 25
               this.status = 'progress'
               this.statusText = 'Transaction on EOS confirmed'
             })
             .once('nodeReceivedTx', (tx) => {        
-              this.progress = 50    
               this.statusText = 'Node received the transaction'
             })
             .once('nodeBroadcastedTx', (tx) => {
-              this.progress = 75
               this.statusText = 'Broadcasted transaction'
             })
             .once('hostTxConfirmed', (tx) => {
               this.bscTransactionId = tx.transactionHash
-              this.progress = 100
               this.statusText = 'Transaction on BSC confirmed'
             })
             .then(() => resolve())
@@ -133,31 +129,25 @@ export default (context, inject) => {
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            // TODO: fix redeem?
-            // in the unit tests redeem is structured like this: (ETH -> EOS)
-            this.peos.redeem(amount, this.eosWallet.auth.accountName,
+            this.peos.redeem(BigNumber(amount + 'e18'), this.eosWallet.auth.accountName,
               {
                 //gasPrice: 100e9,
                 gas: 80000
               })
             // handle events
             .once('hostTxBroadcasted', (tx) => {
-              this.progress = 25
               this.status = 'progress'
               this.statusText = 'Broadcasted transaction'
             })
             .once('hostTxConfirmed', (tx) => {
               this.bscTransactionId = tx.transactionHash
-              this.progress = 50
               this.statusText = 'Transaction on BSC confirmed'
             })
             .once('nodeReceivedTx', (tx) => {
-              this.progress = 75
               this.statusText = 'Node received the transaction'
             })
             .once('nativeTxConfirmed', (tx) => {
               this.eosTransactionId = tx.transaction_id
-              this.progress = 100
               this.statusText = 'Transaction on EOS confirmed'
             })
             .then(() => resolve())

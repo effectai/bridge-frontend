@@ -21,7 +21,10 @@
               <div class="notification is-danger" v-if="$ptokens.error">{{ $ptokens.error }}</div>
               <div class="notification is-success" v-if="$ptokens.status == 'finished'">{{ $ptokens.statusText }}</div>
               
-              <progress v-if="!$ptokens.error && $ptokens.status == 'progress'" class="progress is-primary" :value="$ptokens.progress" max="100"></progress>
+              <div v-if="!$ptokens.error && $ptokens.status == 'progress'">
+                <progress class="progress is-primary" max="100"></progress>
+                <p>Please be patient, the swap can take a couple of minutes</p>
+              </div>
 
               <div v-if="$ptokens.status == 'finished'">
                 <div class="notification has-text-centered">
