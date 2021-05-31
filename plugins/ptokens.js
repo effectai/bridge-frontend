@@ -76,7 +76,7 @@ export default (context, inject) => {
               this.status = 'progress'
               this.statusText = 'Transaction on EOS confirmed'
             })
-            .once('nodeReceivedTx', (tx) => {        
+            .once('nodeReceivedTx', (tx) => {
               this.statusText = 'Node received the transaction'
             })
             .once('nodeBroadcastedTx', (tx) => {
