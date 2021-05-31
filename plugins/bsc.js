@@ -10,18 +10,16 @@ const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
   // For some reason, chainID needs to be 1
-  chainId: 1,
+  chainId: 56,
   rpc: {
-    1: process.env.NUXT_ENV_BSC_RPC
+    56: process.env.NUXT_ENV_BSC_RPC
   },
-  bridge: "https://bridge.walletconnect.org",
-  qrcodeModal: QRCodeModal,
+  // bridge: "https://bridge.walletconnect.org",
+  // qrcodeModal: QRCodeModal,
   qrcodeModalOptions: {
     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
   }
 })
-
-
 
 export default (context, inject) => {
   const bsc = new Vue({
@@ -197,7 +195,7 @@ export default (context, inject) => {
                   symbol: process.env.NUXT_ENV_TOKEN_SYMBOL,
                   decimals: 18
                 },
-                rpcUrls: [process.env.NUXT_ENV_BSC_RPC],
+                rpcUrls: [process.env.NUXT_ENV_BSC_RPC, 'https://bsc-dataseed.binance.org/', 'https://bsc-dataseed1.binance.org'],
                 blockExplorerUrls: [process.env.NUXT_ENV_BLOCKEXPLORER]
               }
               // This method is only available for metamask right now.
