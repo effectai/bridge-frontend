@@ -35,7 +35,7 @@
                   <img src="~assets/img/EOS-logo.svg" height="50" width="50"/>
                   <div class="subtitle is-5">
                     <a :href="$eos.explorer + '/account/'+ this.$ptokens.eosWallet" target="_blank" class="blockchain-address">
-                    {{ this.$ptokens.eosWallet }}
+                    {{ this.$ptokens.eosTransactionId }}
                     </a>
                   </div>
                 </div>
@@ -44,7 +44,7 @@
                   <img src="~assets/img/BSC-logo.svg" height="50" width="50"/>
                   <div class="subtitle is-6 has-text-centered">
                     <a :href="$bsc.explorer + '/address/'+ this.$ptokens.bscWallet" target="_blank"class="blockchain-address">
-                    {{ this.$ptokens.bscWallet }}
+                    {{ this.$ptokens.bscTransactionId }}
                     </a>
                   </div>
                 </div>
