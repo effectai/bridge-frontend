@@ -6,8 +6,8 @@ import Vue from 'vue'
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from 'web3'
 const web3 = new Web3()
-const Contract = require('web3-eth-contract')
-Contract.setProvider(process.env.NUXT_ENV_BSC_RPC)
+// const Contract = require('web3-eth-contract')
+// Contract.setProvider(process.env.NUXT_ENV_BSC_RPC)
 
 const walletProvider = new WalletConnectProvider({
   chainId: 56,
@@ -19,8 +19,24 @@ const walletProvider = new WalletConnectProvider({
   }
 })
 
-const erc20JsonInterface = [{"inputs":[{"internalType":"address","name":"_logic","type":"address"},{"internalType":"address","name":"admin_","type":"address"},{"internalType":"bytes","name":"_data","type":"bytes"}],"stateMutability":"payable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"previousAdmin","type":"address"},{"indexed":false,"internalType":"address","name":"newAdmin","type":"address"}],"name":"AdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"beacon","type":"address"}],"name":"BeaconUpgraded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"implementation","type":"address"}],"name":"Upgraded","type":"event"},{"stateMutability":"payable","type":"fallback"},{"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"admin_","type":"address"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newAdmin","type":"address"}],"name":"changeAdmin","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"implementation","outputs":[{"internalType":"address","name":"implementation_","type":"address"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newImplementation","type":"address"}],"name":"upgradeTo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newImplementation","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"upgradeToAndCall","outputs":[],"stateMutability":"payable","type":"function"},{"stateMutability":"payable","type":"receive"}]
-
+const erc20JsonInterface =  [
+  // balanceOf
+  {
+    "constant":true,
+    "inputs":[{"name":"_owner","type":"address"}],
+    "name":"balanceOf",
+    "outputs":[{"name":"balance","type":"uint256"}],
+    "type":"function"
+  },
+  // decimals
+  {
+    "constant":true,
+    "inputs":[],
+    "name":"decimals",
+    "outputs":[{"name":"","type":"uint8"}],
+    "type":"function"
+  }
+];
 
 export default (context, inject) => {
   const bsc = new Vue({
@@ -69,7 +85,7 @@ export default (context, inject) => {
 
       updateAccount() {
         if (this.wallet) {
-          this.getAccountBalance()
+          this.getEFXBalance()
         }
       },
 
@@ -88,10 +104,13 @@ export default (context, inject) => {
        */
       async getEFXBalance() {
         const efxAddress = '0xC51Ef828319b131B595b7ec4B28210eCf4d05aD0'; //Token contract address
-        const contract = new Contract(erc20JsonInterface, efxAddress);
+        // const contract = new Contract(erc20JsonInterface, efxAddress);
+        web3.setProvider(process.env.NUXT_ENV_BSC_RPC)
+        const contract = new web3.eth.Contract(erc20JsonInterface, efxAddress)
         try {
-          const balance = await contract.methods.balanceOf(this.bscwallet).call();
-          if (balance != undefined) {this.efxAvailable = balance}
+
+          const balance = await contract.methods.balanceOf(this.wallet[0]).call();
+          if (balance != undefined) {this.efxAvailable = web3.utils.fromWei(balance.toString())}
         } catch (error) {
           console.error(error)
         }
