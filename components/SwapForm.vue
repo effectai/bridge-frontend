@@ -84,7 +84,7 @@
               @click="onSwap">
         <strong>Swap</strong>
       </button>
-      <p class="is-size-7 is-center has-text-centered	mt-3">
+      <p class="is-size-7 is-center has-text-centered	mt-3" v-if="!swapFromEOS">
         Transaction fee: 0.25%
       </p>
     </div>
