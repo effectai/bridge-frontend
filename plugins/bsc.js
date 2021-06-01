@@ -82,7 +82,8 @@ export default (context, inject) => {
                 this.wallet[0]
               ]
             })
-            this.efxAvailable = web3.utils.fromWei(response.toString())
+
+            if (response != undefined) this.efxAvailable = web3.utils.fromWei(response.toString())
           } catch (balanceError) {
             console.error(balanceError)
           }
