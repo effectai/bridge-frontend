@@ -127,6 +127,9 @@ export default {
                 }
             }
         },
+    },
+    mounted() {
+      this.$ptokens.resetSwap()
     }
 }
 </script>
