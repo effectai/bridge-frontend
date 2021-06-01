@@ -108,8 +108,6 @@ export default {
             this.efxAmount = null
         },
         async onSwap() {
-            console.log('Start swap...');
-
             this.$ptokens.init(this.$bsc.currentProvider)
             this.$router.push('/swap-progress')
 
