@@ -6,7 +6,8 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "deploy": "push-dir --dir=dist --branch=gh-pages --cleanup"
   },
   "dependencies": {
     "@binance-chain/bsc-connector": "^1.0.0",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "dotenv": "^9.0.0",
     "sass-loader": "^10.1.1",
-    "node-sass": "^5.0.0"
+    "node-sass": "^5.0.0",
+    "push-dir": "^0.4.1"
   }
 }
