@@ -84,6 +84,9 @@
               @click="onSwap">
         <strong>Swap</strong>
       </button>
+      <p class="is-size-7 is-center has-text-centered	mt-3">
+        Transaction fee: 0.25%
+      </p>
     </div>
   </div>
 </template>

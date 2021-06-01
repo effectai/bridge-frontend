@@ -83,6 +83,7 @@ export default (context, inject) => {
               this.statusText = 'Broadcasted transaction'
             })
             .once('hostTxConfirmed', (tx) => {
+              console.log(tx)
               this.bscTransactionId = tx.transactionHash
               this.statusText = 'Transaction on BSC confirmed'
             })
@@ -98,10 +99,7 @@ export default (context, inject) => {
         this.status = 'finished'
         this.statusText = 'Finished swap'
       },
-
-      // Haven't been able to test this one, because the minimal swap amount is 1.000.000.000 EFX
-      // And it can only be tested on mainnet
-      // Error I get: 'Impossible to issue less than 1000000000'
+      
       async swapToEos(amount) {
         this.status = 'start'
         this.statusText = 'Setup swap...'
@@ -147,7 +145,8 @@ export default (context, inject) => {
               this.statusText = 'Node received the transaction'
             })
             .once('nativeTxConfirmed', (tx) => {
-              this.eosTransactionId = tx.transaction_id
+              console.log(tx)
+              this.eosTransactionId = tx.id
               this.statusText = 'Transaction on EOS confirmed'
             })
             .then(() => resolve())
