@@ -34,8 +34,8 @@
   },
   "devDependencies": {
     "dotenv": "^9.0.0",
-    "sass-loader": "^10.1.1",
     "node-sass": "^5.0.0",
-    "push-dir": "^0.4.1"
+    "push-dir": "^0.4.1",
+    "sass-loader": "^10.1.1"
   }
 }
