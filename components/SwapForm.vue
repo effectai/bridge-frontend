@@ -78,26 +78,10 @@
             <button :disabled="!efxAmount || !eosWallet || !bscWallet || efxAmount < 10" class="button is-medium is-accent is-fullwidth mt-5" @click="onSwap">
             <strong>Swap</strong>
           </button>
+          <p class="is-size-7 is-center has-text-centered	mt-3" v-if="!swapFromEOS">
+            Transaction fee: 0.25%
+          </p>
         </div>
-        <p class="control">
-          <a class="button is-static is-medium">
-            <span v-if="!swapFromEOS">p</span>EFX
-          </a>
-        </p>
-      </div>
-      <div class="is-size-7">
-        To your <span v-if="swapFromEOS">BSC Address</span><span v-else>EOS Account</span>
-      </div>
-      <div class="field">
-        <input class="input" disabled :value="swapFromEOS ? (bscWallet ? bscWallet[0] : '- login with your BSC wallet -') : (eosWallet ? eosWallet.auth.accountName : '- login with your EOS wallet -')" type="text" />
-      </div>
-      <button :disabled="!efxAmount || !eosWallet || !bscWallet" class="button is-medium is-accent is-fullwidth mt-5"
-              @click="onSwap">
-        <strong>Swap</strong>
-      </button>
-      <p class="is-size-7 is-center has-text-centered	mt-3" v-if="!swapFromEOS">
-        Transaction fee: 0.25%
-      </p>
     </div>
 </template>
 
