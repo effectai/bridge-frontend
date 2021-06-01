@@ -4,18 +4,15 @@ import Vue from 'vue'
  * https://docs.binance.org/walletconnect.html
  */
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import QRCodeModal from "@walletconnect/qrcode-modal";
 import Web3 from 'web3'
 const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
-  // For some reason, chainID needs to be 1
+
   chainId: 56,
   rpc: {
-    56: process.env.NUXT_ENV_BSC_RPC
+    56: 'https://bsc-dataseed1.binance.org'
   },
-  // bridge: "https://bridge.walletconnect.org",
-  // qrcodeModal: QRCodeModal,
   qrcodeModalOptions: {
     mobileLinks: ["metamask", "trust", "rainbow", "argent"]
   }
@@ -131,6 +128,7 @@ export default (context, inject) => {
       async onBinanceConnect() {
         try {
           console.log('Connecting Binance')
+          if(!this.binance) this.binance = window.BinanceChain
           this.registerProviderListener(this.binance)
           this.wallet = await this.currentProvider.request({
             method: 'eth_requestAccounts'
@@ -153,6 +151,7 @@ export default (context, inject) => {
 
           this.registerProviderListener(this.walletConnect)
           this.wallet = this.walletConnect.accounts
+          this.walletConnect.updateRpcUrl(process.env.NUXT_ENV_BSC_NETWORK_ID, process.env.NUXT_ENV_BSC_RPC)
 
 
         } catch (walletConnectError) {
@@ -180,8 +179,10 @@ export default (context, inject) => {
        */
       async addChain() {
         const chainId = await this.getCurrentChainNetwork();
+        console.log(`ChainID: ${chainId}`)
 
         if (chainId != process.env.NUXT_ENV_BSC_HEX_ID) {
+          console.log('Why is this not working?')
           try {
 
             if (this.currentProvider == this.metamask) {
