@@ -93,7 +93,7 @@ export default (context, inject) => {
               this.statusText = 'Broadcasted transaction'
             })
             .once('hostTxConfirmed', (tx) => {
-              console.log(tx)
+              // console.log(tx)
               this.bscTransactionId = tx.transactionHash
               this.statusText = 'Transaction on BSC confirmed'
             })
@@ -155,7 +155,7 @@ export default (context, inject) => {
               this.statusText = 'Node received the transaction'
             })
             .once('nativeTxConfirmed', (tx) => {
-              console.log(tx)
+              // console.log(tx)
               this.eosTransactionId = tx.id
               this.statusText = 'Transaction on EOS confirmed'
             })

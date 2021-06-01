@@ -145,7 +145,6 @@ export default (context, inject) => {
 
       checkBscFormat(bscAddress) {
         const response =  web3.utils.isAddress(bscAddress, process.NUXT_ENV_BSC_NETWORK_ID)
-        console.log(`ResponseCheckBSCFormat: ${response}`)
         return response
       },
 
@@ -155,7 +154,6 @@ export default (context, inject) => {
       },
       async onMetaMaskConnect() {
         try {
-          console.log('Connecting MetaMask')
           this.registerProviderListener(this.metamask)
           this.wallet = await this.currentProvider.request({
             method: 'eth_requestAccounts'
@@ -171,7 +169,6 @@ export default (context, inject) => {
 
       async onBinanceConnect() {
         try {
-          console.log('Connecting Binance')
           if(!this.binance) this.binance = window.BinanceChain
           this.registerProviderListener(this.binance)
           this.wallet = await this.currentProvider.request({
@@ -207,7 +204,6 @@ export default (context, inject) => {
       async handleAccountsChanged(accounts) {
         if (accounts.length === 0) {
           // MetaMask is locked or the user has not connected any accounts
-          console.log('Please connect your wallet.');
         } else if (accounts[0] !== this.wallet) {
           this.wallet = accounts[0];
         }
@@ -223,10 +219,8 @@ export default (context, inject) => {
        */
       async addChain() {
         const chainId = await this.getCurrentChainNetwork();
-        console.log(`ChainID: ${chainId}`)
 
         if (chainId != process.env.NUXT_ENV_BSC_HEX_ID) {
-          console.log('Why is this not working?')
           try {
 
             if (this.currentProvider == this.metamask) {
@@ -250,7 +244,6 @@ export default (context, inject) => {
               })
               //if (updatedChainId =! null) throw Error(`AddChainError: ${updatedChainId}`)
               if (updatedChainId) {
-                console.log(updatedChainId)
               }
             } else {
               // Notify the user to change the chain they are on manually.
@@ -304,20 +297,16 @@ export default (context, inject) => {
 
         // Connected, requests can be made to provider.
         this.currentProvider.on('connect', () => {
-          console.log('Connecting')
           this.walletConnected = true
         })
 
         // Disconnected, requests can no longer be made with provider.
         this.currentProvider.on('disconnect', () => {
-          console.log('Diconnecting')
           this.walletConnected = false
         })
 
         // Inform user of account change, only one account can be selected
         this.currentProvider.on('accountsChanged', (newWallet) => {
-          console.log("Changing selected account")
-          console.log(this.checkBscFormat(newWallet))
           this.wallet = newWallet
         })
 
