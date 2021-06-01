@@ -6,9 +6,10 @@ import Vue from 'vue'
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from 'web3'
 const web3 = new Web3()
+const Contract = require('web3-eth-contract')
+Contract.setProvider(process.env.NUXT_ENV_BSC_RPC)
 
 const walletProvider = new WalletConnectProvider({
-
   chainId: 56,
   rpc: {
     56: 'https://bsc-dataseed1.binance.org'
@@ -18,6 +19,9 @@ const walletProvider = new WalletConnectProvider({
   }
 })
 
+const erc20JsonInterface = [{"inputs":[{"internalType":"address","name":"_logic","type":"address"},{"internalType":"address","name":"admin_","type":"address"},{"internalType":"bytes","name":"_data","type":"bytes"}],"stateMutability":"payable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"previousAdmin","type":"address"},{"indexed":false,"internalType":"address","name":"newAdmin","type":"address"}],"name":"AdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"beacon","type":"address"}],"name":"BeaconUpgraded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"implementation","type":"address"}],"name":"Upgraded","type":"event"},{"stateMutability":"payable","type":"fallback"},{"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"admin_","type":"address"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newAdmin","type":"address"}],"name":"changeAdmin","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"implementation","outputs":[{"internalType":"address","name":"implementation_","type":"address"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newImplementation","type":"address"}],"name":"upgradeTo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newImplementation","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"upgradeToAndCall","outputs":[],"stateMutability":"payable","type":"function"},{"stateMutability":"payable","type":"receive"}]
+
+
 export default (context, inject) => {
   const bsc = new Vue({
     data() {
@@ -26,6 +30,7 @@ export default (context, inject) => {
         wallet: null,
         loginModal: false,
         efxAvailable: null,
+        bnbAvailable: null,
         updater: null,
         transaction: null,
         transactionError: null,
@@ -73,7 +78,26 @@ export default (context, inject) => {
         Object.assign(this.$data, this.$options.data.call(this))
       },
 
-      async getAccountBalance() {
+      /**
+       *     name: "balanceOf",
+              outputs: [
+                {
+                  name: "balance",
+                  type: "uint256"
+                }
+       */
+      async getEFXBalance() {
+        const efxAddress = '0xC51Ef828319b131B595b7ec4B28210eCf4d05aD0'; //Token contract address
+        const contract = new Contract(erc20JsonInterface, efxAddress);
+        try {
+          const balance = await contract.methods.balanceOf(this.bscwallet).call();
+          if (balance != undefined) {this.efxAvailable = balance}
+        } catch (error) {
+          console.error(error)
+        }
+      },
+
+      async getAccountBalance() { // BNB
         if (this.currentProvider && this.wallet) { // make sure that there is a wallet as well
           try {
             const response = await this.currentProvider.request({
