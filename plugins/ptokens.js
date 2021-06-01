@@ -36,6 +36,16 @@ export default (context, inject) => {
         })
       },
 
+      resetSwap() {
+        this.peos = null;
+        this.status = null;
+        this.error = null;
+        this.statusText = null;
+        this.efxAmount = null;
+        this.eosTransactionId = null;
+        this.bscTransactionId = null;
+      },
+
       async swapToBsc(amount) {
         this.status = 'start'
         this.statusText = 'Setup swap...'
@@ -99,7 +109,7 @@ export default (context, inject) => {
         this.status = 'finished'
         this.statusText = 'Finished swap'
       },
-      
+
       async swapToEos(amount) {
         this.status = 'start'
         this.statusText = 'Setup swap...'
