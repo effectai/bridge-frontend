@@ -126,7 +126,7 @@ export default (context, inject) => {
               ]
             })
 
-            if (response != undefined) this.efxAvailable = web3.utils.fromWei(response.toString())
+            return response
           } catch (balanceError) {
             console.error(balanceError)
           }
@@ -158,6 +158,7 @@ export default (context, inject) => {
           this.wallet = await this.currentProvider.request({
             method: 'eth_requestAccounts'
           })
+          this.updateAccount()
           this.checkBscFormat(this.wallet[0])
         } catch (mmError) {
           console.error(mmError)
@@ -174,6 +175,7 @@ export default (context, inject) => {
           this.wallet = await this.currentProvider.request({
             method: 'eth_requestAccounts'
           })
+          this.updateAccount()
         } catch (bscError) {
           return Promise.reject(bscError)
         }
@@ -192,6 +194,7 @@ export default (context, inject) => {
 
           this.registerProviderListener(this.walletConnect)
           this.wallet = this.walletConnect.accounts
+          this.updateAccount()
           this.walletConnect.updateRpcUrl(process.env.NUXT_ENV_BSC_NETWORK_ID, process.env.NUXT_ENV_BSC_RPC)
 
 
