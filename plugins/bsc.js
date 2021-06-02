@@ -75,14 +75,6 @@ export default (context, inject) => {
         Object.assign(this.$data, this.$options.data.call(this))
       },
 
-      /**
-       *     name: "balanceOf",
-              outputs: [
-                {
-                  name: "balance",
-                  type: "uint256"
-                }
-       */
       async getEFXBalance() {
         const erc20JsonInterface =  [
           // balanceOf
@@ -104,11 +96,10 @@ export default (context, inject) => {
         ];
 
         const efxAddress = '0xC51Ef828319b131B595b7ec4B28210eCf4d05aD0'; //Token contract address
-        // const contract = new Contract(erc20JsonInterface, efxAddress);
         web3.setProvider(process.env.NUXT_ENV_BSC_RPC)
         const contract = new web3.eth.Contract(erc20JsonInterface, efxAddress)
-        try {
 
+        try {
           const balance = await contract.methods.balanceOf(this.wallet[0]).call();
           if (balance != undefined) {this.efxAvailable = web3.utils.fromWei(balance.toString())}
         } catch (error) {
