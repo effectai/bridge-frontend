@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import BigNumber from "bignumber.js";
+import Web3 from 'web3';
 import { pEosioToken } from 'ptokens-peosio-token'
 
 export default (context, inject) => {
@@ -137,7 +138,7 @@ export default (context, inject) => {
 
         const swap = () =>
           new Promise((resolve, reject) => {
-            this.peos.redeem(BigNumber(amount + 'e18'), this.eosWallet.auth.accountName,
+            this.peos.redeem(Web3.utils.toWei(amount.toString()), this.eosWallet.auth.accountName,
               {
                 //gasPrice: 100e9,
                 gas: 80000
