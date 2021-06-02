@@ -29,7 +29,6 @@
                 <p class="mb-6" style="font-size: 0.9rem">Please be patient, the swap can take <strong>up to 10 minutes</strong></p>
               </div>
 
-
               <div class="notification has-text-centered" v-if="$ptokens.status == 'finished'">
                   <span class="mb-1">Amount swapped</span>
                   <h4 class="subtitle is-4 mb-0">{{ $ptokens.efxAmount }} EFX</h4>

@@ -19,25 +19,6 @@ const walletProvider = new WalletConnectProvider({
   }
 })
 
-const erc20JsonInterface =  [
-  // balanceOf
-  {
-    "constant":true,
-    "inputs":[{"name":"_owner","type":"address"}],
-    "name":"balanceOf",
-    "outputs":[{"name":"balance","type":"uint256"}],
-    "type":"function"
-  },
-  // decimals
-  {
-    "constant":true,
-    "inputs":[],
-    "name":"decimals",
-    "outputs":[{"name":"","type":"uint8"}],
-    "type":"function"
-  }
-];
-
 export default (context, inject) => {
   const bsc = new Vue({
     data() {
@@ -94,21 +75,31 @@ export default (context, inject) => {
         Object.assign(this.$data, this.$options.data.call(this))
       },
 
-      /**
-       *     name: "balanceOf",
-              outputs: [
-                {
-                  name: "balance",
-                  type: "uint256"
-                }
-       */
       async getEFXBalance() {
+        const erc20JsonInterface =  [
+          // balanceOf
+          {
+            "constant":true,
+            "inputs":[{"name":"_owner","type":"address"}],
+            "name":"balanceOf",
+            "outputs":[{"name":"balance","type":"uint256"}],
+            "type":"function"
+          },
+          // decimals
+          {
+            "constant":true,
+            "inputs":[],
+            "name":"decimals",
+            "outputs":[{"name":"","type":"uint8"}],
+            "type":"function"
+          }
+        ];
+
         const efxAddress = '0xC51Ef828319b131B595b7ec4B28210eCf4d05aD0'; //Token contract address
-        // const contract = new Contract(erc20JsonInterface, efxAddress);
         web3.setProvider(process.env.NUXT_ENV_BSC_RPC)
         const contract = new web3.eth.Contract(erc20JsonInterface, efxAddress)
-        try {
 
+        try {
           const balance = await contract.methods.balanceOf(this.wallet[0]).call();
           if (balance != undefined) {this.efxAvailable = web3.utils.fromWei(balance.toString())}
         } catch (error) {
@@ -126,7 +117,7 @@ export default (context, inject) => {
               ]
             })
 
-            return response
+            if (response != undefined) this.bnbAvailable = web3.utils.fromWei(response.toString())
           } catch (balanceError) {
             console.error(balanceError)
           }
@@ -182,21 +173,14 @@ export default (context, inject) => {
       },
 
       async onWalletConnectWeb3() {
-
-        // TODO: Make sure that all sessions are disconnected
-        // TODO when disconnecting and reconnecting there is an error with login modal
-
         try {
-
           // Launches QR-Code Modal
           await this.walletConnect.enable()
-
 
           this.registerProviderListener(this.walletConnect)
           this.wallet = this.walletConnect.accounts
           this.updateAccount()
           this.walletConnect.updateRpcUrl(process.env.NUXT_ENV_BSC_NETWORK_ID, process.env.NUXT_ENV_BSC_RPC)
-
 
         } catch (walletConnectError) {
           return Promise.reject(walletConnectError)
@@ -258,7 +242,6 @@ export default (context, inject) => {
             console.error(addChainError)
           }
         }
-
       },
 
       /**
