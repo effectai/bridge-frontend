@@ -11,11 +11,12 @@ const web3 = new Web3()
 
 const walletProvider = new WalletConnectProvider({
   chainId: 56,
+  bridge: process.env.NUXT_ENV_WALLETCONNECT_BRIDGE_URL,
   rpc: {
-    56: 'https://bsc-dataseed1.binance.org'
+    56: process.env.NUXT_ENV_BSC_RPC
   },
   qrcodeModalOptions: {
-    mobileLinks: ["metamask", "trust", "rainbow", "argent"]
+    mobileLinks: ["metamask", "trust"]
   }
 })
 
