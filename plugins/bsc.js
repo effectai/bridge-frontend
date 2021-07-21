@@ -1,21 +1,16 @@
 import Vue from 'vue'
-/**
- * When using the walletconnect protocol we need to make sure to use the custom requests.
- * https://docs.binance.org/walletconnect.html
- */
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from 'web3'
 const web3 = new Web3()
-// const Contract = require('web3-eth-contract')
-// Contract.setProvider(process.env.NUXT_ENV_BSC_RPC)
 
 const walletProvider = new WalletConnectProvider({
   chainId: 56,
+  bridge: process.env.NUXT_ENV_WALLETCONNECT_BRIDGE_URL,
   rpc: {
-    56: 'https://bsc-dataseed1.binance.org'
+    56: process.env.NUXT_ENV_BSC_RPC
   },
   qrcodeModalOptions: {
-    mobileLinks: ["metamask", "trust", "rainbow", "argent"]
+    mobileLinks: ["metamask", "trust"]
   }
 })
 
