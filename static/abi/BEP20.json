@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "DummyBEP20",
-  "sourceName": "contracts/DummyBEP20.sol",
+  "contractName": "BEP20",
+  "sourceName": "contracts/BEP20.sol",
   "abi": [
     {
       "inputs": [],
