@@ -6,16 +6,36 @@
                 <table class="table is-narrow">
                   <tbody>
                     <tr>
+                      <th>Start Date:</th>
+                      <td>{{farm.startDate}}</td>
+                    </tr>
+                    <tr>
+                      <th>End Date:</th>
+                      <td>{{farm.endDate}}</td>
+                    </tr>
+                    <tr>
+                      <th>Farm address:</th>
+                      <td>{{farm.address}}</td>
+                    </tr>
+                    <tr>
+                      <th>Reward<strong>/</strong>Block</th>
+                      <td>{{farm.reward}}</td>
+                    </tr>
+                    <tr>
+                      <th>LP Locked:</th>
+                      <td>{{farm.lpLocked}}</td>
+                    </tr>
+                    <tr>
                       <th>APR: </th>
-                      <td>{{farmApr}}</td>
+                      <td>{{farm.apr}}</td>
                     </tr>
                     <tr>
                       <th>Liquidity: </th>
-                      <td>{{farmLiquidity}}</td>
+                      <td>{{farm.liquidity}}</td>
                     </tr>
                     <tr>
                       <th>Multiplier: </th>
-                      <td>{{farmMultiplier}}</td>
+                      <td>{{farm.multiplier}}</td>
                     </tr>
                   </tbody>
 
@@ -86,11 +106,8 @@ export default {
         return {
             lpAmount: null,
             approved: false,
-            farmApr: null,
-            farmLiquidity: null,
-            farmMultiplier: null,
+            farm: {},
             pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
-
         }
     },
     computed: {
@@ -102,8 +119,7 @@ export default {
       onConnect () {
         // TODO When wallet is connected, check if
         // address has already been approved
-        // Get balance, farmed amount, s
-
+        // Get balance, farmed amount, pending rewards
       },
       onApprove () {
         // TODO Approve address, at max value of a uint256
