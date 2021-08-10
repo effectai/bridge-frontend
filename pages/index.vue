@@ -10,7 +10,27 @@
       </div>
     </section>
     <div class="container">
-      <swap-form />
+      <div class="tabs is-centered is-large is-boxed">
+        <ul>
+          <li class="tab">
+            <a href="">
+              <span class="icon is-small"><i class="fas fa-exchange-alt" aria-hidden="true"></i></span>
+              <span>Brige</span>
+            </a>
+            <!-- <swap-form /> -->
+          </li>
+          <li class="tab">
+            <span>&nbsp;&nbsp;&nbsp;</span>
+          </li>
+          <li class="tab">
+            <a href="">
+              <span>Farm</span>
+              <span class="icon is-small"><i class="fas fa-tractor" aria-hidden="true"></i></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+        <master-chef/>
     </div>
     <!-- Educational Resources -->
     <div class="has-text-centered my-5">
@@ -24,12 +44,15 @@
 
 <script>
 import SwapForm from '@/components/SwapForm';
+import MasterChef from '../components/MasterChef.vue';
 
 export default {
   components: {
-    SwapForm
+    SwapForm,
+    MasterChef
   },
   data() {
+
     return {
     }
   },
