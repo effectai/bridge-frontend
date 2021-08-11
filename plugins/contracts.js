@@ -10,6 +10,7 @@ const Bep20Contract = new bscWeb3.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_T
 const MasterChefContract = new bscWeb3.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
 const MAXUINT256 = new BN("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
+// Temporary utility function
 JSON.safeStringify = (obj, indent = 2) => {
   let cache = [];
   const retVal = JSON.stringify(
@@ -36,13 +37,11 @@ JSON.safeStringify = (obj, indent = 2) => {
  * @returns {boolean}
  */
 const isApproved = async (address) => {
-  const allowance = await Bep20Contract.methods.allowance(address, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT).call()
-  console.log(`Allowance: ${JSON.safeStringify(allowance)}`)
-  const allowanceBN = new BN(allowance)
-  // console.log(`AllowanceBN: ${JSON.stringify(allowanceBN)}`)
-  const predicateAllowance = allowanceBN.eq(MAXUINT256)
-  // console.log(`Predicate: ${JSON.stringify(predicateAllowance)}`)
-  return predicateAllowance
+  const allowance = new BN(await PancakePairContract.methods.allowance(address, process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+  console.log(`Allowance: ${allowance}`);
+  const returnval = allowance.eq(MAXUINT256)
+  console.log(`Return value: ${returnval}`);
+  return returnval
 }
 
 /**
@@ -51,7 +50,14 @@ const isApproved = async (address) => {
  * @returns {Promise}
  */
 const approveAllowance = async (address) => {
-  return await Bep20Contract.methods.approve(address, MAXUINT256).call()
+  try {
+    console.log(`Approving ${address} for ${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`)
+    const val = await PancakePairContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: address })
+    console.log(`Approval: ${val}`)
+    return val
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 /**
