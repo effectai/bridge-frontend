@@ -278,6 +278,9 @@ export default (context, inject) => {
         // assign provider to this.currentProvider, there are differenct provider objects
         this.currentProvider = provider
 
+        // Initialize the masterchef plugin
+        context.$masterchef.init(this.currentProvider)
+
         // Change boolean of walletconnected status
         this.walletConnected = true
 
@@ -310,36 +313,36 @@ export default (context, inject) => {
 
       },
 
-      async isApproved() {
-        try {
-          const contractProvider = new Web3(this.currentProvider)
-          const PancakePairContract = new contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-          const allowance = new BN(await PancakePairContract.methods.allowance(this.wallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
-          return allowance.eq(MAXUINT256)
-        } catch (error) {
-          console.error(error)
-        }
-      },
+      // async isApproved() {
+      //   try {
+      //     const contractProvider = new Web3(this.currentProvider)
+      //     const PancakePairContract = new contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
+      //     const allowance = new BN(await PancakePairContract.methods.allowance(this.wallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+      //     return allowance.eq(MAXUINT256)
+      //   } catch (error) {
+      //     console.error(error)
+      //   }
+      // },
 
-      async approveAllowance() {
-        try {
-          const contractProvider = new Web3(this.currentProvider)
-          const PancakePairContract = new contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-          return await PancakePairContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.wallet[0] })
-        } catch (error) {
-          console.error(error);
-        }
-      },
+      // async approveAllowance() {
+      //   try {
+      //     const contractProvider = new Web3(this.currentProvider)
+      //     const PancakePairContract = new contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
+      //     return await PancakePairContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.wallet[0] })
+      //   } catch (error) {
+      //     console.error(error);
+      //   }
+      // },
 
-      async depositLpIntoMasterChef(amount) {
-        try {
-          const contractProvider = new Web3(this.currentProvider)
-          const MasterChefContract = new contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
-          return await MasterChefContract.methods.deposit(amount).send({ from: this.wallet[0] })
-        } catch (error) {
-          console.error(error);
-        }
-      }
+      // async depositLpIntoMasterChef(amount) {
+      //   try {
+      //     const contractProvider = new Web3(this.currentProvider)
+      //     const MasterChefContract = new contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
+      //     return await MasterChefContract.methods.deposit(amount).send({ from: this.wallet[0] })
+      //   } catch (error) {
+      //     console.error(error);
+      //   }
+      // }
     }
   })
 

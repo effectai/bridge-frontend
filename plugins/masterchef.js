@@ -25,12 +25,12 @@ export default (context, inject) => {
     },
     computed: {
       loggedInBscProvider () {
-        return (context.$bsc) ? context.$bsc.currentProvider : null
+        (context.$bsc) ? this.init(context.$bsc.currentProvider) : null
       }
     },
     methods: {
 
-      async init (currentProvider) {
+      init (currentProvider) {
         try {
           this.status = "Loading Contracts"
           this.contractProvider = new Web3(currentProvider)
@@ -38,6 +38,7 @@ export default (context, inject) => {
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
           this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
           this.status = "Contracts Loaded"
+          console.log("MasterChef Contract Loaded")
         } catch (error) {
           this.status = "Error loading contracts"
           this.error = error.message
@@ -47,7 +48,8 @@ export default (context, inject) => {
 
       async isApproved() {
         try {
-          const allowance = new BN(await this.pancakeContract.methods.allowance(this.wallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+          const allowance = new BN(await this.pancakeContract.methods.allowance(context.$bsc.wallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+          console.log(`Allowance: ${allowance}, maxuint256: ${MAXUINT256},isApproved: ${allowance.eq(MAXUINT256)}`);
           return allowance.eq(MAXUINT256)
         } catch (error) {
           console.error(error)
@@ -56,7 +58,7 @@ export default (context, inject) => {
 
       async approveAllowance() { // Needs to come from the user wallet
         try {
-          return await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.wallet[0] })
+          return await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: context.$bsc.wallet[0] })
         } catch (error) {
           console.error(error);
         }
@@ -64,7 +66,7 @@ export default (context, inject) => {
 
       async depositLpIntoMasterChef(amount) {
         try {
-          return await this.masterchefContract.methods.deposit(amount).send({ from: this.wallet[0] })
+          return await this.masterchefContract.methods.deposit(amount).send({ from: context.$bsc.wallet[0] })
         } catch (error) {
           console.error(error);
         }
