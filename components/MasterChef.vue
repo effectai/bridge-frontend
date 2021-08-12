@@ -109,7 +109,7 @@ export default {
             return (this.$bsc) ? this.$bsc.wallet : null
         },
         async approved() {
-            return await this.$bsc.isApproved()
+            return await this.$masterchef.isApproved()
         }
     },
     methods: {
