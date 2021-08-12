@@ -54,14 +54,14 @@
             </div>
 
             <div v-if="bscWallet">
-              <div v-if="approved">
+              <div v-if="$masterchef.approved">
                 <div class="is-size-7 columns mb-0 is-mobile">
                       <div class="column py-0">
                           Amount
                       </div>
                       <div class="column has-text-right py-0">
                           Balance:
-                          <span v-if="$bsc.efxAvailable !== null"><a @click="lpAmount = $bsc.efxAvailable">{{$bsc.efxAvailable}}</a></span>
+                          <span v-if="$bsc.efxAvailable !== null"><a @click="lpAmount = $bsc.efxAvailable">{{$masterchef.getBalance(this.bscWallet[0])}}</a></span>
                           <span v-else>-</span>
                       </div>
                   </div>
@@ -77,7 +77,7 @@
                   <div class="field">
                       <input class="input" disabled :value="bscWallet ? bscWallet[0] : '- login with your BSC wallet -'" type="text" />
                   </div>
-                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.depositLpIntoMasterChef(1)">
+                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.depositLpIntoMasterChef(lpAmount)">
                       <strong>Farm</strong>
                   </button>
               </div>
@@ -108,8 +108,8 @@ export default {
         bscWallet() {
             return (this.$bsc) ? this.$bsc.wallet : null
         },
-        async approved() {
-            return await this.$masterchef.isApproved()
+        approved() {
+            return (this.$bsc) ? this.$bsc.approved : null
         }
     },
     methods: {
