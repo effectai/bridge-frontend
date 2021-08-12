@@ -77,13 +77,13 @@
                   <div class="field">
                       <input class="input" disabled :value="bscWallet ? bscWallet[0] : '- login with your BSC wallet -'" type="text" />
                   </div>
-                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$bsc.depositLpIntoMasterChef(1)">
+                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.depositLpIntoMasterChef(1)">
                       <strong>Farm</strong>
                   </button>
               </div>
               <div v-else>
                 <div class="is-size-7 columns mb-0 is-mobile">
-                  <button class="button is-medium is-accent is-fullwidth mt-5" @click="this.$bsc.approveAllowance">
+                  <button class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.approveAllowance">
                       <strong>Approve</strong>
                   </button>
                 </div>
@@ -94,7 +94,6 @@
 </template>
 
 <script>
-import {isApproved, approveAllowance} from "../plugins/contracts";
 
 export default {
     data() {
@@ -102,6 +101,7 @@ export default {
             lpAmount: null,
             farm: {},
             pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
+            allowanceApproval: null,
         }
     },
     computed: {
