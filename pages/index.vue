@@ -14,8 +14,8 @@
         <ul>
           <li class="tab">
             <a @click="bridge = true">
-              <span class="icon is-small"><i class="fas fa-exchange-alt" aria-hidden="true"></i></span>
-              <span>Brige</span>
+              <span class="icon is-small"><i class="fas fa-sync-alt" aria-hidden="true"></i></span>
+              <span>Bridge</span>
             </a>
           </li>
           <li class="tab">
