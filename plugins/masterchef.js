@@ -22,7 +22,9 @@ export default (context, inject) => {
         bepContract: null,
         masterchefContract: null,
         approved: null,
-        updater: null,
+        updaterApproved: null,
+        updaterBalance: null,
+        lpBalance: null,
       }
     },
     computed: {
@@ -33,7 +35,6 @@ export default (context, inject) => {
       bscWallet () {
         return (context.$bsc) ? context.$bsc.wallet : null
       },
-
     },
     methods: {
 
@@ -45,15 +46,24 @@ export default (context, inject) => {
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
           this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
           this.status = "Contracts Loaded"
+          this.status = "Contracts Loaded"
           console.log("MasterChef Contract Loaded")
-          this.updater = setInterval(() => {
-            this.isApproved()
-          }, 1000)
+
+          this.isApproved()
+          this.updaterApproved = setInterval(() => this.isApproved(), 5000)
+          this.updaterBalance = setInterval(() => this.getBalanceLpTokens(this.bscWallet[0]), 5000)
 
         } catch (error) {
           this.status = "Error loading contracts"
           this.error = error.message
           console.error(error)
+        }
+      },
+
+      updateAccount () {
+        if(this.bscWallet) {
+          this.getBalanceLpTokens(this.bscWallet[0])
+          this.isApproved()
         }
       },
 
@@ -63,7 +73,7 @@ export default (context, inject) => {
 
       async isApproved() {
         if (this.updater != null) {
-          clearInterval(this.updater)
+          clearInterval(this.updaterApproved)
         }
         try {
           const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
@@ -79,8 +89,11 @@ export default (context, inject) => {
       async approveAllowance() { // Needs to come from the user wallet
         try {
           this.updater = setInterval(() =>  this.isApproved(), 1000 )
-          return await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.bscWallet[0] })
+          const approvalTX = await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.bscWallet[0] })
+          this.approved = true
+          return approvalTX
         } catch (error) {
+          this.isApproved = false
           console.error(error);
         }
       },
@@ -97,6 +110,8 @@ export default (context, inject) => {
       async getBalanceLpTokens (address) {
         try {
           const balance = await this.pancakeContract.methods.balanceOf(address).call()
+          console.log(`Balance of ${address} is ${toWei(balance)} LP`)
+          this.lpBalance = toWei(balance)
           return toWei(balance)
         } catch (error) {
           console.error(error);
