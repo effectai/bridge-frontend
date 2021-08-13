@@ -25,6 +25,8 @@
                 </div>
             </div>
 
+            <hr>
+
             <div class="box is-centered is-vcentered is-shadowless">
 
               <div class="column">
@@ -41,16 +43,16 @@
                 <table class="table is-narrow">
                     <tbody>
                         <tr>
-                            <th>Start Date:</th>
-                            <td>{{this.farm.startDate}}</td>
+                            <th>Start Block:</th>
+                            <td>{{$masterchef.startBlock}}</td>
                         </tr>
                         <tr>
-                            <th>End Date:</th>
-                            <td>{{this.farm.endDate}}</td>
+                            <th>End Block:</th>
+                            <td>{{$masterchef.endBlock}}</td>
                         </tr>
                         <tr>
                             <th>Reward / Block</th>
-                            <td>{{ this.farm.cakePerBlock }}</td>
+                            <td>{{ $masterchef.efxPerBlock }}</td>
                         </tr>
                         <tr>
                             <th>LP Locked:</th>
@@ -85,7 +87,7 @@
                       <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
                     </div>
                     <p class="control">
-                      <a class="button is-static is-medium">LP</a>
+                      <a class="button is-static is-medium">EFX</a>
                     </p>
                 </div>
                 <button :disabled="!lpAmount || !bscWallet || pendingEFX < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.claimPendingEFX()">
@@ -177,7 +179,7 @@ export default {
         this.farm.startDate = "TBA"
         this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
         this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
-        this.farm.cakePerBlock = this.$masterchef.cakePerBlock
+        this.farm.efxPerBlock = this.$masterchef.efxPerBlock
         this.farm.lockedTokens = this.$masterchef.lockedTokens
         this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
         this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"

@@ -29,8 +29,12 @@ export default (context, inject) => {
         lpEfxReserves: null,
         lpWbnbReserves: null,
         lpEndDate: null,
-        pendingEFx: null,
+        pendingEfx: null,
+        updaterPendingEfx: null,
         lockedTokens: null,
+        efxPerBlock: null,
+        startBlock: null,
+        endBlock: null,
       }
     },
     computed: {
@@ -59,9 +63,13 @@ export default (context, inject) => {
           this.isApproved()
           this.getLpReserves()
           this.getLockedLpTokens()
+          this.getMasterChefInfo()
+          this.getPendingEFX()
+          // this.getCakePerBlock()
           setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
-          this.updaterApproved = setInterval(() => this.isApproved(), 5e3) // 5 seconds
+          this.updaterApproved = setInterval(() => this.isApproved(), 1e3) // 5 seconds
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(this.bscWallet[0]), 10e3) // 10 seconds
+          this.updaterPendingEfx = setInterval(() => this.getPendingEFX(), 5e3) // 5 seconds
 
         } catch (error) {
           this.status = "Error loading contracts"
@@ -99,7 +107,7 @@ export default (context, inject) => {
           this.approved = true
           return approvalTX
         } catch (error) {
-          this.isApproved = false
+          this.approved = false
           console.error('pancakeContract#approveAllowance', error);
         }
       },
@@ -126,10 +134,10 @@ export default (context, inject) => {
 
       async getPendingEFX () {
         try {
-          const pendingEFX = await this.masterchefContract.methods.pendingEFX(this.bscWallet[0]).call()
-          console.log(`Pending EFX is ${fromWei(pendingEFX)} LP`)
-          this.pendingEFx = fromWei(pendingEFX)
-          return toWei(pendingEFX)
+          const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
+          console.log(`Pending EFX is ${pendingEFX}`)
+          this.pendingEfx = pendingEFX
+          return pendingEFX
         } catch (error) {
           console.error('Masterchef#getPendingEfx', error);
         }
@@ -150,26 +158,57 @@ export default (context, inject) => {
           const reserves = await this.pancakeContract.methods.getReserves().call()
           console.log(`Reserves: ${JSON.stringify(reserves)} LP`)
           this.lpReserves = reserves
-          this.lpEfxReserves = fromWei(reserves[0])
-          this.lpWbnbReserves = fromWei(reserves[1])
+          this.lpEfxReserves = Number.parseFloat(fromWei(reserves[0])).toFixed(2)
+          this.lpWbnbReserves = Number.parseFloat(fromWei(reserves[1])).toFixed(2)
           this.lpEndDate = (new Date(reserves["_blockTimestampLast"] * 1e3)).toDateString()
           return reserves
         } catch (error) {
           console.error('Pancake#getLpReserves', error);
         }
       },
+
+      async getLockedLpTokens () {
+        console.log("Getting Locked Lp Tokens")
+        try {
+          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
+          console.log(`Locked LP Tokens: ${fromWei(lockedLpTokens)} LP`)
+          this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
+          // this.lockedTokens = fromWei(lockedLpTokens).split(".")[0]
+          console.log(`Locked LP Tokens: ${this.lockedTokens}`)
+          return fromWei(lockedLpTokens)
+        } catch (error) {
+          console.error('Pancake#getLockedLpTokens', error);
+        }
+      },
+
+      async getMasterChefInfo () {
+        try {
+          const efxPerBlock = await this.masterchefContract.methods.efxPerBlock().call()
+          const startBlock = await this.masterchefContract.methods.startBlock().call()
+          const endBlock = await this.masterchefContract.methods.endBlock().call()
+
+          this.efxPerBlock = efxPerBlock
+          this.startBlock = startBlock
+          this.endBlock = endBlock
+
+        } catch (error) {
+          console.error('Masterchef#getMasterChefInfo', error);
+        }
+      },
+
+      // async getCakePerBlock () {
+      //   try {
+      //     const cakePerBlock = await this.masterchefContract.methods.cakePerBlock.call()
+      //     console.log(`Cake per block: ${cakePerBlock}`)
+      //     this.cakePerBlock = fromWei(cakePerBlock)
+      //     return cakePerBlock
+      //   } catch (error) {
+      //     console.error('Pancake#getCakePerBlock', error);
+      //   }
+      // },
+
     },
 
-    async getLockedLpTokens () {
-      try {
-        const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
-        console.log(`Locked LP Tokens: ${fromWei(lockedLpTokens)} LP`)
-        this.lockedTokens = fromWei(lockedLpTokens)
-        return fromWei(lockedLpTokens)
-      } catch (error) {
-        console.error('Pancake#getLockedLpTokens', error);
-      }
-    },
 
 
     created() {
