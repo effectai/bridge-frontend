@@ -14,16 +14,27 @@
                         <td>{{this.farm.endDate}}</td>
                     </tr>
                     <tr>
-                        <th>Farm address:</th>
-                        <td>{{this.farm.address}}</td>
+                        <th>Address:</th>
+                        <td>
+                          <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
+                        </td>
                     </tr>
                     <tr>
                         <th>Reward<strong>/</strong>Block</th>
-                        <td>{{this.farm.reward}}</td>
+                        <td>
+                        </td>
                     </tr>
                     <tr>
                         <th>LP Locked:</th>
-                        <td>{{this.farm.lpLocked}}</td>
+                        <td>{{}}</td>
+                    </tr>
+                    <tr>
+                        <th>EFX Reserves:</th>
+                        <td>{{ this.farm.efxReserves }}</td>
+                    </tr>
+                    <tr>
+                        <th>WBNB Reserves:</th>
+                        <td>{{ this.farm.wbnbReserves }}</td>
                     </tr>
                     <tr>
                         <th>APR: </th>
@@ -94,6 +105,7 @@
 </template>
 
 <script>
+import { fromWei } from 'web3-utils';
 
 export default {
     data() {
@@ -111,6 +123,7 @@ export default {
         approved() {
             return (this.$bsc) ? this.$bsc.approved : null
         }
+
     },
     methods: {
         onConnect() {
@@ -129,17 +142,22 @@ export default {
             // TODO Deposit LP into masterchef.sol after approve has been called
         },
         async getLpReserves() {
-            return await this.contracts.getLpReserves()
         }
     },
-    async mounted() {
+    created() {
         // TODO when this page is mounted load in basic farm info; apr, liquidity, multiplier
         this.farm.startDate = "TBA"
-        this.farm.endDate = "TBA"
-        this.farm.address = "TBA"
+        this.farm.address = (process.env.NUXT_ENV_MASTERCHEF_CONTRACT.slice(12)).padEnd(3, '...')
+        this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
         this.farm.reward = "TBA"
-        this.farm.lpLocked = "TBA"
-        this.farm.apr = "TBA"
+        this.farm.locked = this.$masterchef.lockedTokens
+        this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
+        this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
+        this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
+        this.farm.apr = "N/A"
+    },
+    mounted(){
+
     }
 }
 </script>
