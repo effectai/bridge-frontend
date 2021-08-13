@@ -1,47 +1,8 @@
 <template>
     <div>
-        <div class="box is-horizontal-centered px-6 content" style="max-width: 550px">
+        <div class="box is-horizontal-centered is-centered px-6 content" style="max-width: 550px">
 
-            <!-- Basic Farm Info -->
-            <table class="table is-narrow">
-                <tbody>
-                    <tr>
-                        <th>Start Date:</th>
-                        <td>{{this.farm.startDate}}</td>
-                    </tr>
-                    <tr>
-                        <th>End Date:</th>
-                        <td>{{this.farm.endDate}}</td>
-                    </tr>
-                    <tr>
-                        <th>Address:</th>
-                        <td>
-                          <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Reward<strong>/</strong>Block</th>
-                        <td>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>LP Locked:</th>
-                        <td>{{}}</td>
-                    </tr>
-                    <tr>
-                        <th>EFX Reserves:</th>
-                        <td>{{ this.farm.efxReserves }}</td>
-                    </tr>
-                    <tr>
-                        <th>WBNB Reserves:</th>
-                        <td>{{ this.farm.wbnbReserves }}</td>
-                    </tr>
-                    <tr>
-                        <th>APR: </th>
-                        <td>{{this.farm.apr}}</td>
-                    </tr>
-                </tbody>
-            </table>
+          <br>
 
             <div class="columns is-vcentered is-centered">
 
@@ -64,15 +25,82 @@
                 </div>
             </div>
 
+            <div class="box is-centered is-vcentered is-shadowless">
+
+              <div class="column">
+                <div class="block is-flex is-shadowless has-text-centered">
+                  <h3>Masterchef Contract:</h3>
+                </div>
+                <div class="block is-shadowless has-text-centered">
+                  <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
+                </div>
+
+                <hr>
+
+                <!-- Basic Farm Info -->
+                <table class="table is-narrow">
+                    <tbody>
+                        <tr>
+                            <th>Start Date:</th>
+                            <td>{{this.farm.startDate}}</td>
+                        </tr>
+                        <tr>
+                            <th>End Date:</th>
+                            <td>{{this.farm.endDate}}</td>
+                        </tr>
+                        <tr>
+                            <th>Reward / Block</th>
+                            <td>{{ this.farm.cakePerBlock }}</td>
+                        </tr>
+                        <tr>
+                            <th>LP Locked:</th>
+                            <td>{{this.farm.lockedTokens}}</td>
+                        </tr>
+                        <tr>
+                            <th>EFX Reserves:</th>
+                            <td>{{ this.farm.efxReserves }}</td>
+                        </tr>
+                        <tr>
+                            <th>wBNB Reserves:</th>
+                            <td>{{ this.farm.wbnbReserves }}</td>
+                        </tr>
+                        <tr>
+                            <th>APR: </th>
+                            <td>{{this.farm.apr}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+
+            <hr>
+            </div>
+
+
             <div v-if="bscWallet">
               <div v-if="$masterchef.approved">
+
+                <h3>Harvest Efx</h3>
+                <div class="field has-addons">
+                    <div class="control is-flex-grow-1">
+                      <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
+                    </div>
+                    <p class="control">
+                      <a class="button is-static is-medium">LP</a>
+                    </p>
+                </div>
+                <button :disabled="!lpAmount || !bscWallet || pendingEFX < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.claimPendingEFX()">
+                    <strong>Claim Rewards 🎉</strong>
+                </button>
+                <hr>
+
+                <h3>Lock LP tokens</h3>
                 <div class="is-size-7 columns mb-0 is-mobile">
                       <div class="column py-0">
                           Amount
                       </div>
                       <div class="column has-text-right py-0">
                           Balance:
-                          <span v-if="$masterchef.lpBalance !== null"><a @click="lpAmount = $bsc.efxAvailable">{{parseFloat($masterchef.lpBalance)}}</a></span>
+                          <span v-if="$masterchef.lpBalance !== null"><a @click="lpAmount = $masterchef.lpBalance">{{parseFloat($masterchef.lpBalance)}}</a></span>
                           <span v-else>-</span>
                       </div>
                   </div>
@@ -82,15 +110,15 @@
                           <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">
                       </div>
                       <p class="control">
-                          <a class="button is-static is-medium">EFX</a>
+                          <a class="button is-static is-medium">LP</a>
                       </p>
                   </div>
-                  <div class="field">
-                      <input class="input" disabled :value="bscWallet ? bscWallet[0] : '- login with your BSC wallet -'" type="text" />
-                  </div>
                   <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.depositLpIntoMasterChef(lpAmount)">
-                      <strong>Farm</strong>
+                      <strong>Stake LP 🚜</strong>
                   </button>
+                  <hr>
+
+
               </div>
               <div v-else>
                 <div class="is-size-7 columns mb-0 is-mobile">
@@ -147,10 +175,10 @@ export default {
     created() {
         // TODO when this page is mounted load in basic farm info; apr, liquidity, multiplier
         this.farm.startDate = "TBA"
-        this.farm.address = (process.env.NUXT_ENV_MASTERCHEF_CONTRACT.slice(12)).padEnd(3, '...')
+        this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
         this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
-        this.farm.reward = "TBA"
-        this.farm.locked = this.$masterchef.lockedTokens
+        this.farm.cakePerBlock = this.$masterchef.cakePerBlock
+        this.farm.lockedTokens = this.$masterchef.lockedTokens
         this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
         this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
         this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
