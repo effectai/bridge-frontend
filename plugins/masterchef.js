@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Web3 from 'web3'
-import { BN, toWei } from "web3-utils";
+import { BN, toWei, fromWei } from "web3-utils";
 import { abi as PancakePair } from "@/static/abi/PancakePair.json"
 import { abi as BEP20 } from "@/static/abi/BEP20.json"
 import { abi as MasterChef } from "@/static/abi/MasterChef.json"
@@ -110,8 +110,8 @@ export default (context, inject) => {
       async getBalanceLpTokens (address) {
         try {
           const balance = await this.pancakeContract.methods.balanceOf(address).call()
-          console.log(`Balance of ${address} is ${toWei(balance)} LP`)
-          this.lpBalance = toWei(balance)
+          console.log(`Balance of ${address} is ${fromWei(balance)} LP`)
+          this.lpBalance = fromWei(balance)
           return toWei(balance)
         } catch (error) {
           console.error(error);

@@ -61,7 +61,7 @@
                       </div>
                       <div class="column has-text-right py-0">
                           Balance:
-                          <span v-if="$bsc.efxAvailable !== null"><a @click="lpAmount = $bsc.efxAvailable">{{parseInt($masterchef.lpBalance)}}</a></span>
+                          <span v-if="$masterchef.lpBalance !== null"><a @click="lpAmount = $bsc.efxAvailable">{{parseFloat($masterchef.lpBalance)}}</a></span>
                           <span v-else>-</span>
                       </div>
                   </div>
