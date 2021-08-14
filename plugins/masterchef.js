@@ -173,7 +173,6 @@ export default (context, inject) => {
           const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
           console.log(`Locked LP Tokens: ${fromWei(lockedLpTokens)} LP`)
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
-          // this.lockedTokens = fromWei(lockedLpTokens).split(".")[0]
           console.log(`Locked LP Tokens: ${this.lockedTokens}`)
           return fromWei(lockedLpTokens)
         } catch (error) {
@@ -195,17 +194,6 @@ export default (context, inject) => {
           console.error('Masterchef#getMasterChefInfo', error);
         }
       },
-
-      // async getCakePerBlock () {
-      //   try {
-      //     const cakePerBlock = await this.masterchefContract.methods.cakePerBlock.call()
-      //     console.log(`Cake per block: ${cakePerBlock}`)
-      //     this.cakePerBlock = fromWei(cakePerBlock)
-      //     return cakePerBlock
-      //   } catch (error) {
-      //     console.error('Pancake#getCakePerBlock', error);
-      //   }
-      // },
 
     },
 
