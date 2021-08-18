@@ -58,13 +58,8 @@ export default (context, inject) => {
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
           this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
           this.status = "Contracts Loaded"
-          this.status = "Contracts Loaded"
-          console.log("MasterChef Contract Loaded")
 
           this.isApproved()
-          this.getLpReserves()
-          this.getLockedLpTokens()
-          //this.getMasterChefInfo()
 
           if(this.bscWallet) {
             this.getStakedLpTokens();
@@ -98,7 +93,7 @@ export default (context, inject) => {
           if(this.bscWallet) {
             const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
             const booleanVal = MAXUINT256.lte(allowance)
-            console.log(`isApproved: ${booleanVal}, maxuint256: ${MAXUINT256}, Allowance: ${allowance}`);
+            console.log(`isApproved: ${booleanVal}`);
             this.approved = booleanVal
             this.getStakedLpTokens();
             return booleanVal
@@ -139,7 +134,6 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
-            // console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
             this.lpBalance = fromWei(balance)
             return toWei(balance)
           }
@@ -162,7 +156,6 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
-            console.log(`Pending EFX is ${fromWei(pendingEFX)}`)
             this.pendingEfx = fromWei(pendingEFX)
             return fromWei(pendingEFX)
           }
@@ -184,7 +177,6 @@ export default (context, inject) => {
       async getLpReserves () {
         try {
           const reserves = await this.pancakeContract.methods.getReserves().call()
-          console.log(`Reserves: ${JSON.stringify(reserves)} LP`)
           this.lpReserves = reserves
           this.lpEfxReserves = Number.parseFloat(fromWei(reserves[0])).toFixed(2)
           this.lpWbnbReserves = Number.parseFloat(fromWei(reserves[1])).toFixed(2)

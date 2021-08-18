@@ -23,57 +23,6 @@
                 </div>
             </div>
 
-            <!-- <div class="box is-centered is-vcentered is-shadowless">
-
-              <div class="column">
-                <div class="block is-flex is-shadowless has-text-centered">
-                  <h3>Masterchef Contract:</h3>
-                </div>
-                <div class="block is-shadowless has-text-centered">
-                  <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
-                </div>
-
-                <hr>-->
-
-                <!-- Basic Farm Info -->
-                <!-- <table class="table is-narrow">
-                    <tbody>
-                        <tr>
-                            <th>Start Block:</th>
-                            <td>{{$masterchef.startBlock}}</td>
-                        </tr>
-                        <tr>
-                            <th>End Block:</th>
-                            <td>{{$masterchef.endBlock}}</td>
-                        </tr>
-                        <tr>
-                            <th>Reward / Block</th>
-                            <td>{{ $masterchef.efxPerBlock }}</td>
-                        </tr>
-                        <tr>
-                            <th>LP Locked:</th>
-                            <td>{{this.farm.lockedTokens}}</td>
-                        </tr>
-                        <tr>
-                            <th>EFX Reserves:</th>
-                            <td>{{ this.farm.efxReserves }}</td>
-                        </tr>
-                        <tr>
-                            <th>wBNB Reserves:</th>
-                            <td>{{ this.farm.wbnbReserves }}</td>
-                        </tr>
-                        <tr>
-                            <th>APR: </th>
-                            <td>{{this.farm.apr}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-              </div>
-
-            <hr>
-            </div> -->
-
-
             <div v-if="bscWallet">
               <div v-if="$masterchef.approved">
 
@@ -219,18 +168,6 @@ export default {
             }
             this.loading = false;
         }
-    },
-    created() {
-        // TODO when this page is mounted load in basic farm info; apr, liquidity, multiplier
-        this.farm.startDate = "TBA"
-        this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
-        this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
-        this.farm.efxPerBlock = this.$masterchef.efxPerBlock
-        this.farm.lockedTokens = this.$masterchef.lockedTokens
-        this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
-        this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
-        this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
-        this.farm.apr = "N/A"
     },
     mounted(){
 
