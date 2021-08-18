@@ -126,7 +126,7 @@ export default (context, inject) => {
       async getBalanceLpTokens () {
         try {
           const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
-          console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
+          // console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
           this.lpBalance = fromWei(balance)
           return toWei(balance)
         } catch (error) {
@@ -152,6 +152,7 @@ export default (context, inject) => {
           return claimEFX
         } catch (error) {
           console.error('Masterchef#claimPendingEfx', error);
+          throw error;
         }
       },
 

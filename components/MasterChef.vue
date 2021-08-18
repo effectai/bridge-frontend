@@ -1,11 +1,9 @@
 <template>
     <div>
         <div class="box is-horizontal-centered is-centered px-6 content" style="max-width: 550px">
-
-          <br>
-
-            <div class="columns is-vcentered is-centered">
-
+            <h3 class="title has-text-centered is-4 mt-5 mb-3">Stake your LP tokens</h3>
+            <h4 class="subtitle is-6 has-text-centered has-text-weight-light mb-5 mt-2">And earn EFX rewards!</h4>
+            <div class="columns is-vcentered is-centered mt-3">
                 <div class="column is-align-self-stretch is-5">
                     <div class="box is-shadowless has-border has-text-centered">
                         <div class="subtitle has-text-weight-semibold mb-2">BSC</div>
@@ -25,9 +23,7 @@
                 </div>
             </div>
 
-            <hr>
-
-            <div class="box is-centered is-vcentered is-shadowless">
+            <!-- <div class="box is-centered is-vcentered is-shadowless">
 
               <div class="column">
                 <div class="block is-flex is-shadowless has-text-centered">
@@ -37,10 +33,10 @@
                   <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
                 </div>
 
-                <hr>
+                <hr>-->
 
                 <!-- Basic Farm Info -->
-                <table class="table is-narrow">
+                <!-- <table class="table is-narrow">
                     <tbody>
                         <tr>
                             <th>Start Block:</th>
@@ -75,13 +71,13 @@
               </div>
 
             <hr>
-            </div>
+            </div> -->
 
 
             <div v-if="bscWallet">
               <div v-if="$masterchef.approved">
 
-                <h3>Harvest Efx</h3>
+                <h3>Harvest EFX</h3>
                 <div class="field has-addons">
                     <div class="control is-flex-grow-1">
                       <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
@@ -90,7 +86,7 @@
                       <a class="button is-static is-medium">EFX</a>
                     </p>
                 </div>
-                <button :disabled="!lpAmount || !bscWallet || pendingEFX < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.claimPendingEFX()">
+                <button :disabled="!lpAmount || !bscWallet || pendingEFX < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="claimPendingEFX()">
                     <strong>Claim Rewards 🎉</strong>
                 </button>
                 <hr>
@@ -140,6 +136,7 @@
                     <div class="loader is-loading"/>
                 </div>         
             </div>
+            <br>
         </div>
     </div>
 </template>
@@ -200,6 +197,16 @@ export default {
                 this.error = error.message
             }
             this.loading = false;
+        },
+        async claimPendingEFX() {
+            this.success, this.error = null;
+            this.loading = true;
+            try {                
+                await this.$masterchef.claimPendingEFX();
+            } catch (error) {
+                this.error = error.message
+            }
+            this.loading = false;
         }
     },
     created() {
@@ -234,5 +241,8 @@ export default {
     @media screen and (max-width: $tablet) {
         padding-bottom: 0;
     }
+}
+.title {
+    font-family: $family-sans-serif;
 }
 </style>
