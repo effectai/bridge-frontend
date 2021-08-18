@@ -78,7 +78,8 @@ export default (context, inject) => {
 
           if(this.bscWallet) {
             this.getStakedLpTokens();
-            this.getPendingEFX()
+            this.getPendingEFX();
+            this.getBalanceLpTokens();
           }
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
@@ -97,9 +98,11 @@ export default (context, inject) => {
           if(this.bscWallet) {
             const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
             const booleanVal = MAXUINT256.lte(allowance)
-            console.log(`isApproved: ${booleanVal}, maxuint256: ${MAXUINT256}, Allowance: ${allowance}`);
+            console.log(`isApproved: ${booleanVal}`);
             this.approved = booleanVal
-            this.getStakedLpTokens();
+            if (this.approved) {
+              this.getStakedLpTokens();
+            }
             return booleanVal
           }
         } catch (error) {
@@ -135,7 +138,7 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
-            // console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
+            console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
             this.lpBalance = fromWei(balance)
             return toWei(balance)
           }
