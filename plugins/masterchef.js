@@ -109,6 +109,7 @@ export default (context, inject) => {
         } catch (error) {
           this.approved = false
           console.error('pancakeContract#approveAllowance', error);
+          throw error
         }
       },
 

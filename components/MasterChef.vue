@@ -118,26 +118,27 @@
                   <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
                       <strong>Stake LP 🚜</strong>
                   </button>
-                  <hr>
-
-                    <div class="notification is-success" v-if="successNotification">
-                        <button @click="successNotification = null" class="delete"></button>
-                        {{successNotification}}
-                    </div>
-                    <div class="notification is-danger" v-if="errorNotification">
-                        <button @click="errorNotification = null" class="delete"></button>
-                        {{errorNotification}}
-                    </div>
-
-
+                  <hr>         
               </div>
               <div v-else>
                 <div class="is-size-7 columns mb-0 is-mobile">
-                  <button class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.approveAllowance">
+                  <button class="button is-medium is-accent is-fullwidth mt-5" @click="approveAllowance()">
                       <strong>Approve</strong>
                   </button>
                 </div>
-              </div>
+                <hr>
+              </div>              
+                <div class="notification is-success" v-if="success">
+                    <button @click="success = null" class="delete"></button>
+                    {{success}}
+                </div>
+                <div class="notification is-danger" v-if="error">
+                    <button @click="error = null" class="delete"></button>
+                    {{error}}
+                </div>  
+                <div v-if="loading" class="loader-wrapper is-active">
+                    <div class="loader is-loading"/>
+                </div>         
             </div>
         </div>
     </div>
@@ -153,8 +154,9 @@ export default {
             farm: {},
             pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
             allowanceApproval: null,
-            successNotification: null,
-            errorNotification: null,
+            success: null,
+            error: null,
+            loading: false,
         }
     },
     computed: {
@@ -164,7 +166,6 @@ export default {
         approved() {
             return (this.$bsc) ? this.$bsc.approved : null
         }
-
     },
     methods: {
         onConnect() {
@@ -180,14 +181,25 @@ export default {
             // TODO to clain efx rewards, call withdrawEfx(amount: 0) Will autoclaim pending tokens
         },
         async depositLpIntoMasterChef(lpAmount) {
-            try {
+            this.success, this.error = null;
+            this.loading = true;
+            try {                
                 await this.$masterchef.depositLpIntoMasterChef(lpAmount);
-                this.successNotification = 'Successfuly deposited LP tokens!'   
+                this.success = 'Successfuly deposited LP tokens!'                   
             } catch (error) {
-                this.errorNotification = error.message
+                this.error = error.message
             }
+            this.loading = false;
         },
-        async getLpReserves() {
+        async approveAllowance() {
+            this.success, this.error = null;
+            this.loading = true;
+            try {                
+                await this.$masterchef.approveAllowance();
+            } catch (error) {
+                this.error = error.message
+            }
+            this.loading = false;
         }
     },
     created() {
