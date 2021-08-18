@@ -5,10 +5,6 @@ import { abi as PancakePair } from "@/static/abi/PancakePair.json"
 import { abi as BEP20 } from "@/static/abi/BEP20.json"
 import { abi as MasterChef } from "@/static/abi/MasterChef.json"
 
-const bscWeb3 = new Web3(process.env.NUXT_ENV_BSC_RPC)
-const PancakePairContract = new bscWeb3.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-const Bep20Contract = new bscWeb3.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-const MasterChefContract = new bscWeb3.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
 const MAXUINT256 = new BN("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
 export default (context, inject) => {
@@ -22,8 +18,8 @@ export default (context, inject) => {
         bepContract: null,
         masterchefContract: null,
         approved: null,
-        updaterApproved: null,
         updaterBalance: null,
+        updaterReserves: null,
         lpBalance: null,
         lpReserves: null,
         lpEfxReserves: null,
@@ -39,40 +35,53 @@ export default (context, inject) => {
       }
     },
     computed: {
-      loggedInBscProvider () {
-        (context.$bsc) ? this.init(context.$bsc.currentProvider) : null
-      },
-
       bscWallet () {
         return (context.$bsc) ? context.$bsc.wallet : null
       },
     },
+    watch: {
+      bscWallet(wallet) {
+        if (wallet) {
+          this.init(context.$bsc.currentProvider)
+        }
+      }
+    },
+    beforeDestroy() {
+      this.clearIntervals()
+    },
     methods: {
-
+      clearIntervals () {
+        if (this.updaterBalance) clearInterval(this.updaterBalance)
+        if (this.updaterReserves) clearInterval(this.updaterReserves)
+        if (this.updaterPendingEfx) clearInterval(this.updaterPendingEfx)
+      },
+      reset () {
+        this.clearIntervals()
+        Object.assign(this.$data, this.$options.data.call(this))
+      },
       init (currentProvider) {
         try {
           this.status = "Loading Contracts"
+          this.reset()
           const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
           this.contractProvider = new Web3(provider)
           this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
           this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
           this.status = "Contracts Loaded"
-          this.status = "Contracts Loaded"
           console.log("MasterChef Contract Loaded")
 
           this.isApproved()
           this.getLpReserves()
           this.getLockedLpTokens()
-          //this.getMasterChefInfo()
+          this.getMasterChefInfo()
 
           if(this.bscWallet) {
             this.getStakedLpTokens();
             this.getPendingEFX()
           }
           // this.getCakePerBlock()
-          setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
-          this.updaterApproved = setInterval(() => this.isApproved(), 1e3) // 5 seconds
+          this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
           this.updaterPendingEfx = setInterval(() => this.getPendingEFX(), 5e3) // 5 seconds
 
@@ -83,17 +92,7 @@ export default (context, inject) => {
         }
       },
 
-      updateAccount () {
-        if(this.bscWallet) {
-          this.getBalanceLpTokens()
-          this.isApproved()
-        }
-      },
-
       async isApproved() {
-        if (this.updaterApproved != null) {
-          clearInterval(this.updaterApproved)
-        }
         try {
           if(this.bscWallet) {
             const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
@@ -110,13 +109,10 @@ export default (context, inject) => {
 
       async approveAllowance() { // Needs to come from the user wallet
         try {
-          this.updater = setInterval(() =>  this.isApproved(), 1000 )
           const approvalTX = await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.bscWallet[0] })
-          this.approved = true
-          this.getStakedLpTokens();
+          this.isApproved()
           return approvalTX
         } catch (error) {
-          this.approved = false
           console.error('pancakeContract#approveAllowance', error);
           throw error
         }
@@ -223,13 +219,6 @@ export default (context, inject) => {
         }
       },
 
-    },
-
-
-
-    created() {
-      this.init(context.$bsc.currentProvider)
-      this.getLpReserves()
     },
 
     mounted() {

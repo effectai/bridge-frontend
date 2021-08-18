@@ -75,7 +75,10 @@
 
 
             <div v-if="bscWallet">
-              <div v-if="$masterchef.approved">
+              <div v-if="$masterchef.approved === null">
+                Loading approval state..
+              </div>
+              <div v-else-if="$masterchef.approved">
 
                 <h3>Harvest EFX</h3>
                 <div class="is-size-7 columns mb-0 is-mobile">
@@ -124,7 +127,7 @@
                   <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
                       <strong>Stake LP 🚜</strong>
                   </button>
-                  <hr>         
+                  <hr>
               </div>
               <div v-else>
                 <div class="is-size-7 columns mb-0 is-mobile">
@@ -133,7 +136,7 @@
                   </button>
                 </div>
                 <hr>
-              </div>              
+              </div>
                 <div class="notification is-success" v-if="success">
                     <button @click="success = null" class="delete"></button>
                     {{success}}
@@ -141,10 +144,10 @@
                 <div class="notification is-danger" v-if="error">
                     <button @click="error = null" class="delete"></button>
                     {{error}}
-                </div>  
+                </div>
                 <div v-if="loading" class="loader-wrapper is-active">
                     <div class="loader is-loading"/>
-                </div>         
+                </div>
             </div>
             <br>
         </div>
@@ -190,9 +193,9 @@ export default {
         async depositLpIntoMasterChef(lpAmount) {
             this.success, this.error = null;
             this.loading = true;
-            try {                
+            try {
                 await this.$masterchef.depositLpIntoMasterChef(lpAmount);
-                this.success = 'Successfuly deposited LP tokens!'                   
+                this.success = 'Successfuly deposited LP tokens!'
             } catch (error) {
                 this.error = error.message
             }
@@ -201,7 +204,7 @@ export default {
         async approveAllowance() {
             this.success, this.error = null;
             this.loading = true;
-            try {                
+            try {
                 await this.$masterchef.approveAllowance();
             } catch (error) {
                 this.error = error.message
@@ -211,7 +214,7 @@ export default {
         async claimPendingEFX() {
             this.success, this.error = null;
             this.loading = true;
-            try {                
+            try {
                 await this.$masterchef.claimPendingEFX();
                 this.success = 'Successfuly claimed rewards!'
             } catch (error) {
@@ -222,15 +225,15 @@ export default {
     },
     created() {
         // TODO when this page is mounted load in basic farm info; apr, liquidity, multiplier
-        this.farm.startDate = "TBA"
-        this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
-        this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
-        this.farm.efxPerBlock = this.$masterchef.efxPerBlock
-        this.farm.lockedTokens = this.$masterchef.lockedTokens
-        this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
-        this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
-        this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
-        this.farm.apr = "N/A"
+        // this.farm.startDate = "TBA"
+        // this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
+        // this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
+        // this.farm.efxPerBlock = this.$masterchef.efxPerBlock
+        // this.farm.lockedTokens = this.$masterchef.lockedTokens
+        // this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
+        // this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
+        // this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
+        // this.farm.apr = "N/A"
     },
     mounted(){
 
