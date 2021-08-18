@@ -78,6 +78,16 @@
               <div v-if="$masterchef.approved">
 
                 <h3>Harvest EFX</h3>
+                <div class="is-size-7 columns mb-0 is-mobile">
+                        <div class="column py-0">
+                            Rewards
+                        </div>
+                        <div class="column has-text-right py-0">
+                            Staked LP tokens:
+                            <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
+                            <span v-else>-</span>
+                        </div>
+                  </div>
                 <div class="field has-addons">
                     <div class="control is-flex-grow-1">
                       <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />

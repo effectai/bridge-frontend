@@ -32,6 +32,7 @@ export default (context, inject) => {
         pendingEfx: null,
         updaterPendingEfx: null,
         lockedTokens: null,
+        stakedLpBalance: null,
         efxPerBlock: null,
         startBlock: null,
         endBlock: null,
@@ -63,12 +64,16 @@ export default (context, inject) => {
           this.isApproved()
           this.getLpReserves()
           this.getLockedLpTokens()
-          this.getMasterChefInfo()
-          this.getPendingEFX()
+          //this.getMasterChefInfo()
+
+          if(this.bscWallet) {
+            this.getStakedLpTokens();
+            this.getPendingEFX()
+          }
           // this.getCakePerBlock()
           setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
           this.updaterApproved = setInterval(() => this.isApproved(), 1e3) // 5 seconds
-          this.updaterBalance = setInterval(() => this.getBalanceLpTokens(this.bscWallet[0]), 10e3) // 10 seconds
+          this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
           this.updaterPendingEfx = setInterval(() => this.getPendingEFX(), 5e3) // 5 seconds
 
         } catch (error) {
@@ -80,7 +85,7 @@ export default (context, inject) => {
 
       updateAccount () {
         if(this.bscWallet) {
-          this.getBalanceLpTokens(this.bscWallet[0])
+          this.getBalanceLpTokens()
           this.isApproved()
         }
       },
@@ -90,11 +95,14 @@ export default (context, inject) => {
           clearInterval(this.updaterApproved)
         }
         try {
-          const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
-          const booleanVal = MAXUINT256.lte(allowance)
-          console.log(`isApproved: ${booleanVal}, maxuint256: ${MAXUINT256}, Allowance: ${allowance}`);
-          this.approved = booleanVal
-          return booleanVal
+          if(this.bscWallet) {
+            const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+            const booleanVal = MAXUINT256.lte(allowance)
+            console.log(`isApproved: ${booleanVal}, maxuint256: ${MAXUINT256}, Allowance: ${allowance}`);
+            this.approved = booleanVal
+            this.getStakedLpTokens();
+            return booleanVal
+          }
         } catch (error) {
           console.error('pancakeContract#isApproved', error)
         }
@@ -105,6 +113,7 @@ export default (context, inject) => {
           this.updater = setInterval(() =>  this.isApproved(), 1000 )
           const approvalTX = await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.bscWallet[0] })
           this.approved = true
+          this.getStakedLpTokens();
           return approvalTX
         } catch (error) {
           this.approved = false
@@ -116,7 +125,10 @@ export default (context, inject) => {
       async depositLpIntoMasterChef(amount) {
         try {
           console.log(`Depositing ${toWei(new BN(amount))} LP into MasterChef`)
-          return await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
+          const deposit = await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
+          this.getStakedLpTokens();
+
+          return deposit;
         } catch (error) {
           console.error('masterChefContract#depositLpIntoMaster', error);
           throw error;
@@ -125,21 +137,35 @@ export default (context, inject) => {
 
       async getBalanceLpTokens () {
         try {
-          const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
-          // console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
-          this.lpBalance = fromWei(balance)
-          return toWei(balance)
+          if(this.bscWallet) {
+            const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
+            // console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
+            this.lpBalance = fromWei(balance)
+            return toWei(balance)
+          }
         } catch (error) {
           console.error('pancakeContract#getBalanceLpTokens', error);
         }
       },
 
+      async getStakedLpTokens () {
+        try {
+          const balance = await this.masterchefContract.methods.userInfo(0, this.bscWallet[0]).call()
+          this.stakedLpBalance = fromWei(balance[0])
+          return toWei(balance[0])
+        } catch (error) {
+          console.error('pancakeContract#getStakedLPTokens', error);
+        }
+      },
+
       async getPendingEFX () {
         try {
-          const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
-          console.log(`Pending EFX is ${pendingEFX}`)
-          this.pendingEfx = pendingEFX
-          return pendingEFX
+          if(this.bscWallet) {
+            const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
+            console.log(`Pending EFX is ${pendingEFX}`)
+            this.pendingEfx = pendingEFX
+            return pendingEFX
+          }
         } catch (error) {
           console.error('Masterchef#getPendingEfx', error);
         }
@@ -149,6 +175,7 @@ export default (context, inject) => {
         try {
           const claimEFX = await this.masterchefContract.methods.withdraw(0).send({ from: this.bscWallet[0] })
           console.log(`Claimed ${toWei(claimEFX)} LP`)
+          this.getStakedLpTokens();
           return claimEFX
         } catch (error) {
           console.error('Masterchef#claimPendingEfx', error);
