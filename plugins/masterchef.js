@@ -162,9 +162,9 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
-            console.log(`Pending EFX is ${pendingEFX}`)
-            this.pendingEfx = pendingEFX
-            return pendingEFX
+            console.log(`Pending EFX is ${fromWei(pendingEFX)}`)
+            this.pendingEfx = fromWei(pendingEFX)
+            return fromWei(pendingEFX)
           }
         } catch (error) {
           console.error('Masterchef#getPendingEfx', error);
@@ -174,8 +174,6 @@ export default (context, inject) => {
       async claimPendingEFX () {
         try {
           const claimEFX = await this.masterchefContract.methods.withdraw(0).send({ from: this.bscWallet[0] })
-          console.log(`Claimed ${toWei(claimEFX)} LP`)
-          this.getStakedLpTokens();
           return claimEFX
         } catch (error) {
           console.error('Masterchef#claimPendingEfx', error);
