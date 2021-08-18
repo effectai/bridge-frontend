@@ -118,6 +118,7 @@ export default (context, inject) => {
           return await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
         } catch (error) {
           console.error('masterChefContract#depositLpIntoMaster', error);
+          throw error;
         }
       },
 

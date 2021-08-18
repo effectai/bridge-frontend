@@ -115,10 +115,19 @@
                           <a class="button is-static is-medium">LP</a>
                       </p>
                   </div>
-                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="$masterchef.depositLpIntoMasterChef(lpAmount)">
+                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
                       <strong>Stake LP 🚜</strong>
                   </button>
                   <hr>
+
+                    <div class="notification is-success" v-if="successNotification">
+                        <button @click="successNotification = null" class="delete"></button>
+                        {{successNotification}}
+                    </div>
+                    <div class="notification is-danger" v-if="errorNotification">
+                        <button @click="errorNotification = null" class="delete"></button>
+                        {{errorNotification}}
+                    </div>
 
 
               </div>
@@ -144,6 +153,8 @@ export default {
             farm: {},
             pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
             allowanceApproval: null,
+            successNotification: null,
+            errorNotification: null,
         }
     },
     computed: {
@@ -168,8 +179,13 @@ export default {
         onCollectRewards() {
             // TODO to clain efx rewards, call withdrawEfx(amount: 0) Will autoclaim pending tokens
         },
-        onDepositLP() {
-            // TODO Deposit LP into masterchef.sol after approve has been called
+        async depositLpIntoMasterChef(lpAmount) {
+            try {
+                await this.$masterchef.depositLpIntoMasterChef(lpAmount);
+                this.successNotification = 'Successfuly deposited LP tokens!'   
+            } catch (error) {
+                this.errorNotification = error.message
+            }
         },
         async getLpReserves() {
         }
