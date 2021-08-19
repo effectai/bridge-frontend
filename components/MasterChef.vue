@@ -24,68 +24,110 @@
             </div>
 
             <div v-if="bscWallet">
-              <div v-if="$masterchef.approved === null">
-                Loading approval state..
-              </div>
-              <div v-else-if="$masterchef.approved">
+                <div v-if="$masterchef.approved === null">
+                    Loading approval state..
+                </div>
+                <div v-else-if="$masterchef.approved">
 
-                <h3>Harvest EFX</h3>
-                <div class="is-size-7 columns mb-0 is-mobile">
-                        <div class="column py-0">
-                            Rewards
-                        </div>
-                        <div class="column has-text-right py-0">
-                            Staked LP tokens:
-                            <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
-                            <span v-else>-</span>
-                        </div>
-                  </div>
-                <div class="field has-addons">
-                    <div class="control is-flex-grow-1">
-                      <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
+                    <h3>Harvest EFX</h3>
+                    <div class="is-size-7 columns mb-0 is-mobile">
+                            <div class="column py-0">
+                                Rewards
+                            </div>
                     </div>
-                    <p class="control">
-                      <a class="button is-static is-medium">EFX</a>
-                    </p>
-                </div>
-                <button :disabled="!bscWallet || $masterchef.pendingEfx < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="claimPendingEFX()">
-                    <strong>Claim Rewards 🎉</strong>
-                </button>
-                <hr>
+                    <div class="field has-addons">
+                        <div class="control is-flex-grow-1">
+                        <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
+                        </div>
+                        <p class="control">
+                        <a class="button is-static is-medium">EFX</a>
+                        </p>
+                    </div>
+                    <button :disabled="!bscWallet || $masterchef.pendingEfx < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="claimPendingEFX()">
+                        <strong>Claim Rewards 🎉</strong>
+                    </button>
+                    <hr>
 
-                <h3>Lock LP tokens</h3>
-                <div class="is-size-7 columns mb-0 is-mobile">
-                      <div class="column py-0">
-                          Amount
-                      </div>
-                      <div class="column has-text-right py-0">
-                          Balance:
-                          <span v-if="$masterchef.lpBalance !== null"><a @click="lpAmount = $masterchef.lpBalance">{{parseFloat($masterchef.lpBalance)}}</a></span>
-                          <span v-else>-</span>
-                      </div>
-                  </div>
-                  <div class="field has-addons">
-                      <div class="control is-flex-grow-1">
-                          <!-- What is the minimum LP that can be staked? -->
-                          <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">
-                      </div>
-                      <p class="control">
-                          <a class="button is-static is-medium">LP</a>
-                      </p>
-                  </div>
-                  <button :disabled="!lpAmount || !bscWallet || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
-                      <strong>Stake LP 🚜</strong>
-                  </button>
-                  <hr>
-              </div>
-              <div v-else>
-                <div class="is-size-7 columns mb-0 is-mobile">
-                  <button class="button is-medium is-accent is-fullwidth mt-5" @click="approveAllowance()">
-                      <strong>Approve</strong>
-                  </button>
+                    <h3>Stake/unstake LP tokens</h3>
+                    <h4 class="subtitle is-6 has-text-weight-light mb-5 mt-1">LP tokens staked:
+                            <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
+                            <span v-else>-</span></h4>
+
+                    <div class="is-size-7 columns mb-0 is-mobile">
+                        <div class="column py-0">
+                            <button :class="{'is-outlined': activeForm != 'stake'}" class="button is-medium is-primary is-fullwidth" @click="activeForm = 'stake'">
+                                <strong>Stake</strong>
+                            </button>
+                        </div>
+
+                        <div class="column py-0">
+                            <button :class="{'is-outlined': activeForm != 'unstake'}" class="button is-medium is-primary is-fullwidth" @click="activeForm = 'unstake'">
+                                <strong>Unstake</strong>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div v-if="activeForm == 'stake'">
+                        <div class="is-size-7 columns mb-0 mt-5 is-mobile">
+                            <div class="column py-0">
+                                Amount
+                            </div>
+                            <div class="column has-text-right py-0">
+                                Balance:
+                                <span v-if="$masterchef.lpBalance !== null"><a @click="lpAmount = $masterchef.lpBalance">{{parseFloat($masterchef.lpBalance)}}</a></span>
+                                <span v-else>-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="field has-addons">
+                            <div class="control is-flex-grow-1">
+                                <!-- What is the minimum LP that can be staked? -->
+                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">
+                            </div>
+                            <p class="control">
+                                <a class="button is-static is-medium">LP</a>
+                            </p>
+                        </div>
+                        <button :disabled="!lpAmount || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
+                            <strong>Stake LP 🚜</strong>
+                        </button>
+                        <hr>
+                    </div>
+                    <div v-else-if="activeForm == 'unstake'">
+                        <div class="is-size-7 columns mb-0 mt-5 is-mobile">
+                                <div class="column py-0">
+                                    Amount
+                                </div>
+                                <div class="column has-text-right py-0">
+                                    LP tokens staked:
+                                    <span v-if="$masterchef.stakedLpBalance !== null"><a @click="stakedLpAmount = $masterchef.stakedLpBalance">{{parseFloat($masterchef.stakedLpBalance)}}</a></span>
+                                    <span v-else>-</span>
+                                </div>
+                        </div>
+                            
+                        <div class="field has-addons">
+                            <div class="control is-flex-grow-1">
+                                <!-- What is the minimum LP that can be withdrawed? -->
+                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="stakedLpAmount">
+                            </div>
+                            <p class="control">
+                                <a class="button is-static is-medium">LP</a>
+                            </p>
+                        </div>
+                        <button :disabled="!stakedLpAmount || stakedLpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="withdrawLpFromMasterChef(stakedLpAmount)">
+                            <strong>Unstake LP</strong>
+                        </button>
+                        <hr>
+                    </div>
                 </div>
-                <hr>
-              </div>
+                <div v-else>
+                    <div class="is-size-7 columns mb-0 is-mobile">
+                    <button class="button is-medium is-accent is-fullwidth mt-5" @click="approveAllowance()">
+                        <strong>Approve</strong>
+                    </button>
+                    </div>
+                    <hr>
+                </div>
                 <div class="notification is-success" v-if="success">
                     <button @click="success = null" class="delete"></button>
                     {{success}}
@@ -109,7 +151,9 @@ import { fromWei } from 'web3-utils';
 export default {
     data() {
         return {
+            activeForm: null,
             lpAmount: null,
+            stakedLpAmount: null,
             farm: {},
             pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
             allowanceApproval: null,
@@ -145,6 +189,17 @@ export default {
             try {
                 await this.$masterchef.depositLpIntoMasterChef(lpAmount);
                 this.success = 'Successfuly deposited LP tokens!'
+            } catch (error) {
+                this.error = error.message
+            }
+            this.loading = false;
+        },
+        async withdrawLpFromMasterChef(stakedLpAmount) {
+            this.success, this.error = null;
+            this.loading = true;
+            try {
+                await this.$masterchef.withdrawLpFromMasterChef(stakedLpAmount);
+                this.success = 'Successfuly withdrawed LP tokens'
             } catch (error) {
                 this.error = error.message
             }

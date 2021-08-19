@@ -134,6 +134,18 @@ export default (context, inject) => {
         }
       },
 
+      async withdrawLpFromMasterChef(amount) {
+        try {
+          console.log(`Withdraw ${toWei(new BN(amount))} LP from MasterChef`)
+          const deposit = await this.masterchefContract.methods.withdraw(toWei(amount)).send({ from: this.bscWallet[0] })
+          this.getStakedLpTokens();
+          return deposit;
+        } catch (error) {
+          console.error('masterChefContract#withdrawLpFromMasterChef', error);
+          throw error;
+        }
+      },
+
       async getBalanceLpTokens () {
         try {
           if(this.bscWallet) {
