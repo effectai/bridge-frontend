@@ -71,6 +71,7 @@ export default (context, inject) => {
           this.status = "Contracts Loaded"
           console.log("MasterChef Contract Loaded")
 
+          this.getBalanceLpTokens();
           this.isApproved()
           this.getLpReserves()
           this.getLockedLpTokens()
@@ -79,7 +80,6 @@ export default (context, inject) => {
           if(this.bscWallet) {
             this.getStakedLpTokens();
             this.getPendingEFX();
-            this.getBalanceLpTokens();
           }
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
@@ -97,13 +97,11 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
-            const booleanVal = MAXUINT256.lte(allowance)
-            console.log(`isApproved: ${booleanVal}`);
-            this.approved = booleanVal
+            this.approved = allowance > this.lpBalance
             if (this.approved) {
               this.getStakedLpTokens();
             }
-            return booleanVal
+            return allowance > this.lpBalance
           }
         } catch (error) {
           console.error('pancakeContract#isApproved', error)

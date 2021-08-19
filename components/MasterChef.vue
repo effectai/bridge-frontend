@@ -151,7 +151,6 @@
 </template>
 
 <script>
-import { fromWei } from 'web3-utils';
 
 export default {
     data() {
