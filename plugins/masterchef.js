@@ -32,6 +32,7 @@ export default (context, inject) => {
         efxPerBlock: null,
         startBlock: null,
         endBlock: null,
+        latestBlockNumber: null
       }
     },
     computed: {
@@ -71,16 +72,15 @@ export default (context, inject) => {
           this.status = "Contracts Loaded"
           console.log("MasterChef Contract Loaded")
 
+          this.getLatestBlockNumber();
           this.getBalanceLpTokens();
           this.isApproved()
           this.getLpReserves()
           this.getLockedLpTokens()
           this.getMasterChefInfo()
+          this.getStakedLpTokens();
+          this.getPendingEFX();
 
-          if(this.bscWallet) {
-            this.getStakedLpTokens();
-            this.getPendingEFX();
-          }
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
@@ -231,6 +231,17 @@ export default (context, inject) => {
           console.error('Masterchef#getMasterChefInfo', error);
         }
       },
+
+      async getLatestBlockNumber () {
+        try {
+          const latestBlockNumber = await this.contractProvider.eth.getBlockNumber();
+          this.latestBlockNumber = latestBlockNumber
+          console.log('Masterchef#getLatestBlockNumber', latestBlockNumber);
+          return latestBlockNumber;
+        } catch (error) {
+          console.error('Masterchef#getLatestBlockNumber', error);
+        }
+      }
 
     },
 

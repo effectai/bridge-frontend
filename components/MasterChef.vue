@@ -27,6 +27,11 @@
                 <div v-if="$masterchef.approved === null">
                     Loading approval state..
                 </div>
+                <div v-else-if="farm.startBlock > $masterchef.latestBlockNumber || farm.endBlock < $masterchef.latestBlockNumber" class="has-text-centered">
+                    <p>There is no farm live at the moment, come back at a later time.
+                    Farm starts at block {{farm.startBlock}} and ends at block {{farm.endBlock}}
+                    <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
+                </div>
                 <div v-else-if="$masterchef.approved">
 
                     <h3>Harvest EFX</h3>
@@ -44,7 +49,7 @@
                         </p>
                     </div>
                     <button :disabled="!bscWallet || $masterchef.pendingEfx < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="claimPendingEFX()">
-                        <strong>Claim Rewards 🎉</strong>
+                        <strong>Harvest</strong>
                     </button>
                     <hr>
 
@@ -92,7 +97,7 @@
                             </p>
                         </div>
                         <button :disabled="!lpAmount || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
-                            <strong>Stake LP 🚜</strong>
+                            <strong>Stake LP</strong>
                         </button>
                         <hr>
                     </div>
@@ -133,16 +138,18 @@
                     </div>
                     <hr>
                 </div>
-                <div class="notification is-success" v-if="success">
+                <div class="notification mt-5 is-success" v-if="success">
                     <button @click="success = null" class="delete"></button>
                     {{success}}
                 </div>
-                <div class="notification is-danger" v-if="error">
+                <div class="notification mt-5 is-danger" v-if="error">
                     <button @click="error = null" class="delete"></button>
                     {{error}}
                 </div>
                 <div v-if="loading" class="loader-wrapper is-active">
                     <div class="loader is-loading"/>
+                    <br>
+                    <p>Waiting for the transaction to complete...</p>
                 </div>
             </div>
             <br>
@@ -242,9 +249,10 @@ export default {
         // this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
         // this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
         // this.farm.apr = "N/A"
+        this.farm.startBlock = this.$masterchef.startBlock
+        this.farm.endBlock = this.$masterchef.endBlock
     },
     mounted(){
-
     }
 }
 </script>
@@ -264,6 +272,7 @@ export default {
     right: .4rem !important;
     font-size: .9rem !important;
     pointer-events: initial !important;
+    z-index: 1 !important;
 }
 
 .switch {

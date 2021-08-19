@@ -119,6 +119,7 @@ a.card {
   justify-content: center;
   align-items: center;
   border-radius: 6px;
+  flex-direction: column;
 
   .loader {
     height: 80px;
