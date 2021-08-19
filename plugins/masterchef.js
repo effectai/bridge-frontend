@@ -25,6 +25,7 @@ export default (context, inject) => {
         lpEfxReserves: null,
         lpWbnbReserves: null,
         lpEndDate: null,
+        lpPool: process.env.NUXT_ENV_PANCAKEPOOL_URL,
         pendingEfx: null,
         updaterPendingEfx: null,
         lockedTokens: null,
@@ -72,7 +73,6 @@ export default (context, inject) => {
           this.status = "Contracts Loaded"
           console.log("MasterChef Contract Loaded")
 
-          this.getLatestBlockNumber();
           this.getBalanceLpTokens();
           this.isApproved()
           this.getLpReserves()
@@ -80,6 +80,7 @@ export default (context, inject) => {
           this.getMasterChefInfo()
           this.getStakedLpTokens();
           this.getPendingEFX();
+          this.getLatestBlockNumber();
 
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
@@ -236,7 +237,6 @@ export default (context, inject) => {
         try {
           const latestBlockNumber = await this.contractProvider.eth.getBlockNumber();
           this.latestBlockNumber = latestBlockNumber
-          console.log('Masterchef#getLatestBlockNumber', latestBlockNumber);
           return latestBlockNumber;
         } catch (error) {
           console.error('Masterchef#getLatestBlockNumber', error);

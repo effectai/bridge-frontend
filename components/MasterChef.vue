@@ -27,12 +27,12 @@
                 <div v-if="$masterchef.approved === null">
                     Loading approval state..
                 </div>
-                <div v-else-if="farm.startBlock > $masterchef.latestBlockNumber || farm.endBlock < $masterchef.latestBlockNumber" class="has-text-centered">
+                <div v-else-if="$masterchef.approved && !liveFarm" class="has-text-centered">
                     <p>There is no farm live at the moment, come back at a later time.
                     Farm starts at block {{farm.startBlock}} and ends at block {{farm.endBlock}}
                     <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
                 </div>
-                <div v-else-if="$masterchef.approved">
+                <div v-else-if="$masterchef.approved && liveFarm">
 
                     <h3>Harvest EFX</h3>
                     <div class="is-size-7 columns mb-0 is-mobile">
@@ -54,9 +54,13 @@
                     <hr>
 
                     <h3 class="mb-2">Stake/unstake LP tokens</h3>
-                    <h4 class="subtitle is-6 has-text-weight-light mb-5 mt-0">LP tokens staked:
-                            <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
-                            <span v-else>-</span></h4>
+                    <h4 class="subtitle is-6 has-text-weight-light mb-0 mt-0">LP tokens staked:
+                        <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
+                        <span v-else>-</span>
+                    </h4>
+                    <p class="mb-5">
+                        <a :href="$masterchef.lpPool" target="_blank">Get LP tokens</a>
+                    </p>
 
                     <div class="is-size-7 columns mb-0 mt-4 is-mobile">
                         <div class="column py-0">
@@ -132,9 +136,9 @@
                 </div>
                 <div v-else>
                     <div class="is-size-7 columns mb-0 is-mobile">
-                    <button class="button is-medium is-accent is-fullwidth mt-5" @click="approveAllowance()">
-                        <strong>Approve</strong>
-                    </button>
+                        <button class="button is-medium is-accent is-fullwidth mt-5" @click="approveAllowance()">
+                            <strong>Approve</strong>
+                        </button>
                     </div>
                     <hr>
                 </div>
@@ -179,21 +183,12 @@ export default {
         },
         approved() {
             return (this.$bsc) ? this.$bsc.approved : null
+        },
+        liveFarm() {
+            return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber || this.$masterchef.endBlock > this.$masterchef.latestBlockNumber
         }
     },
     methods: {
-        onConnect() {
-            // TODO When wallet is connected, check if
-            // address has already been approved
-            // Get balance, farmed amount, pending rewards
-        },
-        onFarm() {
-          // lock in liquidity and start farming
-
-        },
-        onCollectRewards() {
-            // TODO to clain efx rewards, call withdrawEfx(amount: 0) Will autoclaim pending tokens
-        },
         async depositLpIntoMasterChef(lpAmount) {
             this.success, this.error = null;
             this.loading = true;
@@ -239,7 +234,6 @@ export default {
         }
     },
     created() {
-        // TODO when this page is mounted load in basic farm info; apr, liquidity, multiplier
         // this.farm.startDate = "TBA"
         // this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
         // this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
@@ -249,8 +243,8 @@ export default {
         // this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
         // this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
         // this.farm.apr = "N/A"
-        this.farm.startBlock = this.$masterchef.startBlock
-        this.farm.endBlock = this.$masterchef.endBlock
+        // this.farm.startBlock = this.$masterchef.startBlock
+        // this.farm.endBlock = this.$masterchef.endBlock
     },
     mounted(){
     }
