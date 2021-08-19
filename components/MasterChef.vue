@@ -48,12 +48,12 @@
                     </button>
                     <hr>
 
-                    <h3>Stake/unstake LP tokens</h3>
-                    <h4 class="subtitle is-6 has-text-weight-light mb-5 mt-1">LP tokens staked:
+                    <h3 class="mb-2">Stake/unstake LP tokens</h3>
+                    <h4 class="subtitle is-6 has-text-weight-light mb-5 mt-0">LP tokens staked:
                             <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
                             <span v-else>-</span></h4>
 
-                    <div class="is-size-7 columns mb-0 is-mobile">
+                    <div class="is-size-7 columns mb-0 mt-4 is-mobile">
                         <div class="column py-0">
                             <button :class="{'is-outlined': activeForm != 'stake'}" class="button is-medium is-primary is-fullwidth" @click="activeForm = 'stake'">
                                 <strong>Stake</strong>
@@ -80,10 +80,13 @@
                         </div>
                         
                         <div class="field has-addons">
-                            <div class="control is-flex-grow-1">
-                                <!-- What is the minimum LP that can be staked? -->
-                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">
+                            <div class="control is-flex-grow-1 has-icons-right">
+                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">                            
+                                <span class="control icon is-right max-amount" v-if="$masterchef.lpBalance !== null">
+                                    <a @click="lpAmount = $masterchef.lpBalance">Max</a>
+                                </span>
                             </div>
+                            
                             <p class="control">
                                 <a class="button is-static is-medium">LP</a>
                             </p>
@@ -106,9 +109,11 @@
                         </div>
                             
                         <div class="field has-addons">
-                            <div class="control is-flex-grow-1">
-                                <!-- What is the minimum LP that can be withdrawed? -->
+                            <div class="control is-flex-grow-1 has-icons-right">
                                 <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="stakedLpAmount">
+                                <span class="control icon is-right max-amount" v-if="$masterchef.stakedLpBalance !== null">
+                                    <a @click="stakedLpAmount = $masterchef.stakedLpBalance">Max</a>
+                                </span>
                             </div>
                             <p class="control">
                                 <a class="button is-static is-medium">LP</a>
@@ -253,6 +258,13 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     display: block;
+}
+
+.max-amount {
+    height: 100% !important;
+    right: .4rem !important;
+    font-size: .9rem !important;
+    pointer-events: initial !important;
 }
 
 .switch {
