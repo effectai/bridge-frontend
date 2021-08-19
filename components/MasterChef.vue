@@ -266,7 +266,7 @@ export default {
     right: .4rem !important;
     font-size: .9rem !important;
     pointer-events: initial !important;
-    z-index: 1 !important;
+    z-index: 4 !important;
 }
 
 .switch {
