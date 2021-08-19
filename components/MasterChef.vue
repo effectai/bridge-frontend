@@ -29,7 +29,7 @@
                 </div>
                 <div v-else-if="$masterchef.approved && !liveFarm" class="has-text-centered">
                     <p>There is no farm live at the moment, come back at a later time.
-                    Farm starts at block {{farm.startBlock}} and ends at block {{farm.endBlock}}
+                    Farm starts at block {{$masterchef.startBlock}} and ends at block {{$masterchef.endBlock}}
                     <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
                 </div>
                 <div v-else-if="$masterchef.approved && liveFarm">
