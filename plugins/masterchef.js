@@ -98,11 +98,13 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
-            this.approved = allowance > this.lpBalance
+            let lpBalance = this.lpBalance || 0;
+            lpBalance = new BN(lpBalance);
+            this.approved = allowance.gt(lpBalance)
             if (this.approved) {
               this.getStakedLpTokens();
             }
-            return allowance > this.lpBalance
+            return allowance.gt(lpBalance)
           }
         } catch (error) {
           // TODO: make nice error
