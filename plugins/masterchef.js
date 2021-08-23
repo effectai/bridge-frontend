@@ -105,6 +105,8 @@ export default (context, inject) => {
             return allowance > this.lpBalance
           }
         } catch (error) {
+          // TODO: make nice error
+          alert("Error getting approval status. Reload the page and try again")
           console.error('pancakeContract#isApproved', error)
         }
       },
