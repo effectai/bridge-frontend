@@ -1,7 +1,10 @@
 import Vue from 'vue'
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from 'web3'
-const web3 = new Web3()
+import { BN } from 'web3-utils';
+
+const web3 = new Web3(process.env.NUXT_ENV_BSC_RPC)
+
 
 const walletProvider = new WalletConnectProvider({
   chainId: 56,
@@ -300,7 +303,7 @@ export default (context, inject) => {
 
         this.addChain()
 
-      }
+      },
     }
   })
 

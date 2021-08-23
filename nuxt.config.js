@@ -36,7 +36,8 @@ export default {
   plugins: [
     { src: '@/plugins/eos.js', mode: 'client' },
     { src: '@/plugins/bsc.js', mode: 'client' },
-    { src: '@/plugins/ptokens.js', mode: 'client' }
+    { src: '@/plugins/ptokens.js', mode: 'client' },
+    { src: '@/plugins/masterchef.js', mode: 'client' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
