@@ -24,15 +24,14 @@
             </div>
 
             <div v-if="bscWallet">
+              <div v-if="!liveFarm" class="has-text-centered my-6">
+                <p class="has-text-danger">Farm starts at block {{$masterchef.startBlock}} and ends at block {{$masterchef.endBlock}}
+                  <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
+              </div>
                 <div v-if="$masterchef.approved === null">
                     Loading approval state..
                 </div>
-                <div v-else-if="$masterchef.approved && !liveFarm" class="has-text-centered">
-                    <p>There is no farm live at the moment, come back at a later time.
-                    Farm starts at block {{$masterchef.startBlock}} and ends at block {{$masterchef.endBlock}}
-                    <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
-                </div>
-                <div v-else-if="$masterchef.approved && liveFarm">
+                <div v-else-if="$masterchef.approved">
 
                     <h3>Harvest EFX</h3>
                     <div class="is-size-7 columns mb-0 is-mobile">
@@ -87,15 +86,15 @@
                                 <span v-else>-</span>
                             </div>
                         </div>
-                        
+
                         <div class="field has-addons">
                             <div class="control is-flex-grow-1 has-icons-right">
-                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">                            
+                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">
                                 <span class="control icon is-right max-amount" v-if="$masterchef.lpBalance !== null">
                                     <a @click="lpAmount = $masterchef.lpBalance">Max</a>
                                 </span>
                             </div>
-                            
+
                             <p class="control">
                                 <a class="button is-static is-medium">LP</a>
                             </p>
@@ -116,7 +115,7 @@
                                     <span v-else>-</span>
                                 </div>
                         </div>
-                            
+
                         <div class="field has-addons">
                             <div class="control is-flex-grow-1 has-icons-right">
                                 <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="stakedLpAmount">
@@ -185,7 +184,7 @@ export default {
             return (this.$bsc) ? this.$bsc.approved : null
         },
         liveFarm() {
-            return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber || this.$masterchef.endBlock > this.$masterchef.latestBlockNumber
+            return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber && this.$masterchef.endBlock > this.$masterchef.latestBlockNumber && false
         }
     },
     methods: {
