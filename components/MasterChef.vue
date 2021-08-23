@@ -23,8 +23,46 @@
                 </div>
             </div>
 
+
             <div v-if="bscWallet">
-              <div v-if="!liveFarm" class="has-text-centered my-6">
+              <div class="box is-centered is-vcentered is-shadowless">
+
+                <div class="column">
+                  <div class="has-text-centered">
+                    <h4>Masterchef Contract:</h4>
+                  </div>
+                  <div class=" has-text-centered">
+                    <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
+                  </div>
+
+                  <!-- Basic Farm Info -->
+                  <table class="table is-narrow">
+                    <tbody>
+<!--                    <tr>-->
+<!--                      <th>Current Block:</th>-->
+<!--                      <td><a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <th>Start Block:</th>-->
+<!--                      <td>{{$masterchef.startBlock}}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <th>End Block:</th>-->
+<!--                      <td>{{$masterchef.endBlock}}</td>-->
+<!--                    </tr>-->
+                    <tr>
+                      <th>EFX Reward / Day</th>
+                      <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
+                    </tr>
+                    <tr>
+                      <th>LP Locked:</th>
+                      <td>{{$masterchef.lockedTokens}}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div v-if="!liveFarm" class="has-text-centered my-5">
                 <p class="has-text-danger">Farm starts at block {{$masterchef.startBlock}} and ends at block {{$masterchef.endBlock}}
                   <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
               </div>
@@ -168,7 +206,10 @@ export default {
             activeForm: null,
             lpAmount: null,
             stakedLpAmount: null,
-            farm: {},
+            farm: {
+              address: process.env.NUXT_ENV_MASTERCHEF_CONTRACT,
+              urladdress: `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
+            },
             pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
             allowanceApproval: null,
             success: null,
