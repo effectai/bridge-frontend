@@ -184,7 +184,7 @@ export default {
             return (this.$bsc) ? this.$bsc.approved : null
         },
         liveFarm() {
-            return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber && this.$masterchef.endBlock > this.$masterchef.latestBlockNumber && false
+            return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber && this.$masterchef.endBlock > this.$masterchef.latestBlockNumber
         }
     },
     methods: {
