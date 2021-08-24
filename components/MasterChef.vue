@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="box is-horizontal-centered is-centered px-6 content" style="max-width: 550px">
-            <h3 class="title has-text-centered is-4 mt-5 mb-3">Stake your LP tokens</h3>
+            <h3 class="title has-text-centered is-4 mt-5 mb-3">Stake your EFX-BNB LP</h3>
             <h4 class="subtitle is-6 has-text-centered has-text-weight-light mb-5 mt-2">And earn EFX rewards!</h4>
             <div class="columns is-vcentered is-centered mt-3">
                 <div class="column is-align-self-stretch is-5">
@@ -55,7 +55,7 @@
                       <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
                     </tr>
                     <tr>
-                      <th>LP Locked:</th>
+                      <th>EFX-BNB LP Locked:</th>
                       <td>{{$masterchef.lockedTokens}}</td>
                     </tr>
                     </tbody>
@@ -71,7 +71,7 @@
                 </div>
                 <div v-else-if="$masterchef.approved">
 
-                    <h3>Harvest EFX</h3>
+                    <h4>Harvest EFX</h4>
                     <div class="is-size-7 columns mb-0 is-mobile">
                             <div class="column py-0">
                                 Rewards
@@ -90,13 +90,13 @@
                     </button>
                     <hr>
 
-                    <h3 class="mb-2">Stake/unstake LP tokens</h3>
-                    <h4 class="subtitle is-6 has-text-weight-light mb-0 mt-0">LP tokens staked:
+                    <h4 class="mb-2">Staked EFX-BNB LP</h4>
+                    <h4 class="subtitle is-6 has-text-weight-light mb-0 mt-0">EFX-BNB LP staked:
                         <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
                         <span v-else>-</span>
                     </h4>
                     <p class="mb-5">
-                        <a :href="$masterchef.lpPool" target="_blank">Get LP tokens</a>
+                        <a :href="$masterchef.lpPool" target="_blank">Get EFX-BNB LP</a>
                     </p>
 
                     <div class="is-size-7 columns mb-0 mt-4 is-mobile">
@@ -127,18 +127,18 @@
 
                         <div class="field has-addons">
                             <div class="control is-flex-grow-1 has-icons-right">
-                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="lpAmount">
+                                <input class="input is-medium" type="number" placeholder="Minimum 1" min="0" v-model="lpAmount">
                                 <span class="control icon is-right max-amount" v-if="$masterchef.lpBalance !== null">
                                     <a @click="lpAmount = $masterchef.lpBalance">Max</a>
                                 </span>
                             </div>
 
                             <p class="control">
-                                <a class="button is-static is-medium">LP</a>
+                                <a class="button is-static is-medium">EFX-BNB LP</a>
                             </p>
                         </div>
                         <button :disabled="!lpAmount || lpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="depositLpIntoMasterChef(lpAmount)">
-                            <strong>Stake LP</strong>
+                            <strong>Confirm Stake</strong>
                         </button>
                         <hr>
                     </div>
@@ -148,7 +148,7 @@
                                     Amount
                                 </div>
                                 <div class="column has-text-right py-0">
-                                    LP tokens staked:
+                                    EFX-BNB LP staked:
                                     <span v-if="$masterchef.stakedLpBalance !== null"><a @click="stakedLpAmount = $masterchef.stakedLpBalance">{{parseFloat($masterchef.stakedLpBalance)}}</a></span>
                                     <span v-else>-</span>
                                 </div>
@@ -156,17 +156,17 @@
 
                         <div class="field has-addons">
                             <div class="control is-flex-grow-1 has-icons-right">
-                                <input class="input is-medium" type="number" placeholder="Minumum 1 LP" min="0" v-model="stakedLpAmount">
+                                <input class="input is-medium" type="number" placeholder="Minimum 1" min="0" v-model="stakedLpAmount">
                                 <span class="control icon is-right max-amount" v-if="$masterchef.stakedLpBalance !== null">
                                     <a @click="stakedLpAmount = $masterchef.stakedLpBalance">Max</a>
                                 </span>
                             </div>
                             <p class="control">
-                                <a class="button is-static is-medium">LP</a>
+                                <a class="button is-static is-medium">EFX-BNB LP</a>
                             </p>
                         </div>
                         <button :disabled="!stakedLpAmount || stakedLpAmount < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="withdrawLpFromMasterChef(stakedLpAmount)">
-                            <strong>Unstake LP</strong>
+                            <strong>Confirm Unstake</strong>
                         </button>
                         <hr>
                     </div>
@@ -234,7 +234,7 @@ export default {
             this.loading = true;
             try {
                 await this.$masterchef.depositLpIntoMasterChef(lpAmount);
-                this.success = 'Successfuly deposited LP tokens!'
+                this.success = 'Successfuly deposited LP tokens'
             } catch (error) {
                 this.error = error.message
             }
@@ -245,7 +245,7 @@ export default {
             this.loading = true;
             try {
                 await this.$masterchef.withdrawLpFromMasterChef(stakedLpAmount);
-                this.success = 'Successfuly withdrawed LP tokens'
+                this.success = 'Successfuly withdrawn LP tokens'
             } catch (error) {
                 this.error = error.message
             }
