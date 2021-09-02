@@ -59,7 +59,7 @@
                       <td>{{$masterchef.lockedTokens}}</td>
                     </tr>
                     <tr>
-                      <th>APR (%)</th>
+                      <th>APR</th>
                       <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
                       <td v-else>...</td>
                     </tr>
