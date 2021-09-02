@@ -12,6 +12,7 @@ export default (context, inject) => {
   const masterchef = new Vue({
     data() {
       return {
+        apr: null,
         status: null,
         error: null,
         pancakeContract: null,
@@ -26,6 +27,7 @@ export default (context, inject) => {
         lpWbnbReserves: null,
         lpEndDate: null,
         lpPool: process.env.NUXT_ENV_PANCAKEPOOL_URL,
+        efxPrice: null,
         pendingEfx: null,
         updaterPendingEfx: null,
         lockedTokens: null,
@@ -76,11 +78,10 @@ export default (context, inject) => {
           this.getBalanceLpTokens();
           this.isApproved()
           this.getLpReserves()
-          this.getLockedLpTokens()
-          this.getMasterChefInfo()
-          this.getStakedLpTokens();
-          this.getPendingEFX();
-          this.getLatestBlockNumber();
+          this.calculateAPR()
+          this.getStakedLpTokens()
+          this.getPendingEFX()
+          this.getLatestBlockNumber()
 
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
@@ -215,11 +216,38 @@ export default (context, inject) => {
           const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
           console.log(`Locked LP Tokens: ${fromWei(lockedLpTokens)} LP`)
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
-          console.log(`Locked LP Tokens: ${this.lockedTokens}`)
           return fromWei(lockedLpTokens)
         } catch (error) {
           console.error('Pancake#getLockedLpTokens', error);
         }
+      },
+
+      async calculateAPR() {
+        await this.getMasterChefInfo()
+        await this.getLockedLpTokens()
+        await this.getEFXPrice()
+        
+        try {
+          const totalSupply = await this.pancakeContract.methods.totalSupply().call()
+          const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
+          const poolUsdTotal = (fromWei(efxTotalBalance) * this.efxPrice) * 2;
+          const lpDollarValue = Number.parseFloat(poolUsdTotal / fromWei(totalSupply)).toFixed(2)
+          const efxPerDay = Math.round(fromWei(this.efxPerBlock) * 28800)
+        
+          // (EFX_per_day * $price_EFX * 365} / total $ value locked LP * 100%
+          this.apr = Number.parseFloat(((efxPerDay * this.efxPrice * 365) / (lpDollarValue * this.lockedTokens)) * 100).toFixed(2);
+        } catch (e) {
+          this.apr = 'N/A';
+          console.error(e);
+        }
+      },
+
+      async getEFXPrice () {
+        this.efxPrice = await fetch('https://api.coingecko.com/api/v3/coins/effect-network/tickers')
+          .then(data => data.json())
+          .then((data) => {
+            return data.tickers[0].converted_last.usd
+          })
       },
 
       async getMasterChefInfo () {
@@ -245,7 +273,8 @@ export default (context, inject) => {
         } catch (error) {
           console.error('Masterchef#getLatestBlockNumber', error);
         }
-      }
+      },
+      
 
     },
 

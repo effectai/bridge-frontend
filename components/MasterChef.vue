@@ -55,8 +55,13 @@
                       <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
                     </tr>
                     <tr>
-                      <th>EFX-BNB LP Locked:</th>
+                      <th>EFX-BNB LP Locked</th>
                       <td>{{$masterchef.lockedTokens}}</td>
+                    </tr>
+                    <tr>
+                      <th>APR (%)</th>
+                      <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
+                      <td v-else>...</td>
                     </tr>
                     </tbody>
                   </table>
