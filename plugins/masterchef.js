@@ -73,7 +73,6 @@ export default (context, inject) => {
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
           this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
           this.status = "Contracts Loaded"
-          console.log("MasterChef Contract Loaded")
 
           this.getBalanceLpTokens();
           this.isApproved()
@@ -127,7 +126,6 @@ export default (context, inject) => {
 
       async depositLpIntoMasterChef(amount) {
         try {
-          console.log(`Depositing ${toWei(new BN(amount))} LP into MasterChef`)
           const deposit = await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
 
@@ -140,7 +138,6 @@ export default (context, inject) => {
 
       async withdrawLpFromMasterChef(amount) {
         try {
-          console.log(`Withdraw ${toWei(new BN(amount))} LP from MasterChef`)
           const deposit = await this.masterchefContract.methods.withdraw(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
           return deposit;
@@ -154,7 +151,6 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
-            console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
             this.lpBalance = fromWei(balance)
             return toWei(balance)
           }
@@ -177,7 +173,6 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
-            console.log(`Pending EFX is ${fromWei(pendingEFX)}`)
             this.pendingEfx = fromWei(pendingEFX)
             return fromWei(pendingEFX)
           }
@@ -199,7 +194,6 @@ export default (context, inject) => {
       async getLpReserves () {
         try {
           const reserves = await this.pancakeContract.methods.getReserves().call()
-          console.log(`Reserves: ${JSON.stringify(reserves)} LP`)
           this.lpReserves = reserves
           this.lpEfxReserves = Number.parseFloat(fromWei(reserves[0])).toFixed(2)
           this.lpWbnbReserves = Number.parseFloat(fromWei(reserves[1])).toFixed(2)
@@ -211,10 +205,8 @@ export default (context, inject) => {
       },
 
       async getLockedLpTokens () {
-        console.log("Getting Locked Lp Tokens")
         try {
           const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
-          console.log(`Locked LP Tokens: ${fromWei(lockedLpTokens)} LP`)
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
           return fromWei(lockedLpTokens)
         } catch (error) {
