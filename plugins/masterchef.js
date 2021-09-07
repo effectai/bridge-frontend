@@ -128,6 +128,7 @@ export default (context, inject) => {
 
       async depositLpIntoMasterChef(amount) {
         try {
+          console.log('bsc wallet', this.bscWallet[0])
           const deposit = await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
 
@@ -140,6 +141,7 @@ export default (context, inject) => {
 
       async withdrawLpFromMasterChef(amount) {
         try {
+          console.log('bsc wallet', this.bscWallet[0])
           const deposit = await this.masterchefContract.methods.withdraw(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
           return deposit;
@@ -250,9 +252,18 @@ export default (context, inject) => {
           const startBlock = await this.masterchefContract.methods.startBlock().call()
           const endBlock = await this.masterchefContract.methods.endBlock().call()
 
+          // calculate end date of farm
+          const latestBlock = await this.contractProvider.eth.getBlock("latest");
+          const oldBlock = await this.contractProvider.eth.getBlock(latestBlock.number - 1000);
+          const timeDifference = latestBlock.timestamp - oldBlock.timestamp;
+          const timeDifferencePerBlock = timeDifference / 1000;
+          const blockDifference = endBlock - latestBlock.number;
+          const endDate = Math.ceil(latestBlock.timestamp + (blockDifference * timeDifferencePerBlock));
+
           this.efxPerBlock = efxPerBlock
           this.startBlock = startBlock
           this.endBlock = endBlock
+          this.endDate = endDate
 
         } catch (error) {
           console.error('Masterchef#getMasterChefInfo', error);

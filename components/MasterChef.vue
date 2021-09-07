@@ -44,10 +44,11 @@
     <!--                      <th>Start Block:</th>-->
     <!--                      <td>{{$masterchef.startBlock}}</td>-->
     <!--                    </tr>-->
-    <!--                    <tr>-->
-    <!--                      <th>End Block:</th>-->
-    <!--                      <td>{{$masterchef.endBlock}}</td>-->
-    <!--                    </tr>-->
+                    <tr>
+                        <th>End Date:</th>
+                        <td v-if="$masterchef.endDate">{{new Date($masterchef.endDate * 1000).toISOString().slice(0, 10)}}</td>
+                        <td v-else>...</td>
+                    </tr>
                     <tr>
                         <th>EFX Reward / Day</th>
                         <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
