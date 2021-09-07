@@ -65,17 +65,8 @@ export default (context, inject) => {
       },
       init (currentProvider) {
         try {
-          this.status = "Loading Contracts"
-          this.reset()
-          const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
-          this.contractProvider = new Web3(provider)
-          this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-          this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
-          this.status = "Contracts Loaded"
-          console.log("MasterChef Contract Loaded")
-
-          this.getBalanceLpTokens();
+          this.loadContracts(currentProvider)
+          this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
           this.calculateAPR()
@@ -88,6 +79,22 @@ export default (context, inject) => {
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
           this.updaterPendingEfx = setInterval(() => this.getPendingEFX(), 5e3) // 5 seconds
 
+        } catch (error) {
+          this.status = "Error loading contracts"
+          this.error = error.message
+          console.error(error)
+        }
+      },
+
+      async loadContracts(currentProvider) {
+        try {
+          this.reset()
+          // load contracts
+          const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
+          this.contractProvider = new Web3(provider)
+          this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
+          this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
+          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
         } catch (error) {
           this.status = "Error loading contracts"
           this.error = error.message
@@ -127,7 +134,6 @@ export default (context, inject) => {
 
       async depositLpIntoMasterChef(amount) {
         try {
-          console.log(`Depositing ${toWei(new BN(amount))} LP into MasterChef`)
           const deposit = await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
 
@@ -140,7 +146,6 @@ export default (context, inject) => {
 
       async withdrawLpFromMasterChef(amount) {
         try {
-          console.log(`Withdraw ${toWei(new BN(amount))} LP from MasterChef`)
           const deposit = await this.masterchefContract.methods.withdraw(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
           return deposit;
@@ -154,7 +159,6 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const balance = await this.pancakeContract.methods.balanceOf(this.bscWallet[0]).call()
-            console.log(`Balance of ${this.bscWallet[0]} is ${fromWei(balance)} LP`)
             this.lpBalance = fromWei(balance)
             return toWei(balance)
           }
@@ -177,7 +181,6 @@ export default (context, inject) => {
         try {
           if(this.bscWallet) {
             const pendingEFX = await this.masterchefContract.methods.pendingEfx(this.bscWallet[0]).call()
-            console.log(`Pending EFX is ${fromWei(pendingEFX)}`)
             this.pendingEfx = fromWei(pendingEFX)
             return fromWei(pendingEFX)
           }
@@ -199,7 +202,6 @@ export default (context, inject) => {
       async getLpReserves () {
         try {
           const reserves = await this.pancakeContract.methods.getReserves().call()
-          console.log(`Reserves: ${JSON.stringify(reserves)} LP`)
           this.lpReserves = reserves
           this.lpEfxReserves = Number.parseFloat(fromWei(reserves[0])).toFixed(2)
           this.lpWbnbReserves = Number.parseFloat(fromWei(reserves[1])).toFixed(2)
@@ -211,10 +213,8 @@ export default (context, inject) => {
       },
 
       async getLockedLpTokens () {
-        console.log("Getting Locked Lp Tokens")
         try {
           const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
-          console.log(`Locked LP Tokens: ${fromWei(lockedLpTokens)} LP`)
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
           return fromWei(lockedLpTokens)
         } catch (error) {
@@ -223,10 +223,11 @@ export default (context, inject) => {
       },
 
       async calculateAPR() {
-        await this.getMasterChefInfo()
-        await this.getLockedLpTokens()
-        
         try {
+          await this.loadContracts(context.$bsc.currentProvider)
+          await this.getMasterChefInfo()
+          await this.getLockedLpTokens()
+
           const totalSupply = await this.pancakeContract.methods.totalSupply().call()
           const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
           const poolUsdTotal = fromWei(efxTotalBalance) * 2;
@@ -255,9 +256,18 @@ export default (context, inject) => {
           const startBlock = await this.masterchefContract.methods.startBlock().call()
           const endBlock = await this.masterchefContract.methods.endBlock().call()
 
+          // calculate end date of farm
+          const latestBlock = await this.contractProvider.eth.getBlock("latest");
+          const oldBlock = await this.contractProvider.eth.getBlock(latestBlock.number - 1000);
+          const timeDifference = latestBlock.timestamp - oldBlock.timestamp;
+          const timeDifferencePerBlock = timeDifference / 1000;
+          const blockDifference = endBlock - latestBlock.number;
+          const endDate = Math.ceil(latestBlock.timestamp + (blockDifference * timeDifferencePerBlock));
+
           this.efxPerBlock = efxPerBlock
           this.startBlock = startBlock
           this.endBlock = endBlock
+          this.endDate = endDate
 
         } catch (error) {
           console.error('Masterchef#getMasterChefInfo', error);
