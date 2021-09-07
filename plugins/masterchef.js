@@ -65,7 +65,6 @@ export default (context, inject) => {
       },
       init (currentProvider) {
         try {
-          this.reset()
           this.loadContracts(currentProvider)
           this.getBalanceLpTokens()
           this.isApproved()
@@ -87,13 +86,20 @@ export default (context, inject) => {
         }
       },
 
-      loadContracts(currentProvider) {
-         // load contracts
-         const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
-         this.contractProvider = new Web3(provider)
-         this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-         this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-         this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
+      async loadContracts(currentProvider) {
+        try {
+          this.reset()
+          // load contracts
+          const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
+          this.contractProvider = new Web3(provider)
+          this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
+          this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
+          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
+        } catch (error) {
+          this.status = "Error loading contracts"
+          this.error = error.message
+          console.error(error)
+        }
       },
 
       async isApproved() {
@@ -220,7 +226,7 @@ export default (context, inject) => {
 
       async calculateAPR() {
         try {
-          this.loadContracts()
+          await this.loadContracts(context.$bsc.currentProvider)
           await this.getMasterChefInfo()
           await this.getLockedLpTokens()
 
