@@ -225,17 +225,16 @@ export default (context, inject) => {
       async calculateAPR() {
         await this.getMasterChefInfo()
         await this.getLockedLpTokens()
-        await this.getEFXPrice()
         
         try {
           const totalSupply = await this.pancakeContract.methods.totalSupply().call()
           const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
-          const poolUsdTotal = (fromWei(efxTotalBalance) * this.efxPrice) * 2;
+          const poolUsdTotal = fromWei(efxTotalBalance) * 2;
           const lpDollarValue = Number.parseFloat(poolUsdTotal / fromWei(totalSupply)).toFixed(2)
           const efxPerDay = Math.round(fromWei(this.efxPerBlock) * 28800)
         
-          // (EFX_per_day * $price_EFX * 365} / total $ value locked LP * 100%
-          this.apr = Number.parseFloat(((efxPerDay * this.efxPrice * 365) / (lpDollarValue * this.lockedTokens)) * 100).toFixed(2);
+          // (EFX_per_day * 365} / total $ value locked LP * 100%
+          this.apr = Number.parseFloat(((efxPerDay * 365) / (lpDollarValue * this.lockedTokens)) * 100).toFixed(2);
         } catch (e) {
           this.apr = 'N/A';
           console.error(e);
