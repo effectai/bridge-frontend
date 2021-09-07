@@ -9,10 +9,8 @@
         </div>
       </div>
     </section>
-    <div class="container">
-      <tabs active="swap"/>
-      <swap-form/>
-    </div>
+    <tabs active="farm"></tabs>
+    <master-chef></master-chef>
     <!-- Educational Resources -->
     <div class="has-text-centered my-5">
       <a class="has-text-white learn" href="https://effect-dao-docs.gitbook.io/dao-guides/"
@@ -24,18 +22,16 @@
 </template>
 
 <script>
-import SwapForm from '@/components/SwapForm';
+import MasterChef from '@/components/MasterChef.vue';
 import Tabs from '@/components/Tabs.vue';
 
 export default {
   components: {
-    SwapForm,
+    MasterChef,
     Tabs
   },
   data() {
-
     return {
-      bridge: true
     }
   },
 
