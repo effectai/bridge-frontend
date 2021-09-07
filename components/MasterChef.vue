@@ -23,50 +23,51 @@
                 </div>
             </div>
 
-
-            <div v-if="bscWallet">
-              <div class="box is-centered is-vcentered is-shadowless">
+            <div class="box is-centered is-vcentered is-shadowless">
 
                 <div class="column">
-                  <div class="has-text-centered">
+                    <div class="has-text-centered">
                     <h4>Masterchef Contract:</h4>
-                  </div>
-                  <div class=" has-text-centered">
+                    </div>
+                    <div class=" has-text-centered">
                     <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
-                  </div>
+                    </div>
 
-                  <!-- Basic Farm Info -->
-                  <table class="table is-narrow">
+                    <!-- Basic Farm Info -->
+                    <table class="table is-narrow">
                     <tbody>
-<!--                    <tr>-->
-<!--                      <th>Current Block:</th>-->
-<!--                      <td><a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <th>Start Block:</th>-->
-<!--                      <td>{{$masterchef.startBlock}}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <th>End Block:</th>-->
-<!--                      <td>{{$masterchef.endBlock}}</td>-->
-<!--                    </tr>-->
+    <!--                    <tr>-->
+    <!--                      <th>Current Block:</th>-->
+    <!--                      <td><a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></td>-->
+    <!--                    </tr>-->
+    <!--                    <tr>-->
+    <!--                      <th>Start Block:</th>-->
+    <!--                      <td>{{$masterchef.startBlock}}</td>-->
+    <!--                    </tr>-->
+    <!--                    <tr>-->
+    <!--                      <th>End Block:</th>-->
+    <!--                      <td>{{$masterchef.endBlock}}</td>-->
+    <!--                    </tr>-->
                     <tr>
-                      <th>EFX Reward / Day</th>
-                      <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
+                        <th>EFX Reward / Day</th>
+                        <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
                     </tr>
                     <tr>
-                      <th>EFX-BNB LP Locked</th>
-                      <td>{{$masterchef.lockedTokens}}</td>
+                        <th>EFX-BNB LP Locked</th>
+                        <td>{{$masterchef.lockedTokens}}</td>
                     </tr>
                     <tr>
-                      <th>APR</th>
-                      <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
-                      <td v-else>...</td>
+                        <th>APR</th>
+                        <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
+                        <td v-else>...</td>
                     </tr>
                     </tbody>
-                  </table>
+                    </table>
                 </div>
-              </div>
+            </div>
+
+
+            <div v-if="bscWallet">
               <div v-if="!liveFarm" class="has-text-centered my-5">
                 <p class="has-text-danger">Farm starts at block {{$masterchef.startBlock}} and ends at block {{$masterchef.endBlock}}
                   <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
@@ -290,6 +291,7 @@ export default {
         // this.farm.apr = "N/A"
         // this.farm.startBlock = this.$masterchef.startBlock
         // this.farm.endBlock = this.$masterchef.endBlock
+        this.$masterchef.calculateAPR()
     },
     mounted(){
     }

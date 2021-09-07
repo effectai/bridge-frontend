@@ -65,16 +65,9 @@ export default (context, inject) => {
       },
       init (currentProvider) {
         try {
-          this.status = "Loading Contracts"
           this.reset()
-          const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
-          this.contractProvider = new Web3(provider)
-          this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-          this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
-          this.status = "Contracts Loaded"
-
-          this.getBalanceLpTokens();
+          this.loadContracts(currentProvider)
+          this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
           this.calculateAPR()
@@ -92,6 +85,15 @@ export default (context, inject) => {
           this.error = error.message
           console.error(error)
         }
+      },
+
+      loadContracts(currentProvider) {
+         // load contracts
+         const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
+         this.contractProvider = new Web3(provider)
+         this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
+         this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
+         this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
       },
 
       async isApproved() {
@@ -215,10 +217,11 @@ export default (context, inject) => {
       },
 
       async calculateAPR() {
-        await this.getMasterChefInfo()
-        await this.getLockedLpTokens()
-        
         try {
+          this.loadContracts()
+          await this.getMasterChefInfo()
+          await this.getLockedLpTokens()
+
           const totalSupply = await this.pancakeContract.methods.totalSupply().call()
           const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
           const poolUsdTotal = fromWei(efxTotalBalance) * 2;
