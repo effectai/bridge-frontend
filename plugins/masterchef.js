@@ -134,7 +134,6 @@ export default (context, inject) => {
 
       async depositLpIntoMasterChef(amount) {
         try {
-          console.log('bsc wallet', this.bscWallet[0])
           const deposit = await this.masterchefContract.methods.deposit(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
 
@@ -147,7 +146,6 @@ export default (context, inject) => {
 
       async withdrawLpFromMasterChef(amount) {
         try {
-          console.log('bsc wallet', this.bscWallet[0])
           const deposit = await this.masterchefContract.methods.withdraw(toWei(amount)).send({ from: this.bscWallet[0] })
           this.getStakedLpTokens();
           return deposit;
