@@ -195,6 +195,30 @@ export default (context, inject) => {
       },
 
       /**
+       * Add EFX token to the user's wallet
+       * Only available for MetaMask
+       */
+      async addEfxAsset() {
+        console.log('Registering token with wallet 🔥')
+        if (this.currentProvider){
+          if(this.currentProvider == this.metamask) {
+            await this.currentProvider.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC20',
+                options: {
+                  address: process.env.NUXT_ENV_EFX_TOKEN_CONTRACT,
+                  symbol: 'EFX',
+                  decimals: '18',
+                  image: 'https://effect.network/img/logo/logo_icon_white.png' //url to token logo, png??? or svg?
+                }
+              }
+            }).catch(console.error)
+          }
+        }
+      },
+
+      /**
        * Method to add the correct chain to the wallet of the user.
        * method `wallet_addEthereumChain` is not supported on the BinanceChain rpc provider.
        * We cannot add or remove chains with the Binance Chain wallet.

@@ -13,6 +13,7 @@
     <master-chef></master-chef>
     <!-- Educational Resources -->
     <div class="has-text-centered my-5">
+      <register-token/>
       <a class="has-text-white learn" href="https://effect-dao-docs.gitbook.io/dao-guides/"
         target="_blank">
         <strong>Learn how to connect</strong>
@@ -24,11 +25,13 @@
 <script>
 import MasterChef from '@/components/MasterChef.vue';
 import Tabs from '@/components/Tabs.vue';
+import RegisterToken from '@/components/RegisterToken'
 
 export default {
   components: {
     MasterChef,
-    Tabs
+    Tabs,
+    RegisterToken
   },
   data() {
     return {
