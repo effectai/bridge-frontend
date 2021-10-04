@@ -2,6 +2,8 @@
 
 ## Build Setup
 
+Use [NVM](https://github.com/nvm-sh/nvm) to set node version to `v15.14.0`
+
 ```bash
 # install dependencies
 $ npm install
