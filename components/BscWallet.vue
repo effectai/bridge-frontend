@@ -29,23 +29,6 @@
               </a>
             </div>
             <div class="column is-half">
-              <div v-if="this.$bsc.checkBinanceInstalled" class="provider has-radius" @click="selectWallet('bsc')">
-                <img src="@/assets/img/providers/bsc.svg">
-                Binance Chain
-              </div>
-              <a v-else-if="!isMobileDevice" class="provider has-radius" href="https://docs.binance.org/smart-chain/wallet/binance.html"
-                 target="_blank">
-                <img src="@/assets/img/providers/bsc.svg">
-                Install Binance Chain
-              </a>
-            </div>
-            <div class="column is-half">
-              <div class="provider has-radius is-mobile" @click="selectWallet('trust')">
-                <img src="@/assets/img/providers/trust.png">
-                TrustWallet
-              </div>
-            </div>
-            <div class="column is-half">
               <div class="provider has-radius is-mobile"  @click="selectWallet('walletconnect')">
                 <img src="@/assets/img/providers/walletconnect.svg">
                 WalletConnect
