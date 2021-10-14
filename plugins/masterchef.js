@@ -35,7 +35,17 @@ export default (context, inject) => {
         efxPerBlock: null,
         startBlock: null,
         endBlock: null,
-        latestBlockNumber: null
+        latestBlockNumber: null,
+        farms: [{
+          id: 0,
+          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
+          active: false
+        }, 
+        {
+          id: 1,
+          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
+          active: true
+        }]
       }
     },
     computed: {
@@ -46,7 +56,7 @@ export default (context, inject) => {
     watch: {
       bscWallet(wallet) {
         if (wallet) {
-          this.init(context.$bsc.currentProvider)
+          // this.init(context.$bsc.currentProvider)
         }
       }
     },
@@ -63,9 +73,9 @@ export default (context, inject) => {
         this.clearIntervals()
         Object.assign(this.$data, this.$options.data.call(this))
       },
-      init (currentProvider) {
+      init (currentProvider, contract) {
         try {
-          this.loadContracts(currentProvider)
+          this.loadContracts(currentProvider, contract)
           this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
@@ -73,7 +83,7 @@ export default (context, inject) => {
           this.getStakedLpTokens()
           this.getPendingEFX()
           this.getLatestBlockNumber()
-
+          console.log('bsc wallet', this.bscWallet)
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
@@ -86,7 +96,7 @@ export default (context, inject) => {
         }
       },
 
-      async loadContracts(currentProvider) {
+      async loadContracts(currentProvider, contract) {
         try {
           this.reset()
           // load contracts
@@ -94,7 +104,7 @@ export default (context, inject) => {
           this.contractProvider = new Web3(provider)
           this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
+          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, contract ? contract : process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
         } catch (error) {
           this.status = "Error loading contracts"
           this.error = error.message
@@ -169,6 +179,7 @@ export default (context, inject) => {
 
       async getStakedLpTokens () {
         try {
+          console.log('bsc wallet', this.bscWallet[0])
           const balance = await this.masterchefContract.methods.userInfo(0, this.bscWallet[0]).call()
           this.stakedLpBalance = fromWei(balance[0])
           return toWei(balance[0])
