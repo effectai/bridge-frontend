@@ -196,21 +196,6 @@ export default {
     },
     data () {
         return {
-            farms: [
-                // TODO: fix this
-                {
-                    id: 0,
-                    address: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
-                    urladdress: `https://bscscan.com/address/`,
-                    active: false
-                },
-                {
-                    id: 1,
-                    address: '0xb8326dce706df2d14f51c6b2f2013b6490b6ad57',
-                    urladdress: `https://bscscan.com/address/`,
-                    active: true
-                }
-            ],
             id: parseInt(this.$route.params.id),
             farm: null
         }
@@ -227,7 +212,7 @@ export default {
         }
     },
     created() {
-        this.farm = this.farms[this.id]
+        this.farm = this.$masterchef.farms[this.id]
         this.$masterchef.init(this.$bsc.currentProvider, this.farm.address)
     }
 }

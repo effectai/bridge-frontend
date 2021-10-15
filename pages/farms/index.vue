@@ -10,7 +10,7 @@
       </div>
     </section>
     <tabs active="farm"></tabs>
-    <master-chef :farms="farms"></master-chef>
+    <master-chef :farms="$masterchef.farms"></master-chef>
     <!-- Educational Resources -->
     <div class="has-text-centered my-5">
       <register-token/>
@@ -36,19 +36,7 @@ export default {
   data() {
     return {
       activeFarms: [],
-      finishedFarms: [],
-      farms: [
-        {
-          id: 0,
-          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
-          active: false
-        }, 
-        {
-          id: 1,
-          contract: '0xb8326dce706df2d14f51c6b2f2013b6490b6ad57',
-          active: true
-        }
-      ]
+      finishedFarms: []
     }
   },
 
