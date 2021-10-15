@@ -42,7 +42,8 @@ export default (context, inject) => {
           title: 'EFX-BNB LP',
           contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
           active: false,
-          apr: null
+          apr: null,
+          userLpStaked: 0
         }, 
         {
           id: 1,
@@ -50,7 +51,8 @@ export default (context, inject) => {
           contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
           // TODO: calculate if active with block numbers
           active: true,
-          apr: null
+          apr: null,
+          userLpStaked: 0
         }]
       }
     },
@@ -183,11 +185,17 @@ export default (context, inject) => {
         }
       },
 
-      async getStakedLpTokens () {
+      async getStakedLpTokens (wallet, farm) {
         try {
-          const balance = await this.masterchefContract.methods.userInfo(0, this.bscWallet[0]).call()
+          if (farm) {
+            this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, farm.contract)
+          }
+          const balance = await this.masterchefContract.methods.userInfo(0, wallet ? wallet : this.bscWallet[0]).call()
           this.stakedLpBalance = fromWei(balance[0])
-          return toWei(balance[0])
+          if(wallet && farm) {
+            this.farms[farm.id].userLpStaked = toWei(balance[0])
+          }
+          return fromWei(balance[0])
         } catch (error) {
           console.error('pancakeContract#getStakedLPTokens', error);
         }

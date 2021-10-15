@@ -27,14 +27,16 @@
                 <h4>Active Farms:</h4>
                 <div :key="farm.id" v-for="(farm) in activeFarms" class="box farm">                        
                     <nuxt-link :to="'/farms/' + farm.id" style="width: 100%">
-                        <div class="is-flex is-flex-direction-row is-align-items-center">
-                            <img src="~assets/img/token-logo.png" style="height: 30px;" />
-                            <h5>{{farm.title}}</h5>
-                             <div class="is-flex is-flex-direction-column">
-                                <span>Staked</span>
-                                <span>0 LP Tokens</span>
+                        <div class="is-flex is-flex-direction-row is-align-items-center is-justify-content-space-between" style="width: 100%">
+                            <div class="is-flex is-flex-direction-row is-align-items-center">
+                                <img src="~assets/img/token-logo.png" style="height: 30px;" />
+                                <h5>{{farm.title}}</h5>
                             </div>
-                            <div class="is-flex is-flex-direction-column">
+                             <div class="is-flex is-flex-direction-column farm-info" style="flex: 1" v-if="bscWallet">
+                                <span>Staked</span>
+                                <span>{{parseFloat(farm.userStaked)}} LP</span>
+                            </div>
+                            <div class="is-flex is-flex-direction-column farm-info">
                                 <span>APR</span>
                                 <span>{{farm.apr}}%</span>
                             </div>
@@ -45,14 +47,16 @@
                 <h4>Finished Farms:</h4>
                 <div :key="farm.id" v-for="farm in finishedFarms" class="box farm">
                     <nuxt-link :to="'/farms/' + farm.id" style="width: 100%">
-                        <div class="is-flex is-flex-direction-row is-align-items-center">
-                            <img src="~assets/img/token-logo.png" style="height: 30px;" />
-                            <h5>{{farm.title}}</h5>
-                            <div class="is-flex is-flex-direction-column">
-                                <span>Staked</span>
-                                <span>0 LP Tokens</span>
+                        <div class="is-flex is-flex-direction-row is-align-items-center is-justify-content-space-between" style="width: 100%">
+                            <div class="is-flex is-flex-direction-row is-align-items-center">
+                                <img src="~assets/img/token-logo.png" style="height: 30px;" />
+                                <h5>{{farm.title}}</h5>
                             </div>
-                            <div class="is-flex is-flex-direction-column">
+                            <div class="is-flex is-flex-direction-column farm-info" style="flex: 1" v-if="bscWallet">
+                                <span>Staked</span>
+                                <span>{{parseFloat(farm.userStaked)}} LP</span>
+                            </div>
+                            <div class="is-flex is-flex-direction-column farm-info">
                                 <span>APR</span>
                                 <span>{{farm.apr}}%</span>
                             </div>
@@ -87,20 +91,18 @@ export default {
             return (this.$bsc) ? this.$bsc.wallet : null
         }
     },
+    watch: {
+        '$bsc.wallet': function() {
+            if(this.$bsc.wallet) {
+                this.getUserStakedTokens(this.$bsc.wallet)
+                this.prepareFarms()
+            }
+        }
+    },
     created() {
-        // this.farm.startDate = "TBA"
-        // this.farm.address = process.env.NUXT_ENV_MASTERCHEF_CONTRACT
-        // this.farm.urladdress = `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
-        // this.farm.efxPerBlock = this.$masterchef.efxPerBlock
-        // this.farm.lockedTokens = this.$masterchef.lockedTokens
-        // this.farm.wbnbReserves = fromWei(this.$masterchef.lpReserves[0]) || "N/A"
-        // this.farm.efxReserves = fromWei(this.$masterchef.lpReserves[1]) || "N/A"
-        // this.farm.endDate = this.$masterchef.lpEndDate || "N/A"
-        // this.farm.apr = "N/A"
-        // this.farm.startBlock = this.$masterchef.startBlock
-        // this.farm.endBlock = this.$masterchef.endBlock
         this.farms = this.$masterchef.farms
         this.prepareFarms()
+        this.getUserStakedTokens(this.$bsc.wallet)
     },
     methods: {
         async prepareFarms() {
@@ -109,7 +111,7 @@ export default {
                 for (let i = 0; i < this.farms.length; i++) {
                     this.farms[i].apr = await this.$masterchef.calculateAPR(this.farms[i])      
                 }
-                // TODO replace this with checking start & end block
+                
                 this.activeFarms = this.farms.filter((el) => {
                     return el.active === true;
                 })
@@ -119,6 +121,12 @@ export default {
                 this.loading = false   
             } catch (error) {
                 throw new Error(error)
+            }
+        },
+        async getUserStakedTokens(wallet) {
+            // for every farm get the staked LP tokens of the user
+            for (let i = 0; i < this.farms.length; i++) {
+                this.farms[i].userStaked = await this.$masterchef.getStakedLpTokens(wallet[0], this.farms[i])
             }
         }
     }
@@ -154,10 +162,22 @@ export default {
 .farm {
     h5 {
         margin-bottom: 0;
-        margin-right: 30px;
+        margin-right: 40px;
     }
     img {
         margin-right: 8px;
+    }
+}
+
+.farm-info {
+    &:last-child {
+        align-self: right;
+    }
+    span {
+        color: black;
+        &:first-child {
+            font-size: .75rem;
+        }   
     }
 }
 </style>

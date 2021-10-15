@@ -11,6 +11,7 @@
     </section>
     <tabs active="farm"></tabs>
     <div class="box is-horizontal-centered is-centered px-6 content" style="max-width: 550px">
+        <nuxt-link to="/farms">< Back</nuxt-link>
         <h3 class="title has-text-centered is-4 mt-5 mb-3">Stake your EFX-BNB LP</h3>
         <h4 class="subtitle is-6 has-text-centered has-text-weight-light mb-5 mt-2">And earn EFX rewards!</h4>
         <div class="columns is-vcentered is-centered mt-3">
@@ -43,14 +44,6 @@
             <!-- Basic Farm Info -->
             <table class="table is-narrow">
             <tbody>
-<!--                    <tr>-->
-<!--                      <th>Current Block:</th>-->
-<!--                      <td><a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <th>Start Block:</th>-->
-<!--                      <td>{{$masterchef.startBlock}}</td>-->
-<!--                    </tr>-->
             <tr>
                 <th>End Date:</th>
                 <td v-if="$masterchef.endDate">{{new Date($masterchef.endDate * 1000).toISOString().slice(0, 10)}}</td>
@@ -74,32 +67,40 @@
         </div>
 
         <div v-if="bscWallet">
-            <div v-if="!liveFarm" class="has-text-centered my-5">
-            <p class="has-text-danger">Farm starts at block {{$masterchef.startBlock}} and ends at block {{$masterchef.endBlock}}
-                <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
+            <div v-if="endedFarm" class="has-text-centered my-5 notification is-warning">
+                <h4 class="mb-2">Farm ended</h4>
+                <p>Ended at {{new Date($masterchef.endDate * 1000).toISOString().slice(0, 10)}} <br>
+                If you still have LP tokens staked, unstake them below and harvest your EFX rewards</p>
+            </div>
+            <div v-else-if="notStartedFarm" class="has-text-centered my-5 notification is-warning">
+                <h5>Farm not started yet</h5>
+                <p>Starts at: {{$masterchef.startBlock}}
+                    <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
             </div>
             <div v-if="$masterchef.approved === null">
                 Loading approval state..
             </div>
             <div v-else-if="$masterchef.approved">
-
-                <h4>Harvest EFX</h4>
-                <div class="is-size-7 columns mb-0 is-mobile">
-                        <div class="column py-0">
-                            Rewards
-                        </div>
-                </div>
-                <div class="field has-addons">
-                    <div class="control is-flex-grow-1">
-                    <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
+                <!-- Harvest EFX -->
+                <div v-if="!notStartedFarm">
+                    <h4>Harvest EFX</h4>
+                    <div class="is-size-7 columns mb-0 is-mobile">
+                            <div class="column py-0">
+                                Rewards
+                            </div>
                     </div>
-                    <p class="control">
-                    <a class="button is-static is-medium">EFX</a>
-                    </p>
+                    <div class="field has-addons">
+                        <div class="control is-flex-grow-1">
+                        <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
+                        </div>
+                        <p class="control">
+                        <a class="button is-static is-medium">EFX</a>
+                        </p>
+                    </div>
+                    <button :disabled="!bscWallet || $masterchef.pendingEfx < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="claimPendingEFX()">
+                        <strong>Harvest</strong>
+                    </button>
                 </div>
-                <button :disabled="!bscWallet || $masterchef.pendingEfx < 1" class="button is-medium is-accent is-fullwidth mt-5" @click="claimPendingEFX()">
-                    <strong>Harvest</strong>
-                </button>
                 <hr>
 
                 <h4 class="mb-2">Staked EFX-BNB LP</h4>
@@ -111,8 +112,9 @@
                     <a :href="$masterchef.lpPool" target="_blank">Get EFX-BNB LP</a>
                 </p>
 
+                <!-- Stake / unstake EFX -->
                 <div class="is-size-7 columns mb-0 mt-4 is-mobile">
-                    <div class="column py-0">
+                    <div class="column py-0" v-if="!endedFarm">
                         <button :class="{'is-outlined': activeForm != 'stake'}" class="button is-medium is-primary is-fullwidth" @click="activeForm = 'stake'">
                             <strong>Stake</strong>
                         </button>
@@ -125,7 +127,7 @@
                     </div>
                 </div>
 
-                <div v-if="activeForm == 'stake'">
+                <div v-if="activeForm == 'stake' && !endedFarm">
                     <div class="is-size-7 columns mb-0 mt-5 is-mobile">
                         <div class="column py-0">
                             Amount
@@ -183,7 +185,7 @@
                     <hr>
                 </div>
             </div>
-            <div v-else>
+            <div v-else-if="!$masterchef.approved">
                 <div class="is-size-7 columns mb-0 is-mobile">
                     <button class="button is-medium is-accent is-fullwidth mt-5" @click="approveAllowance()">
                         <strong>Approve</strong>
@@ -205,7 +207,9 @@
                 <p>Waiting for the transaction to complete...</p>
             </div>
         </div>
+        <br>
     </div>
+    <br>
   </div>
 </template>
 <script>
@@ -242,7 +246,14 @@ export default {
         },
         liveFarm() {
             return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber && this.$masterchef.endBlock > this.$masterchef.latestBlockNumber
-        }
+        },
+        endedFarm() {
+            return this.$masterchef.endBlock < this.$masterchef.latestBlockNumber
+        },
+        notStartedFarm() {
+            return this.$masterchef.startBlock > this.$masterchef.latestBlockNumber
+        },
+
     },
     created() {
         this.farm = this.$masterchef.farms[this.id]
