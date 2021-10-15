@@ -10,7 +10,7 @@
       </div>
     </section>
     <tabs active="farm"></tabs>
-    <master-chef :farms="$masterchef.farms"></master-chef>
+    <master-chef></master-chef>
     <!-- Educational Resources -->
     <div class="has-text-centered my-5">
       <register-token/>

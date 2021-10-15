@@ -24,23 +24,46 @@
             </div>
 
             <div class="box is-centered is-vcentered is-shadowless">
-                <div class="column">
-                    <h4>Active Farms:</h4>
-                    <div :key="farm.id" v-for="(farm) in activeFarms" class="box tile">
-                        <nuxt-link :to="'/farms/' + farm.id">
-                            <img src="~assets/img/logo.svg" style="height: 30px;" />
-                            {{farm.id}}
-                            {{farm.contract}}
-                        </nuxt-link>
-                    </div>
-                    <h4>Finished Farms:</h4>
-                    <div :key="farm.id" v-for="farm in finishedFarms" class="box tile">
-                        <nuxt-link :to="'/farms/' + farm.id">
-                            <img src="~assets/img/logo.svg" style="height: 30px;" />
-                            {{farm.id}}
-                            {{farm.contract}}
-                        </nuxt-link>
-                    </div>
+                <h4>Active Farms:</h4>
+                <div :key="farm.id" v-for="(farm) in activeFarms" class="box farm">                        
+                    <nuxt-link :to="'/farms/' + farm.id" style="width: 100%">
+                        <div class="is-flex is-flex-direction-row is-align-items-center">
+                            <img src="~assets/img/token-logo.png" style="height: 30px;" />
+                            <h5>{{farm.title}}</h5>
+                             <div class="is-flex is-flex-direction-column">
+                                <span>Staked</span>
+                                <span>0 LP Tokens</span>
+                            </div>
+                            <div class="is-flex is-flex-direction-column">
+                                <span>APR</span>
+                                <span>{{farm.apr}}%</span>
+                            </div>
+                        </div>
+                    </nuxt-link>
+                </div>
+                <br>
+                <h4>Finished Farms:</h4>
+                <div :key="farm.id" v-for="farm in finishedFarms" class="box farm">
+                    <nuxt-link :to="'/farms/' + farm.id" style="width: 100%">
+                        <div class="is-flex is-flex-direction-row is-align-items-center">
+                            <img src="~assets/img/token-logo.png" style="height: 30px;" />
+                            <h5>{{farm.title}}</h5>
+                            <div class="is-flex is-flex-direction-column">
+                                <span>Staked</span>
+                                <span>0 LP Tokens</span>
+                            </div>
+                            <div class="is-flex is-flex-direction-column">
+                                <span>APR</span>
+                                <span>{{farm.apr}}%</span>
+                            </div>
+                        </div>
+                    </nuxt-link>
+                </div>
+            
+                <div v-if="loading" class="loader-wrapper is-active">
+                    <div class="loader is-loading"/>
+                    <br>
+                    <p>Loading farms...</p>
                 </div>
             </div>
             <br>
@@ -51,77 +74,17 @@
 <script>
 
 export default {
-    props: ['farms'],
     data() {
         return {
-            activeForm: null,
-            lpAmount: null,
-            stakedLpAmount: null,
-            farm: {
-              address: process.env.NUXT_ENV_MASTERCHEF_CONTRACT,
-              urladdress: `https://bscscan.com/address/${process.env.NUXT_ENV_MASTERCHEF_CONTRACT}`
-            },
-            pendingEFX: null, // pending rewards that can be viewed using the `pendingEFX` function on masterchef.sol
-            allowanceApproval: null,
-            success: null,
-            error: null,
-            loading: false,
+            farms: null,
+            activeFarms: [],
+            finishedFarms: [],
+            loading: false
         }
     },
     computed: {
         bscWallet() {
             return (this.$bsc) ? this.$bsc.wallet : null
-        },
-        approved() {
-            return (this.$bsc) ? this.$bsc.approved : null
-        },
-        liveFarm() {
-            return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber && this.$masterchef.endBlock > this.$masterchef.latestBlockNumber
-        }
-    },
-    methods: {
-        async depositLpIntoMasterChef(lpAmount) {
-            this.success, this.error = null;
-            this.loading = true;
-            try {
-                await this.$masterchef.depositLpIntoMasterChef(lpAmount);
-                this.success = 'Successfuly deposited LP tokens'
-            } catch (error) {
-                this.error = error.message
-            }
-            this.loading = false;
-        },
-        async withdrawLpFromMasterChef(stakedLpAmount) {
-            this.success, this.error = null;
-            this.loading = true;
-            try {
-                await this.$masterchef.withdrawLpFromMasterChef(stakedLpAmount);
-                this.success = 'Successfuly withdrawn LP tokens'
-            } catch (error) {
-                this.error = error.message
-            }
-            this.loading = false;
-        },
-        async approveAllowance() {
-            this.success, this.error = null;
-            this.loading = true;
-            try {
-                await this.$masterchef.approveAllowance();
-            } catch (error) {
-                this.error = error.message
-            }
-            this.loading = false;
-        },
-        async claimPendingEFX() {
-            this.success, this.error = null;
-            this.loading = true;
-            try {
-                await this.$masterchef.claimPendingEFX();
-                this.success = 'Successfuly claimed rewards!'
-            } catch (error) {
-                this.error = error.message
-            }
-            this.loading = false;
         }
     },
     created() {
@@ -136,15 +99,28 @@ export default {
         // this.farm.apr = "N/A"
         // this.farm.startBlock = this.$masterchef.startBlock
         // this.farm.endBlock = this.$masterchef.endBlock
-        this.activeFarms = this.farms.filter((el) => {
-            return el.active === true;
-        })
-        this.finishedFarms = this.farms.filter((el) => {
-            return el.active === false;
-        })
-        this.$masterchef.calculateAPR()
+        this.farms = this.$masterchef.farms
+        this.prepareFarms()
     },
-    mounted(){
+    methods: {
+        async prepareFarms() {
+            try {
+                this.loading = true
+                for (let i = 0; i < this.farms.length; i++) {
+                    this.farms[i].apr = await this.$masterchef.calculateAPR(this.farms[i])      
+                }
+                // TODO replace this with checking start & end block
+                this.activeFarms = this.farms.filter((el) => {
+                    return el.active === true;
+                })
+                this.finishedFarms = this.farms.filter((el) => {
+                    return el.active === false;
+                }) 
+                this.loading = false   
+            } catch (error) {
+                throw new Error(error)
+            }
+        }
     }
 }
 </script>
@@ -174,5 +150,14 @@ export default {
 }
 .title {
     font-family: $family-sans-serif;
+}
+.farm {
+    h5 {
+        margin-bottom: 0;
+        margin-right: 30px;
+    }
+    img {
+        margin-right: 8px;
+    }
 }
 </style>

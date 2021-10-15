@@ -39,14 +39,18 @@ export default (context, inject) => {
         farm: null,
         farms: [{
           id: 0,
+          title: 'EFX-BNB LP',
           contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
-          active: false
+          active: false,
+          apr: null
         }, 
         {
           id: 1,
+          title: 'EFX-BNB LP',
           contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
           // TODO: calculate if active with block numbers
-          active: true
+          active: true,
+          apr: null
         }]
       }
     },
@@ -181,7 +185,6 @@ export default (context, inject) => {
 
       async getStakedLpTokens () {
         try {
-          console.log('bsc wallet', this.bscWallet[0])
           const balance = await this.masterchefContract.methods.userInfo(0, this.bscWallet[0]).call()
           this.stakedLpBalance = fromWei(balance[0])
           return toWei(balance[0])
@@ -225,9 +228,9 @@ export default (context, inject) => {
         }
       },
 
-      async getLockedLpTokens () {
+      async getLockedLpTokens (farm) {
         try {
-          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(this.farm.contract).call()
+          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(farm ? farm.contract : this.farm.contract).call()
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
           return fromWei(lockedLpTokens)
         } catch (error) {
@@ -235,11 +238,11 @@ export default (context, inject) => {
         }
       },
 
-      async calculateAPR() {
+      async calculateAPR(farm) {
         try {
-          await this.loadContracts(context.$bsc.currentProvider, this.farm)
+          await this.loadContracts(context.$bsc.currentProvider, farm ? farm : this.farm)
           await this.getMasterChefInfo()
-          await this.getLockedLpTokens()
+          await this.getLockedLpTokens(farm)
 
           const totalSupply = await this.pancakeContract.methods.totalSupply().call()
           const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
@@ -249,6 +252,7 @@ export default (context, inject) => {
         
           // (EFX_per_day * 365} / total $ value locked LP * 100%
           this.apr = Number.parseFloat(((efxPerDay * 365) / (lpDollarValue * this.lockedTokens)) * 100).toFixed(2);
+          return this.apr
         } catch (e) {
           this.apr = 'N/A';
           console.error(e);
