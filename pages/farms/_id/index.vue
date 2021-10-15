@@ -213,7 +213,7 @@ export default {
     },
     created() {
         this.farm = this.$masterchef.farms[this.id]
-        this.$masterchef.init(this.$bsc.currentProvider, this.farm.address)
+        this.$masterchef.init(this.$bsc.currentProvider, this.farm)
     }
 }
 </script>

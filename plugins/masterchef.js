@@ -36,6 +36,7 @@ export default (context, inject) => {
         startBlock: null,
         endBlock: null,
         latestBlockNumber: null,
+        farm: null,
         farms: [{
           id: 0,
           contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
@@ -43,7 +44,8 @@ export default (context, inject) => {
         }, 
         {
           id: 1,
-          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
+          contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
+          // TODO: calculate if active with block numbers
           active: true
         }]
       }
@@ -73,9 +75,9 @@ export default (context, inject) => {
         this.clearIntervals()
         Object.assign(this.$data, this.$options.data.call(this))
       },
-      init (currentProvider, contract) {
+      init (currentProvider, farm) {
         try {
-          this.loadContracts(currentProvider, contract)
+          this.loadContracts(currentProvider, farm)
           this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
@@ -83,7 +85,6 @@ export default (context, inject) => {
           this.getStakedLpTokens()
           this.getPendingEFX()
           this.getLatestBlockNumber()
-          console.log('bsc wallet', this.bscWallet)
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
@@ -96,15 +97,16 @@ export default (context, inject) => {
         }
       },
 
-      async loadContracts(currentProvider, contract) {
+      async loadContracts(currentProvider, farm) {
         try {
           this.reset()
+          this.farm = farm
           // load contracts
           const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
           this.contractProvider = new Web3(provider)
           this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, contract ? contract : process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
+          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, this.farm.contract)
         } catch (error) {
           this.status = "Error loading contracts"
           this.error = error.message
@@ -115,7 +117,7 @@ export default (context, inject) => {
       async isApproved() {
         try {
           if(this.bscWallet) {
-            const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+            const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], this.farm.contract).call())
             let lpBalance = this.lpBalance || 0;
             lpBalance = new BN(lpBalance);
             this.approved = allowance.gt(lpBalance)
@@ -133,7 +135,7 @@ export default (context, inject) => {
 
       async approveAllowance() { // Needs to come from the user wallet
         try {
-          const approvalTX = await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.bscWallet[0] })
+          const approvalTX = await this.pancakeContract.methods.approve(this.farm.contract, MAXUINT256).send({ from: this.bscWallet[0] })
           this.isApproved()
           return approvalTX
         } catch (error) {
@@ -225,7 +227,7 @@ export default (context, inject) => {
 
       async getLockedLpTokens () {
         try {
-          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
+          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(this.farm.contract).call()
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
           return fromWei(lockedLpTokens)
         } catch (error) {
@@ -235,7 +237,7 @@ export default (context, inject) => {
 
       async calculateAPR() {
         try {
-          await this.loadContracts(context.$bsc.currentProvider)
+          await this.loadContracts(context.$bsc.currentProvider, this.farm)
           await this.getMasterChefInfo()
           await this.getLockedLpTokens()
 
