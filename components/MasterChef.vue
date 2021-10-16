@@ -25,7 +25,7 @@
 
             <div class="box is-centered is-vcentered is-shadowless">
                 <h4>Active Farms:</h4>
-                <div :key="farm.id" v-for="(farm) in activeFarms" class="box farm">                        
+                <div :key="farm.id" v-for="(farm) in activeFarms" class="box farm">
                     <nuxt-link :to="'/farms/' + farm.id" style="width: 100%">
                         <div class="is-flex is-flex-direction-row is-align-items-center is-justify-content-space-between" style="width: 100%">
                             <div class="is-flex is-flex-direction-row is-align-items-center">
@@ -57,8 +57,7 @@
                                 <span>{{parseFloat(farm.userStaked).toFixed(2)}} LP</span>
                             </div>
                             <div class="is-flex is-flex-direction-column farm-info">
-                                <span>APR</span>
-                                <span>{{parseFloat(farm.apr).toFixed(0)}}%</span>
+                              <button>Unstake</button>
                             </div>
                         </div>
                     </nuxt-link>
