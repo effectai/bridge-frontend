@@ -34,11 +34,11 @@
                             </div>
                              <div class="is-flex is-flex-direction-column farm-info" style="flex: 1" v-if="bscWallet">
                                 <span>Staked</span>
-                                <span>{{parseFloat(farm.userStaked)}} LP</span>
+                                <span>{{parseFloat(farm.userStaked).toFixed(2)}} LP</span>
                             </div>
                             <div class="is-flex is-flex-direction-column farm-info">
                                 <span>APR</span>
-                                <span>{{farm.apr}}%</span>
+                                <span>{{parseFloat(farm.apr).toFixed(0)}}%</span>
                             </div>
                         </div>
                     </nuxt-link>
@@ -54,16 +54,16 @@
                             </div>
                             <div class="is-flex is-flex-direction-column farm-info" style="flex: 1" v-if="bscWallet">
                                 <span>Staked</span>
-                                <span>{{parseFloat(farm.userStaked)}} LP</span>
+                                <span>{{parseFloat(farm.userStaked).toFixed(2)}} LP</span>
                             </div>
                             <div class="is-flex is-flex-direction-column farm-info">
                                 <span>APR</span>
-                                <span>{{farm.apr}}%</span>
+                                <span>{{parseFloat(farm.apr).toFixed(0)}}%</span>
                             </div>
                         </div>
                     </nuxt-link>
                 </div>
-            
+
                 <div v-if="loading" class="loader-wrapper is-active">
                     <div class="loader is-loading"/>
                     <br>
@@ -109,16 +109,16 @@ export default {
             try {
                 this.loading = true
                 for (let i = 0; i < this.farms.length; i++) {
-                    this.farms[i].apr = await this.$masterchef.calculateAPR(this.farms[i])      
+                    this.farms[i].apr = await this.$masterchef.calculateAPR(this.farms[i])
                 }
-                
+
                 this.activeFarms = this.farms.filter((el) => {
                     return el.active === true;
                 })
                 this.finishedFarms = this.farms.filter((el) => {
                     return el.active === false;
-                }) 
-                this.loading = false   
+                })
+                this.loading = false
             } catch (error) {
                 throw new Error(error)
             }
@@ -177,7 +177,7 @@ export default {
         color: black;
         &:first-child {
             font-size: .75rem;
-        }   
+        }
     }
 }
 </style>

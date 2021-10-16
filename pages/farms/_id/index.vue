@@ -91,7 +91,7 @@
                     </div>
                     <div class="field has-addons">
                         <div class="control is-flex-grow-1">
-                        <input class="input is-medium" disabled :value="bscWallet ? $masterchef.pendingEfx : '- login with your BSC wallet -'" type="text" />
+                        <input class="input is-medium" disabled :value="bscWallet ? parseFloat($masterchef.pendingEfx).toFixed(2) : '- login with your BSC wallet -'" type="text" />
                         </div>
                         <p class="control">
                         <a class="button is-static is-medium">EFX</a>
@@ -105,7 +105,7 @@
 
                 <h4 class="mb-2">Staked EFX-BNB LP</h4>
                 <h4 class="subtitle is-6 has-text-weight-light mb-0 mt-0">EFX-BNB LP staked:
-                    <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance)}}</span>
+                    <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance).toFixed(2)}}ll</span>
                     <span v-else>-</span>
                 </h4>
                 <p class="mb-5">
@@ -163,7 +163,7 @@
                             </div>
                             <div class="column has-text-right py-0">
                                 EFX-BNB LP staked:
-                                <span v-if="$masterchef.stakedLpBalance !== null"><a @click="stakedLpAmount = $masterchef.stakedLpBalance">{{parseFloat($masterchef.stakedLpBalance)}}</a></span>
+                                <span v-if="$masterchef.stakedLpBalance !== null"><a @click="stakedLpAmount = $masterchef.stakedLpBalance">{{parseFloat($masterchef.stakedLpBalance).toFixed(2)}}</a></span>
                                 <span v-else>-</span>
                             </div>
                     </div>
