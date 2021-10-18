@@ -23,6 +23,13 @@
                 </div>
             </div>
 
+            <div class="box is-centered is-vcentered is-shadowless mb-0" v-if="bscWallet && endedStakedFarm">
+                <div class="has-text-centered notification is-warning">
+                    <h4 class="mb-2" style="line-height: 1.8rem">You still have LP tokens staked in an ended farm!</h4>
+                    <p>Unstake your tokens on the <nuxt-link :to="'/farms/' + endedStakedFarm.id" style="width: 100%">farm page</nuxt-link></p>
+                </div>
+            </div>
+
             <div class="box is-centered is-vcentered is-shadowless">
                 <h4>Active Farms:</h4>
                 <div :key="farm.id" v-for="(farm) in activeFarms" class="box farm">
@@ -82,7 +89,8 @@ export default {
             farms: null,
             activeFarms: [],
             finishedFarms: [],
-            loading: false
+            loading: false,
+            endedStakedFarm: null,
         }
     },
     computed: {
@@ -126,6 +134,9 @@ export default {
             // for every farm get the staked LP tokens of the user
             for (let i = 0; i < this.farms.length; i++) {
                 this.farms[i].userStaked = await this.$masterchef.getStakedLpTokens(wallet[0], this.farms[i])
+                if(this.farms[i].userStaked > 0 && !this.farms[i].active) {
+                    this.endedStakedFarm = this.farms[i]
+                }
             }
         }
     }
