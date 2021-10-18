@@ -81,13 +81,13 @@ export default (context, inject) => {
         this.clearIntervals()
         Object.assign(this.$data, this.$options.data.call(this))
       },
-      init (currentProvider, farm) {
+      async init (currentProvider, farm) {
         try {
           this.loadContracts(currentProvider, farm)
           this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
-          this.calculateAPR()
+          await this.calculateAPR()
           this.getStakedLpTokens()
           this.getPendingEFX()
           this.getLatestBlockNumber()
@@ -103,7 +103,7 @@ export default (context, inject) => {
         }
       },
 
-      async loadContracts(currentProvider, farm) {
+      loadContracts(currentProvider, farm) {
         try {
           this.reset()
           this.farm = farm
