@@ -35,6 +35,8 @@ export default {
   },
   data() {
     return {
+      activeFarms: [],
+      finishedFarms: []
     }
   },
 
@@ -42,6 +44,7 @@ export default {
   },
 
   created() {
+    
   },
 }
 </script>

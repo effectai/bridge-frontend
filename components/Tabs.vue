@@ -12,8 +12,8 @@
           <span>&nbsp;&nbsp;&nbsp;</span>
         </li>
         <li :class="{ 'is-active': active == 'farm' }" class="tab">
-          <nuxt-link to="/farm">
-            <span>Farm</span>
+          <nuxt-link to="/farms">
+            <span>Farms</span>
             <span class="icon is-small"><i class="fas fa-tractor" aria-hidden="true"></i></span>
           </nuxt-link>
         </li>

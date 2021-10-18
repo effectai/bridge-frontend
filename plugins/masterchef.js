@@ -35,7 +35,25 @@ export default (context, inject) => {
         efxPerBlock: null,
         startBlock: null,
         endBlock: null,
-        latestBlockNumber: null
+        latestBlockNumber: null,
+        farm: null,
+        farms: [{
+          id: 0,
+          title: 'EFX-BNB',
+          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
+          active: false,
+          apr: null,
+          userLpStaked: 0
+        },
+        {
+          id: 1,
+          title: 'EFX-BNB',
+          contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
+          // TODO: calculate if active with block numbers
+          active: true,
+          apr: null,
+          userLpStaked: 0
+        }]
       }
     },
     computed: {
@@ -46,7 +64,7 @@ export default (context, inject) => {
     watch: {
       bscWallet(wallet) {
         if (wallet) {
-          this.init(context.$bsc.currentProvider)
+          // this.init(context.$bsc.currentProvider)
         }
       }
     },
@@ -63,9 +81,9 @@ export default (context, inject) => {
         this.clearIntervals()
         Object.assign(this.$data, this.$options.data.call(this))
       },
-      init (currentProvider) {
+      init (currentProvider, farm) {
         try {
-          this.loadContracts(currentProvider)
+          this.loadContracts(currentProvider, farm)
           this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
@@ -73,7 +91,6 @@ export default (context, inject) => {
           this.getStakedLpTokens()
           this.getPendingEFX()
           this.getLatestBlockNumber()
-
           // this.getCakePerBlock()
           this.updaterReserves = setInterval(() => this.getLpReserves(), 60e3); // 60 seconds
           this.updaterBalance = setInterval(() => this.getBalanceLpTokens(), 10e3) // 10 seconds
@@ -86,15 +103,16 @@ export default (context, inject) => {
         }
       },
 
-      async loadContracts(currentProvider) {
+      async loadContracts(currentProvider, farm) {
         try {
           this.reset()
+          this.farm = farm
           // load contracts
           const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
           this.contractProvider = new Web3(provider)
           this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
           this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
-          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, process.env.NUXT_ENV_MASTERCHEF_CONTRACT)
+          this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, this.farm.contract)
         } catch (error) {
           this.status = "Error loading contracts"
           this.error = error.message
@@ -105,7 +123,7 @@ export default (context, inject) => {
       async isApproved() {
         try {
           if(this.bscWallet) {
-            const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call())
+            const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], this.farm.contract).call())
             let lpBalance = this.lpBalance || 0;
             lpBalance = new BN(lpBalance);
             this.approved = allowance.gt(lpBalance)
@@ -123,7 +141,7 @@ export default (context, inject) => {
 
       async approveAllowance() { // Needs to come from the user wallet
         try {
-          const approvalTX = await this.pancakeContract.methods.approve(process.env.NUXT_ENV_MASTERCHEF_CONTRACT, MAXUINT256).send({ from: this.bscWallet[0] })
+          const approvalTX = await this.pancakeContract.methods.approve(this.farm.contract, MAXUINT256).send({ from: this.bscWallet[0] })
           this.isApproved()
           return approvalTX
         } catch (error) {
@@ -167,11 +185,17 @@ export default (context, inject) => {
         }
       },
 
-      async getStakedLpTokens () {
+      async getStakedLpTokens (wallet, farm) {
         try {
-          const balance = await this.masterchefContract.methods.userInfo(0, this.bscWallet[0]).call()
+          if (farm) {
+            this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, farm.contract)
+          }
+          const balance = await this.masterchefContract.methods.userInfo(0, wallet ? wallet : this.bscWallet[0]).call()
           this.stakedLpBalance = fromWei(balance[0])
-          return toWei(balance[0])
+          if(wallet && farm) {
+            this.farms[farm.id].userLpStaked = toWei(balance[0])
+          }
+          return fromWei(balance[0])
         } catch (error) {
           console.error('pancakeContract#getStakedLPTokens', error);
         }
@@ -212,9 +236,9 @@ export default (context, inject) => {
         }
       },
 
-      async getLockedLpTokens () {
+      async getLockedLpTokens (farm) {
         try {
-          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(process.env.NUXT_ENV_MASTERCHEF_CONTRACT).call()
+          const lockedLpTokens = await this.pancakeContract.methods.balanceOf(farm ? farm.contract : this.farm.contract).call()
           this.lockedTokens = Number.parseFloat(fromWei(lockedLpTokens)).toFixed(2)
           return fromWei(lockedLpTokens)
         } catch (error) {
@@ -222,20 +246,21 @@ export default (context, inject) => {
         }
       },
 
-      async calculateAPR() {
+      async calculateAPR(farm) {
         try {
-          await this.loadContracts(context.$bsc.currentProvider)
+          await this.loadContracts(context.$bsc.currentProvider, farm ? farm : this.farm)
           await this.getMasterChefInfo()
-          await this.getLockedLpTokens()
+          await this.getLockedLpTokens(farm)
 
           const totalSupply = await this.pancakeContract.methods.totalSupply().call()
           const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
           const poolUsdTotal = fromWei(efxTotalBalance) * 2;
           const lpDollarValue = Number.parseFloat(poolUsdTotal / fromWei(totalSupply)).toFixed(2)
           const efxPerDay = Math.round(fromWei(this.efxPerBlock) * 28800)
-        
+
           // (EFX_per_day * 365} / total $ value locked LP * 100%
           this.apr = Number.parseFloat(((efxPerDay * 365) / (lpDollarValue * this.lockedTokens)) * 100).toFixed(2);
+          return this.apr
         } catch (e) {
           this.apr = 'N/A';
           console.error(e);
@@ -283,7 +308,7 @@ export default (context, inject) => {
           console.error('Masterchef#getLatestBlockNumber', error);
         }
       },
-      
+
 
     },
 
