@@ -50,9 +50,9 @@
         <div class="column">
             <div class="has-text-centered">
                 <h4>Farm info:</h4>
-            </div>
-            <div class=" has-text-centered">
-                <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{$masterchef.address}}</a>
+                </div>
+                <div class=" has-text-centered">
+                <a :href="$bsc.explorer + '/address/' + farm.contract" target="_blank" class="blockchain-address">{{farm.contract}}</a>
             </div>
 
             <!-- Basic Farm Info -->
