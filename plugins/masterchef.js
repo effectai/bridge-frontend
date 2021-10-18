@@ -39,15 +39,15 @@ export default (context, inject) => {
         farm: null,
         farms: [{
           id: 0,
-          title: 'EFX-BNB LP',
+          title: 'EFX-BNB',
           contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
           active: false,
           apr: null,
           userLpStaked: 0
-        }, 
+        },
         {
           id: 1,
-          title: 'EFX-BNB LP',
+          title: 'EFX-BNB',
           contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
           // TODO: calculate if active with block numbers
           active: true,
@@ -257,7 +257,7 @@ export default (context, inject) => {
           const poolUsdTotal = fromWei(efxTotalBalance) * 2;
           const lpDollarValue = Number.parseFloat(poolUsdTotal / fromWei(totalSupply)).toFixed(2)
           const efxPerDay = Math.round(fromWei(this.efxPerBlock) * 28800)
-        
+
           // (EFX_per_day * 365} / total $ value locked LP * 100%
           this.apr = Number.parseFloat(((efxPerDay * 365) / (lpDollarValue * this.lockedTokens)) * 100).toFixed(2);
           return this.apr
@@ -308,7 +308,7 @@ export default (context, inject) => {
           console.error('Masterchef#getLatestBlockNumber', error);
         }
       },
-      
+
 
     },
 

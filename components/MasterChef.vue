@@ -57,7 +57,7 @@
                                 <span>{{parseFloat(farm.userStaked).toFixed(2)}} LP</span>
                             </div>
                             <div class="is-flex is-flex-direction-column farm-info">
-                              <button>Unstake</button>
+                              <button class="is-outlined is-small button">Farm ended</button>
                             </div>
                         </div>
                     </nuxt-link>

@@ -18,7 +18,7 @@
             <div class="column is-align-self-stretch is-5">
                 <div class="box is-shadowless has-border has-text-centered">
                     <div class="subtitle has-text-weight-semibold mb-2">BSC</div>
-                    <img src="~assets/img/BSC-logo.svg" height="100" />
+                    <img v-if="!bscWallet" src="~assets/img/BSC-logo.svg" height="100" />
                     <div v-if="!bscWallet">
                         <a class="button is-small is-accent" @click="$bsc.loginModal = true">
                     <strong>Connect BSC</strong>
@@ -33,12 +33,26 @@
                 </div>
             </div>
         </div>
+
+        <div v-if="bscWallet">
+            <div v-if="endedFarm" class="has-text-centered my-5 notification is-warning">
+                <h4 class="mb-2">Farm ended</h4>
+                <p>This farm ended at {{new Date($masterchef.endDate * 1000).toISOString().slice(0, 10)}} <br>
+                If you still have LP tokens staked, you should unstake them below.</p>
+            </div>
+            <div v-else-if="notStartedFarm" class="has-text-centered my-5 notification is-warning">
+                <h5>Farm not started yet</h5>
+                <p>Starts at: <a :href="$bsc.explorer + '/block/' + $masterchef.startBlock" target="_blank">{{$masterchef.startBlock}}</a>
+                <br>Current block: {{$masterchef.latestBlockNumber}}</p>
+            </div>
+        </div>
+
         <div class="column">
             <div class="has-text-centered">
-            <h4>Masterchef Contract:</h4>
+                <h4>Farm info:</h4>
             </div>
             <div class=" has-text-centered">
-            <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{this.farm.address}}</a>
+                <a :href="this.farm.urladdress" target="_blank" class="blockchain-address">{{$masterchef.address}}</a>
             </div>
 
             <!-- Basic Farm Info -->
@@ -67,16 +81,6 @@
         </div>
 
         <div v-if="bscWallet">
-            <div v-if="endedFarm" class="has-text-centered my-5 notification is-warning">
-                <h4 class="mb-2">Farm ended</h4>
-                <p>Ended at {{new Date($masterchef.endDate * 1000).toISOString().slice(0, 10)}} <br>
-                If you still have LP tokens staked, unstake them below and harvest your EFX rewards</p>
-            </div>
-            <div v-else-if="notStartedFarm" class="has-text-centered my-5 notification is-warning">
-                <h5>Farm not started yet</h5>
-                <p>Starts at: {{$masterchef.startBlock}}
-                    <br>Current block: <a :href="$bsc.explorer + '/blocks'" target="_blank">{{$masterchef.latestBlockNumber}}</a></p>
-            </div>
             <div v-if="$masterchef.approved === null">
                 Loading approval state..
             </div>
