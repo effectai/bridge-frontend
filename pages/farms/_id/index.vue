@@ -259,6 +259,14 @@ export default {
         },
 
     },
+    watch: {
+        '$bsc.wallet': function() {
+            if(this.$bsc.wallet) {
+                this.$masterchef.isApproved()
+                this.$masterchef.getPendingEFX()
+            }
+        }
+    },
     created() {
         this.farm = this.$masterchef.farms[this.id]
         this.$masterchef.init(this.$bsc.currentProvider, this.farm)
