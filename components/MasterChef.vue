@@ -131,11 +131,13 @@ export default {
             }
         },
         async getUserStakedTokens(wallet) {
-            // for every farm get the staked LP tokens of the user
-            for (let i = 0; i < this.farms.length; i++) {
-                this.farms[i].userStaked = await this.$masterchef.getStakedLpTokens(wallet[0], this.farms[i])
-                if(this.farms[i].userStaked > 0 && !this.farms[i].active) {
-                    this.endedStakedFarm = this.farms[i]
+            if(wallet) {
+                // for every farm get the staked LP tokens of the user
+                for (let i = 0; i < this.farms.length; i++) {
+                    this.farms[i].userStaked = await this.$masterchef.getStakedLpTokens(wallet[0], this.farms[i])
+                    if(this.farms[i].userStaked > 0 && !this.farms[i].active) {
+                        this.endedStakedFarm = this.farms[i]
+                    }
                 }
             }
         }

@@ -186,18 +186,20 @@ export default (context, inject) => {
       },
 
       async getStakedLpTokens (wallet, farm) {
-        try {
-          if (farm) {
-            this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, farm.contract)
+        if(wallet || this.bscWallet) {
+          try {
+            if (farm) {
+              this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, farm.contract)
+            }
+            const balance = await this.masterchefContract.methods.userInfo(0, wallet ? wallet : this.bscWallet[0]).call()
+            this.stakedLpBalance = fromWei(balance[0])
+            if(wallet && farm) {
+              this.farms[farm.id].userLpStaked = toWei(balance[0])
+            }
+            return fromWei(balance[0])
+          } catch (error) {
+            console.error('pancakeContract#getStakedLPTokens', error);
           }
-          const balance = await this.masterchefContract.methods.userInfo(0, wallet ? wallet : this.bscWallet[0]).call()
-          this.stakedLpBalance = fromWei(balance[0])
-          if(wallet && farm) {
-            this.farms[farm.id].userLpStaked = toWei(balance[0])
-          }
-          return fromWei(balance[0])
-        } catch (error) {
-          console.error('pancakeContract#getStakedLPTokens', error);
         }
       },
 
