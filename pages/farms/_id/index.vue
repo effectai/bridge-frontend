@@ -71,7 +71,7 @@
                 <th>EFX-BNB LP Locked</th>
                 <td>{{$masterchef.lockedTokens}}</td>
             </tr>
-            <tr>
+            <tr v-if="farm.active">
                 <th>APR</th>
                 <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
                 <td v-else>...</td>
