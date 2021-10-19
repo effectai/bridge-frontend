@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isMetaMaskInstalled && isLoggedIn">
+  <div v-if="isMetaMaskInstalled && isMetaMaskLoggedIn">
     <button class="button is-medium is-accent mt-5" :disabled=!bscWallet @click="$bsc.addEfxAsset()">
       <strong>Add EFX to Wallet</strong>
     </button>
@@ -23,8 +23,8 @@ export default {
         isMetaMaskInstalled() {
           return Boolean(this.$bsc.metamask && this.$bsc.metamask.isMetaMask)
         },
-        isLoggedIn() {
-          return Boolean(this.$bsc.currentProvider)
+        isMetaMaskLoggedIn() {
+          return Boolean(this.$bsc.currentProvider == this.$bsc.metamask)
         }
     },
     methods: {
