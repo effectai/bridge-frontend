@@ -58,6 +58,13 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    babel: {
+      plugins: [
+        '@babel/plugin-proposal-class-properties',
+        '@babel/plugin-proposal-private-methods',
+        ['@babel/plugin-proposal-private-property-in-object', { loose: true }]
+      ],
+    },
     loaders: {
       scss: {
         additionalData: "@import '~assets/scss/variables.scss';"
