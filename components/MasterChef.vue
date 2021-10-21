@@ -23,6 +23,8 @@
                 </div>
             </div>
 
+            <p class="has-text-centered"><a target="_blank" href="https://pancakeswap.finance/info/pool/0xaf1db0c88a2bd295f8edcc8c73f9eb8bcee6fa8a">Pancake Swap WBNB / EFX Pool</a></p>
+
             <div class="box is-centered is-vcentered is-shadowless mb-0" v-if="bscWallet && endedStakedFarm">
                 <div class="has-text-centered notification is-warning">
                     <h4 class="mb-2" style="line-height: 1.8rem">You still have LP tokens staked in an ended farm!</h4>

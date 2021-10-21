@@ -71,7 +71,7 @@
                 <th>EFX-BNB LP Locked</th>
                 <td>{{$masterchef.lockedTokens}}</td>
             </tr>
-            <tr>
+            <tr v-if="farm.active">
                 <th>APR</th>
                 <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
                 <td v-else>...</td>
@@ -252,16 +252,18 @@ export default {
             return this.$masterchef.startBlock < this.$masterchef.latestBlockNumber && this.$masterchef.endBlock > this.$masterchef.latestBlockNumber
         },
         endedFarm() {
-            return this.$masterchef.endBlock < this.$masterchef.latestBlockNumber
+            return (this.$masterchef.latestBlockNumber && this.$masterchef.endBlock < this.$masterchef.latestBlockNumber)
         },
         notStartedFarm() {
-            return this.$masterchef.startBlock > this.$masterchef.latestBlockNumber
+            return (this.$masterchef.latestBlockNumber && this.$masterchef.startBlock > this.$masterchef.latestBlockNumber)
         },
 
     },
     watch: {
         '$bsc.wallet': function() {
             if(this.$bsc.wallet) {
+                this.farm = this.$masterchef.farms[this.id]
+                this.$masterchef.init(this.$bsc.currentProvider, this.farm)
                 this.$masterchef.isApproved()
                 this.$masterchef.getPendingEFX()
             }
