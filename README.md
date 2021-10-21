@@ -1,6 +1,6 @@
 # [EFX DeFi Bridge](https://bridge.effect.network) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?hashtags=crypto%20%23defi%20%23blockchain%20%23dApp%20%23Vue%20%23nodejs&original_referer=https%3A%2F%2Fpublish.twitter.com%2F&ref_src=twsrc%5Etfw%7Ctwcamp%5Ebuttonembed%7Ctwterm%5Eshare%7Ctwgr%5E&text=Consider%20giving%20our%20DeFi%20bridge%20dApp%20a%20quick%20star%20%E2%AD%90%20on%20GitHub!&url=https%3A%2F%2Fgithub.com%2Feffectai%2Fbridge-frontend&via=effectaix)
 
-
+➡️ <b><a href="https://discord.gg/hM3237cYXP">Join the Effect DAO Discord!</a></b>
 ![Discord](https://img.shields.io/discord/519860537891487745?style=social)
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/effectai/bridge-frontend/main?style=social)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/effectai/bridge-frontend?style=social)
