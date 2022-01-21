@@ -49,8 +49,7 @@ export default (context, inject) => {
           id: 1,
           title: 'EFX-BNB',
           contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
-          // TODO: calculate if active with block numbers
-          active: true,
+          active: false,
           apr: null,
           userLpStaked: 0
         }]

@@ -52,6 +52,7 @@
                         </div>
                     </nuxt-link>
                 </div>
+                <p v-if="activeFarms.length === 0">No active farms at the moment. Please come back later</p>
                 <br>
                 <h4>Finished Farms:</h4>
                 <div :key="farm.id" v-for="farm in finishedFarms" class="box farm">
