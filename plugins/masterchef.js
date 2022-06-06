@@ -57,6 +57,14 @@ export default (context, inject) => {
           id: 2,
           title: 'EFX-BNB',
           contract: '0x85545106c90D502C108F38B7eb9A8ec265F07415',
+          active: false,
+          apr: null,
+          userLpStaked: 0
+        },
+        {
+          id: 3,
+          title: 'EFX-BNB',
+          contract: '0x2ee04Eb081C6548BDDb729d64AA2912375882735',
           active: true,
           apr: null,
           userLpStaked: 0
