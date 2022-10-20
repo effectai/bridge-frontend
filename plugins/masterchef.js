@@ -16,7 +16,8 @@ export default (context, inject) => {
         status: null,
         error: null,
         pancakeContract: null,
-        bepContract: null,
+        efxContract: null,
+        bnbContract: null,
         masterchefContract: null,
         approved: null,
         updaterBalance: null,
@@ -134,7 +135,8 @@ export default (context, inject) => {
           const provider = Boolean(currentProvider) ? currentProvider : process.env.NUXT_ENV_BSC_RPC
           this.contractProvider = new Web3(provider)
           this.pancakeContract = new this.contractProvider.eth.Contract(PancakePair, process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT)
-          this.bepContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
+          this.efxContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_EFX_TOKEN_CONTRACT)
+          this.bnbContract = new this.contractProvider.eth.Contract(BEP20, process.env.NUXT_ENV_BNB_TOKEN_CONTRACT)
           this.masterchefContract = new this.contractProvider.eth.Contract(MasterChef, this.farm.contract)
         } catch (error) {
           this.status = "Error loading contracts"
@@ -278,7 +280,7 @@ export default (context, inject) => {
           await this.getLockedLpTokens(farm)
 
           const totalSupply = await this.pancakeContract.methods.totalSupply().call()
-          const efxTotalBalance = await this.bepContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
+          const efxTotalBalance = await this.efxContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
           const poolUsdTotal = fromWei(efxTotalBalance) * 2;
           const lpDollarValue = Number.parseFloat(poolUsdTotal / fromWei(totalSupply)).toFixed(2)
           const efxPerDay = Math.round(fromWei(this.efxPerBlock) * 28800)

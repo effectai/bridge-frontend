@@ -62,19 +62,23 @@
                 <th>End Date:</th>
                 <td v-if="$masterchef.endDate">{{new Date($masterchef.endDate * 1000).toISOString().slice(0, 10)}}</td>
                 <td v-else>...</td>
+                <td></td>
             </tr>
             <tr>
                 <th>EFX Reward / Day</th>
                 <td>{{ Math.round($masterchef.efxPerBlock/1e18 * 28800) }}</td>
+                <td></td>
             </tr>
             <tr>
                 <th>EFX-BNB LP Locked</th>
                 <td>{{$masterchef.lockedTokens}}</td>
+                <td>${{this.poolStakedLPValue}} USD</td> 
             </tr>
             <tr v-if="farm.active">
                 <th>APR</th>
                 <td v-if="$masterchef.apr">{{$masterchef.apr}}%</td>
                 <td v-else>...</td>
+                <td></td>
             </tr>
             </tbody>
             </table>
@@ -89,9 +93,9 @@
                 <div v-if="!notStartedFarm">
                     <h4>Harvest EFX</h4>
                     <div class="is-size-7 columns mb-0 is-mobile">
-                            <div class="column py-0">
-                                Rewards
-                            </div>
+                        <div class="column py-0">
+                            Rewards
+                        </div>
                     </div>
                     <div class="field has-addons">
                         <div class="control is-flex-grow-1">
@@ -109,7 +113,7 @@
 
                 <h4 class="mb-2">Staked EFX-BNB LP</h4>
                 <h4 class="subtitle is-6 has-text-weight-light mb-0 mt-0">EFX-BNB LP staked:
-                    <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance).toFixed(2)}}ll</span>
+                    <span v-if="$masterchef.stakedLpBalance !== null">{{parseFloat($masterchef.stakedLpBalance).toFixed(2)}} ({{($masterchef.stakedLpBalance/$masterchef.lockedTokens*100).toFixed(2)}}% of total pool)<p class="align-userLPValue">${{this.userStakedLPValue}} USD</p></span>
                     <span v-else>-</span>
                 </h4>
                 <p class="mb-5">
@@ -218,6 +222,7 @@
 </template>
 <script>
 import Tabs from '@/components/Tabs.vue';
+import { BN, toWei, fromWei } from "web3-utils";
 
 export default {
     components: {
@@ -239,6 +244,13 @@ export default {
             success: null,
             error: null,
             loading: false,
+            totalLPSupply: null,
+            totalEFXSupply: null,
+            totalBNBSupply: null,
+            efxPrice: null,
+            bnbPrice: null,
+            poolStakedLPValue: null,
+            userStakedLPValue: null,
         }
     },
     computed: {
@@ -257,7 +269,6 @@ export default {
         notStartedFarm() {
             return (this.$masterchef.latestBlockNumber && this.$masterchef.startBlock > this.$masterchef.latestBlockNumber)
         },
-
     },
     watch: {
         '$bsc.wallet': function() {
@@ -273,6 +284,15 @@ export default {
         this.farm = this.$masterchef.farms[this.id]
         this.$masterchef.init(this.$bsc.currentProvider, this.farm)
         this.$masterchef.calculateAPR()
+        this.getStakedLPValues()
+        this.getEFXPrice()
+        this.getBNBPrice()
+    },
+    updated() {
+        if (this.$masterchef.stakedLpBalance){
+            this.getStakedLPValues()
+        }
+        
     },
     methods: {
         async depositLpIntoMasterChef(lpAmount) {
@@ -317,7 +337,42 @@ export default {
                 this.error = error.message
             }
             this.loading = false;
-        }
+        },
+        async getEFXPrice () {
+            await fetch('https://api.coingecko.com/api/v3/coins/effect-network/tickers')
+            .then(data => data.json())
+            .then((data) => {
+                this.efxPrice = (data.tickers[0].converted_last.usd) 
+            })
+        },
+
+        async getBNBPrice () {
+            await fetch('https://api.coingecko.com/api/v3/coins/binancecoin/tickers')
+            .then(data => data.json())
+            .then((data) => {
+                this.bnbPrice = (data.tickers[0].converted_last.usd) 
+            })
+        },
+        async getStakedLPValues () {
+            const totalLPSupply = await this.$masterchef.pancakeContract.methods.totalSupply().call()
+            this.totalLPSupply = Number.parseFloat(fromWei(totalLPSupply)).toFixed(2)
+
+            const totalEFXSupply = await this.$masterchef.efxContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
+            this.totalEFXSupply = Number.parseFloat(fromWei(totalEFXSupply)).toFixed(2)
+
+            const totalBNBSupply = await this.$masterchef.bnbContract.methods.balanceOf(process.env.NUXT_ENV_PANCAKEPAIR_CONTRACT).call()
+            this.totalBNBSupply = Number.parseFloat(fromWei(totalBNBSupply)).toFixed(2)
+        
+            const poolLPPercentage = await this.$masterchef.getLockedLpTokens(this.farm) / this.totalLPSupply
+            const poolStakedEFXWorth = poolLPPercentage*this.totalEFXSupply*this.efxPrice
+            const poolStakedBNBWorth = poolLPPercentage*this.totalBNBSupply*this.bnbPrice
+            this.poolStakedLPValue = Number.parseFloat(poolStakedEFXWorth + poolStakedBNBWorth).toFixed(2)
+
+            const userLPPercentage = await this.$masterchef.stakedLpBalance / this.totalLPSupply
+            const userStakedEFXWorth = userLPPercentage*this.totalEFXSupply*this.efxPrice
+            const userStakedBNBWorth = userLPPercentage*this.totalBNBSupply*this.bnbPrice
+            this.userStakedLPValue = Number.parseFloat(userStakedEFXWorth + userStakedBNBWorth).toFixed(2)
+        },
     },
 }
 </script>
@@ -346,5 +401,9 @@ export default {
 }
 .title {
     font-family: $family-sans-serif;
+}
+
+.align-userLPValue{
+    margin-left: 9.7em
 }
 </style>
