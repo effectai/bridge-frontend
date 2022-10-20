@@ -72,7 +72,7 @@
             <tr>
                 <th>EFX-BNB LP Locked</th>
                 <td>{{$masterchef.lockedTokens}}</td>
-                <td>${{this.poolStakedLPValue}} USD</td> 
+                <td class="is-6 has-text-weight-light ">${{this.poolStakedLPValue}} USD</td> 
             </tr>
             <tr v-if="farm.active">
                 <th>APR</th>
