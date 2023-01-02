@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <p class="has-text-centered"><a target="_blank" href="https://pancakeswap.finance/info/pool/0xaf1db0c88a2bd295f8edcc8c73f9eb8bcee6fa8a">Pancake Swap WBNB / EFX Pool</a></p>
+            <p class="has-text-centered"><a target="_blank" href="https://pancakeswap.finance/info/pairs/0xaf1db0c88a2bd295f8edcc8c73f9eb8bcee6fa8a">Pancake Swap WBNB / EFX Pool</a></p>
 
             <div class="box is-centered is-vcentered is-shadowless mb-0" v-if="bscWallet && endedStakedFarm">
                 <div class="has-text-centered notification is-warning">
