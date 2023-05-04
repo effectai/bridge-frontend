@@ -9,14 +9,14 @@
 
 ➡️ <b><a href="https://discord.gg/hM3237cYXP">Join the Effect DAO Discord!</a></b>
 
-
-Vue dApp to interact with the Defi services of Effect network. 
+Vue dApp to interact with the Defi services of Effect network.
 This dApp bridges the EOS blockchain and the Binance Smart Chain.
-Currently built in to this Vue dApp is the bridge, to swap tokens and an interface to interact with the Pancakeswap EFX farm. 
-
+Currently built in to this Vue dApp is the bridge, to swap tokens and an interface to interact with the Pancakeswap EFX farm.
 
 ## Build Setup
-In order to run this repo, clone it, install the dependencies, build it, and start it. 
+
+In order to run this repo, clone it, install the dependencies, build it, and start it.
+
 ```bash
 git clone https://github.com/effectai/bridge-frontend
 
@@ -29,11 +29,11 @@ npm run generate
 npm run start
 ```
 
-If everything went correctly, the server should be running now and now you can navigate to http://localhost:3000 and see the Vue app running.
-
+If everything went correctly, the server should be running now and now you can navigate to <http://localhost:3000> and see the Vue app running.
 
 ## Development
-For active development it is recomended to use `npm run dev`. The command will serve with hot reload at localhost:3000. Heads up, this will load in the `developement` environment variables. 
+
+For active development it is recomended to use `npm run dev`. The command will serve with hot reload at localhost:3000. Heads up, this will load in the `developement` environment variables.
 
 ```bash
 git clone https://github.com/effectai/bridge-frontend
@@ -44,17 +44,21 @@ npm run dev
 ```
 
 ## Node-sass Node version
-The `node-sass` package is very picky with which Node version it will work with. 
-You can use use [NVM](https://github.com/nvm-sh/nvm) to set node version to the corresponding supported version. 
+
+The `node-sass` package is very picky with which Node version it will work with.
+You can use use [NVM](https://github.com/nvm-sh/nvm) to set node version to the corresponding supported version.
 Check out the repo of `node-sass` to see which [Node version](https://github.com/sass/node-sass#node-version-support-policy
 ) is needed.
 
 ## Contribution
+
 Please look at our [contribution guide](https://github.com/effectai/effect-network/blob/master/.github/CONTRIBUTING.md) in order to start submitting PR.
 
 ## Code of Conduct
+
 You can take a look at our code of conduct here: [CODE OF
 CONDUCT](https://github.com/effectai/effect-network/blob/master/.github/CODE_OF_CONDUCT.md)
 
 ## Effect Network
-Learn more about Effect Network here: https://github.com/effectai/effect-network
+
+Learn more about Effect Network here: <https://github.com/effectai/effect-network>
