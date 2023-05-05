@@ -112,18 +112,20 @@ export default {
             this.efxAmount = null
         },
         async onSwap() {
-            this.$ptokens.init(this.$bsc.currentProvider)
+            await this.$ptokens.init(this.$bsc)
             this.$router.push('/swap-progress')
 
             if (this.swapFromEOS) {
+                console.log('swap eos to bsc')
                 try {
-                    await this.$ptokens.swapToBsc(this.efxAmount)
+                    await this.$ptokens.swapEosToBsc(this.efxAmount)
                 } catch (e) {
                     this.swapError = e.message
                 }
             } else {
+                console.log('swap bsc to eos')
                 try {
-                    await this.$ptokens.swapToEos(this.efxAmount)
+                    await this.$ptokens.swapBscToEos(this.efxAmount)
                 } catch (e) {
                     this.swapError = e.message
                 }
