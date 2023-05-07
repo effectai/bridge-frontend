@@ -111,11 +111,8 @@ export default (context, inject) => {
           // Create builders for assets and swap (swap will be configured later)
           this.swapBuilder = new pTokensSwapBuilder(node)
           
-          
           // create bsc asset
-          // console.log('Current bsc', window.ethereum)
-          // const bscProvider = new pTokensEvmProvider('https://bsc-dataseed3.binance.org')
-          const bscProvider = new pTokensEvmProvider(new Web3.providers.HttpProvider('https://bsc-dataseed3.binance.org'))
+          const bscProvider = new pTokensEvmProvider('https://bsc-dataseed3.binance.org')
           const bscBuilder = new pTokensEvmAssetBuilder(node)
           bscBuilder
             .setBlockchain(ChainId.BscMainnet)
@@ -131,6 +128,8 @@ export default (context, inject) => {
             'https://eos.greymass.com',
             this.eosWallet.provider.signatureProvider
           )
+          eosioProvider.setActor(this.eosWallet.accountInfo.account_name)
+
           const eosioBuilder = new pTokensEosioAssetBuilder(node)
           eosioBuilder
             .setBlockchain(ChainId.EosMainnet)
