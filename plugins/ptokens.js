@@ -68,7 +68,7 @@ export default (context, inject) => {
           bscBuilder
             .setBlockchain(ChainId.BscMainnet)
             .setSymbol('EFX') // EFX
-            .setDecimals(4)
+            .setDecimals(18) // the number of decimals in the ERC20 contract
             .setProvider(bscProvider)
           this.bscAsset = await bscBuilder.build()
 
@@ -83,7 +83,7 @@ export default (context, inject) => {
           eosioBuilder
             .setBlockchain(ChainId.EosMainnet)
             .setSymbol('EFX') // EFX
-            .setDecimals(4)
+            .setDecimals(4) // the number of decimals in the EOS contract
             .setProvider(eosioProvider)
           this.eosioAsset = await eosioBuilder.build()
         } catch (error) {
@@ -260,6 +260,8 @@ export default (context, inject) => {
             })
             .on('outputTxDetected', (tx) => {
               console.info('outputTxDetected', tx)
+              const { txHash } = tx[0]
+              this.eosTransactionId = txHash
               this.statusText = 'Output Transaction detected on EOS.'
             })
             .on('outputTxBroadcasted', (tx) => {
