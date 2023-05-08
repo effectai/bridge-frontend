@@ -35,6 +35,7 @@
     "web3modal": "^1.9.3"
   },
   "devDependencies": {
+    "@vue/runtime-dom": "^3.2.47",
     "dotenv": "^9.0.0",
     "node-sass": "^6.0.1",
     "push-dir": "^0.4.1",
