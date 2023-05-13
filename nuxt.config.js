@@ -61,6 +61,11 @@ export default {
     loaders: {
       scss: {
         additionalData: "@import '~assets/scss/variables.scss';"
+      },
+      extend(config, { isClient }) {
+        if (process.env.NODE_ENV !== 'production') {
+          config.devtool = isClient ? 'source-map' : 'inline-source-map'
+        }
       }
     }
   },

@@ -4,8 +4,8 @@
       <div class="container">
         <div class="has-text-centered block">
           <img :src="require('@/assets/img/logo.svg')" width="130" class="mb-5">
-          <h2 class="site-title is-spaced title">Bridge</h2>
-          <h4 class="subtitle">Transfer EFX between EOS and your BSC Wallet.</h4>
+          <h2 class="site-title is-spaced title">Effect Farm</h2>
+          <h4 class="subtitle">Add liquidity to the EFX/BSC Pool and earn EFX rewards.</h4>
         </div>
       </div>
     </section>

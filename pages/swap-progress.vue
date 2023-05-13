@@ -10,8 +10,10 @@
       </div>
     </section>
     <div class="container">
-      <div class="notification is-warning is-horizontal-centered" style="max-width: 550px" v-if="!$ptokens.error && $ptokens.status == 'progress'">
-        Do not refresh or close this window! Otherwise you won't be able to track the progress of your swap.
+      <div class="notification is-warning is-horizontal-centered has-text-centered" style="max-width: 550px" v-if="!$ptokens.error && $ptokens.status == 'progress'">
+        Do not refresh or close this window!
+        <br>
+        Otherwise you won't be able to track the progress of your swap.
       </div>
       <div class="box is-horizontal-centered px-6 has-text-centered content" style="max-width: 550px">
         <div v-if="$ptokens.status == 'start'" class="loader-wrapper is-active">
@@ -27,6 +29,12 @@
               <div v-if="!$ptokens.error && $ptokens.status == 'progress'">
                 <progress class="progress is-primary mb-4" max="100"></progress>
                 <p class="mb-6" style="font-size: 0.9rem">Please be patient, the swap can take <strong>up to 10 minutes</strong></p>
+                <div class="buttons is-centered">
+                  <button class="button is-danger" @click.prevent="$ptokens.abort()">
+                    Abort
+                  </button>
+                </div>
+                <hr>
               </div>
 
               <div class="notification has-text-centered" v-if="$ptokens.status == 'finished'">
@@ -41,13 +49,15 @@
                   <p>
                     Transaction:
                     <a :href="$eos.explorer + '/transaction/'+ $ptokens.eosTransactionId" target="_blank" class="blockchain-address">
-                      {{ $ptokens.eosTransactionId }}
+                      <span>{{ $ptokens.eosTransactionId }}</span>
+                      <span class="icon is-small"><i class="fas external" aria-hidden="true"></i></span>
                     </a>
                   </p>
                   <p>
                     Account:
                     <a :href="$eos.explorer + '/account/'+ eosWallet.auth.accountName" target="_blank" class="blockchain-address">
-                      {{ eosWallet.auth.accountName }}
+                      <span>{{ eosWallet.auth.accountName }}</span>
+                      <span class="icon is-small"><i class="fas fa-external" aria-hidden="true"></i></span>
                     </a>
                   </p>
                 </div>
@@ -61,13 +71,15 @@
                   <p>
                     Transaction:
                     <a :href="$bsc.explorer + '/tx/' + $ptokens.bscTransactionId" target="_blank" class="blockchain-address">
-                      {{ $ptokens.bscTransactionId }}
+                      <span>{{ $ptokens.bscTransactionId }}</span>
+                      <span class="icon is-small"><i class="fas fa-external" aria-hidden="true"></i></span>
                     </a>
                   </p>
                   <p>
                     Account:
                     <a :href="$bsc.explorer + '/address/'+ bscWallet[0]" target="_blank" class="blockchain-address">
-                      {{ bscWallet[0] }}
+                      <span>{{ bscWallet[0] }}</span>
+                      <span class="icon is-small"><i class="fas fa-external" aria-hidden="true"></i></span>
                     </a>
                   </p>
                 </div>

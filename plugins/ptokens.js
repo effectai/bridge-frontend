@@ -1,20 +1,43 @@
 import Vue from 'vue'
-import BigNumber from "bignumber.js";
-import Web3 from 'web3';
-import { pEosioToken } from 'ptokens-peosio-token'
+// import Web3 from 'web3';
+// import { pEosioToken } from 'ptokens-peosio-token'
+import {
+  ChainId,
+  pTokensNode,
+  pTokensNodeProvider,
+  pTokensEosioAssetBuilder,
+  pTokensEvmAssetBuilder,
+  pTokensSwapBuilder,
+
+  pTokensEvmProvider,
+  pTokensEosioProvider
+} from 'ptokens'
+// import { providers } from 'web3modal';
+
 
 export default (context, inject) => {
 
   const ptokens = new Vue({
     data() {
       return {
+        provider: null,
+        node: null,
+        eosiobuilder: null,
+        bscbuilder: null,
+        swapbuilder: null,
+        eosioAsset: null,
+        bscAsset: null,
+
+        swapExecutor: null,
+
         peos: null,
         status: null,
         error: null,
         statusText: null,
         efxAmount: null,
         eosTransactionId: null,
-        bscTransactionId: null
+        bscTransactionId: null,
+        transactions: []
       }
     },
     computed: {
@@ -25,20 +48,57 @@ export default (context, inject) => {
         return (context.$bsc) ? context.$bsc.wallet : null
       },
     },
+    created() {
+
+    },
     methods: {
-      init (currentProvider) {
-        this.peos = new pEosioToken({
-          blockchain: process.env.NUXT_ENV_BSC,
-          network: process.env.NUXT_ENV_BLOCKCHAIN_NETWORK,
-          pToken: process.env.NUXT_ENV_PTOKEN,
-          ethProvider: currentProvider,
-          eosRpc: context.$eos.api.rpc,
-          eosSignatureProvider: this.eosWallet.provider.signatureProvider
-        })
+      async init (currentBscProvider) {
+        try {
+          // Set up provider and node to interact with pNetwork
+          const provider = new pTokensNodeProvider('https://pnetwork-node-2a.eu.ngrok.io/v3')
+          const node = new pTokensNode(provider)
+
+          // Create builders for assets and swap (swap will be configured later)
+          this.swapBuilder = new pTokensSwapBuilder(node)
+
+          // create bsc asset
+          const bscProvider = new pTokensEvmProvider(currentBscProvider.currentProvider )
+
+          const bscBuilder = new pTokensEvmAssetBuilder(node)
+          bscBuilder
+            .setBlockchain(ChainId.BscMainnet)
+            .setSymbol('EFX') // EFX
+            .setDecimals(18) // the number of decimals in the ERC20 contract
+            .setProvider(bscProvider)
+          this.bscAsset = await bscBuilder.build()
+
+          // create an eosio asset
+          const eosioProvider = new pTokensEosioProvider(
+            'https://eos.greymass.com',
+            this.eosWallet.provider.signatureProvider
+          )
+          eosioProvider.setActor(this.eosWallet.accountInfo.account_name)
+
+          const eosioBuilder = new pTokensEosioAssetBuilder(node)
+          eosioBuilder
+            .setBlockchain(ChainId.EosMainnet)
+            .setSymbol('EFX') // EFX
+            .setDecimals(4) // the number of decimals in the EOS contract
+            .setProvider(eosioProvider)
+          this.eosioAsset = await eosioBuilder.build()
+        } catch (error) {
+          console.error(error)
+          throw new Error('Error initializing pTokens. Check your console for more details.')
+        }
       },
 
       resetSwap() {
-        this.peos = null;
+        this.swapbuilder = null;
+        this.eosioAsset = null;
+        this.bscAsset = null;
+
+        this.transactions = [];
+
         this.status = null;
         this.error = null;
         this.statusText = null;
@@ -47,131 +107,182 @@ export default (context, inject) => {
         this.bscTransactionId = null;
       },
 
-      async swapToBsc(amount) {
-        this.status = 'start'
-        this.statusText = 'Setup swap...'
-        this.efxAmount = amount
-        this.error = null
-
-        if(!this.peos) {
-          this.status = 'failed'
-          this.error = 'Something went wrong setting up the swap';
-          return
+      async abort () {
+        try {
+          if (!this.swapExecutor) {
+            return
+          } else if (window.confirm('Are you sure you want to abort the swap?')) {
+            this.swapExecutor.abort()
+            this.resetSwap()
+          } else {
+            return
+          }
+        } catch (error) {
+          console.error(error)
+          throw new Error('Error aborting swap. Check your console for more details.')
         }
-        if(!this.eosWallet || !this.bscWallet) {
-          this.status = 'failed'
-          this.error = 'Connect your wallets first';
-          return
-        }
-
-        // Check if EOS account exists before contuining
-        let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
-        if (!validEosAccount) {
-          this.status = 'failed'
-          this.error = 'EOS account not found';
-          return
-        }
-
-        const swap = () =>
-          new Promise((resolve, reject) => {
-            this.peos.issue(amount, this.bscWallet[0],
-              {
-                blocksBehind: 3,
-                expireSeconds: 60,
-                permission: this.eosWallet.auth.permission,
-                actor: this.eosWallet.auth.accountName
-              })
-            // handle events
-            .once('nativeTxConfirmed', (tx) => {
-              this.eosTransactionId = tx.transaction_id
-              this.status = 'progress'
-              this.statusText = 'Transaction on EOS confirmed'
-            })
-            .once('nodeReceivedTx', (tx) => {
-              this.statusText = 'Node received the transaction'
-            })
-            .once('nodeBroadcastedTx', (tx) => {
-              this.statusText = 'Broadcasted transaction'
-            })
-            .once('hostTxConfirmed', (tx) => {
-              // console.log(tx)
-              this.bscTransactionId = tx.transactionHash
-              this.statusText = 'Transaction on BSC confirmed'
-            })
-            .then(() => resolve())
-            .catch((e) =>  {
-              this.status = 'failed'
-              this.error = e
-              reject(e)
-            })
-          })
-        await swap()
-
-        this.status = 'finished'
-        this.statusText = 'Finished swap'
       },
 
-      async swapToEos(amount) {
-        this.status = 'start'
-        this.statusText = 'Setup swap...'
-        this.efxAmount = amount
-        this.error = null
+      async swapEosToBsc(amount) {
+        try {
+          this.status = 'start'
+          this.statusText = 'Setup swap...'
+          this.efxAmount = amount
+          this.error = null
+  
+          // Check if ptokens is initialized
+          if(!this.eosioAsset || !this.bscAsset) {
+            this.status = 'failed'
+            this.error = 'Something went wrong setting up the swap';
+            return
+          }
+  
+          // Check if wallets are connected
+          if(!this.eosWallet || !this.bscWallet) {
+            this.status = 'failed'
+            this.error = 'Connect your wallets first';
+            return
+          }
+  
+          // Check if EOS account exists before contuining
+          let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
+          if (!validEosAccount) {
+            this.status = 'failed'
+            this.error = 'EOS account not found';
+            return
+          }
+  
+          // Build the swap
+          this.swapBuilder
+            .setSourceAsset(this.eosioAsset)
+            .addDestinationAsset(this.bscAsset, this.bscWallet)
+            .setAmount(amount)
+          this.swapExecutor = this.swapBuilder.build()
 
-        if(!this.peos) {
-          this.status = 'failed'
-          this.error = 'Something went wrong setting up the swap';
-          return
-        }
-        if(!this.eosWallet || !this.bscWallet) {
-          this.status = 'failed'
-          this.error = 'Connect your wallets first';
-          return
-        }
-
-        // Check if EOS account exists before contuining
-        let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
-        if (!validEosAccount) {
-          this.status = 'failed'
-          this.error = 'EOS account not found';
-          return
-        }
-
-        const swap = () =>
-          new Promise((resolve, reject) => {
-            this.peos.redeem(Web3.utils.toWei(amount.toString()), this.eosWallet.auth.accountName,
-              {
-                //gasPrice: 100e9,
-                gas: 80000
-              })
-            // handle events
-            .once('hostTxBroadcasted', (tx) => {
+          // Execute the swap
+          await this.swapExecutor.execute()
+            .on('inputTxBroadcasted', (tx) => {
+              this.eosTransactionId = tx
+              console.info('inputTxBroadcasted', tx)
               this.status = 'progress'
-              this.statusText = 'Broadcasted transaction'
+              this.statusText = `Transaction broadcasted on EOS. Waiting for confirmation.`
             })
-            .once('hostTxConfirmed', (tx) => {
-              this.bscTransactionId = tx.transactionHash
-              this.statusText = 'Transaction on BSC confirmed'
+            .on('inputTxConfirmed', (tx) => {
+              console.info('inputTxConfirmed', tx)
+              this.statusText = `Transaction confirmed on EOS. Waiting for output transaction on BSC.`
             })
-            .once('nodeReceivedTx', (tx) => {
-              this.statusText = 'Node received the transaction'
+            .on('inputTxDetected', (tx) => {
+              const [txInfo] = tx
+              this.bscTransactionId = txInfo.txHash
+              console.info('inputTxDetected', tx)
+              this.statusText = `Input transaction detected on BSC. Waiting for output transaction on BSC.`
             })
-            .once('nativeTxConfirmed', (tx) => {
-              // console.log(tx)
-              this.eosTransactionId = tx.id
-              this.statusText = 'Transaction on EOS confirmed'
+            .on('outputTxDetected', (tx) => {
+              const [txInfo] = tx
+              console.info('outputTxDetected', tx)
+              this.statusText = `Output transaction detected on BSC. Waiting for output transaction confirmation.`
             })
-            .then(() => resolve())
-            .catch((_err) =>  {
-              this.status = 'failed'
-              this.statusText = _err
-              reject(_err)
+            .on('outputTxBroadcasted', (tx) => {
+              const [txInfo] = tx
+              console.info('outputTxBroadcasted', tx)
+              this.statusText = `Output transaction broadcasted on BSC. Waiting for output transaction confirmation.`
             })
-          })
-        await swap()
+            .on('outputTxConfirmed', (tx) => {
+              const [txInfo] = tx
+              console.info('outputTxConfirmed', tx)
+              this.statusText = `Output transaction confirmed on BSC. Waiting for swap to finish.`
+            })
+            .then((tx) => {
+              const [txInfo] = tx
 
-        this.status = 'finished'
-        this.statusText = 'Completed swap'
+              this.status = 'finished'
+              this.statusText = `Swap finished!.`
+            })
+        } catch (error) {
+          console.error(error)
+          this.status = 'failed'
+          this.error = error
+        }
       },
+
+      async swapBscToEos(amount) {
+        try {
+
+          this.status = 'start'
+          this.statusText = 'Setup swap...'
+          this.efxAmount = amount
+          this.error = null
+
+          // Check if ptokens is initialized
+          if(!this.eosioAsset || !this.bscAsset) {
+            this.status = 'failed'
+            this.error = 'Something went wrong setting up the swap';
+            return
+          }
+
+          // Check if wallets are connected
+          if(!this.eosWallet || !this.bscWallet) {
+            this.status = 'failed'
+            this.error = 'Connect your wallets first';
+            return
+          }
+  
+          // Check if EOS account exists before contuining
+          let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
+          if (!validEosAccount) {
+            this.status = 'failed'
+            this.error = 'EOS account not found';
+            return
+          }
+  
+          // Build the swap
+          this.swapBuilder
+            .setSourceAsset(this.bscAsset)
+            .addDestinationAsset(this.eosioAsset, this.eosWallet.auth.accountName)
+            .setAmount(amount)
+          this.swapExecutor = this.swapBuilder.build()
+  
+          // Execute the swap
+          await this.swapExecutor.execute()
+            .on('inputTxBroadcasted', (tx) => {
+              console.info('inputTxBroadcasted', tx)
+              this.bscTransactionId = tx
+              this.status = 'progress'
+              this.statusText = 'Waiting for confirmation.'
+            })
+            .on('inputTxConfirmed', (tx) => {
+              console.info('inputTxConfirmed', tx)
+              this.statusText = 'Transaction on BSC confirmed.'
+            })
+            .on('inputTxDetected', (tx) => {
+              console.info('inputTxDetected', tx)
+              this.statusText = 'Input transaction detected on EOS.'
+            })
+            .on('outputTxDetected', (tx) => {
+              console.info('outputTxDetected', tx)
+              const { txHash } = tx[0]
+              this.eosTransactionId = txHash
+              this.statusText = 'Output Transaction detected on EOS.'
+            })
+            .on('outputTxBroadcasted', (tx) => {
+              console.info('outputTxBroadcasted', tx)
+              this.statusText = 'Transaction broadcasted on EOS.'
+            })
+            .on('outputTxConfirmed', (tx) => {
+              console.info('outputTxConfirmed', tx)
+              this.statusText = 'Transaction confirmed on EOS.'
+            })
+            .then((tx) => {
+              console.info('Swap finished', tx)
+              this.status = 'finished'
+              this.statusText = 'Finished swap'
+            })
+        } catch (error) {
+          console.error(error)
+          this.status = 'failed'
+          this.error = error
+        }
+      }
     }
   })
 
