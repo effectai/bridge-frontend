@@ -67,7 +67,7 @@
             </div>
             <div class="field has-addons">
                 <div class="control is-flex-grow-1">
-                    <input class="input is-medium" type="number" placeholder="Minumum 10 EFX" min="0" v-model="efxAmount">
+                    <input class="input is-medium" type="number" placeholder="Minumum 1800 EFX" min="0" v-model="efxAmount">
                 </div>
                 <p class="control">
                     <a class="button is-static is-medium">EFX</a>
@@ -79,11 +79,23 @@
             <div class="field">
                 <input class="input" disabled :value="swapFromEOS ? (bscWallet ? bscWallet[0] : '- login with your BSC wallet -') : (eosWallet ? eosWallet.auth.accountName : '- login with your EOS wallet -')" type="text" />
             </div>
-            <button :disabled="!efxAmount || !eosWallet || !bscWallet || efxAmount < 10" class="button is-medium is-accent is-fullwidth mt-5" @click="onSwap">
+            <button :disabled="!efxAmount || !eosWallet || !bscWallet || efxAmount < 10 || !swapFromEOS" class="button is-medium is-accent is-fullwidth mt-5" @click="onSwap">
             <strong>Swap</strong>
             </button>
+            <!-- Fee 0.25 % (min 1.80e+3 EFX) -->
             <p class="is-size-7 is-center has-text-centered	mt-3" v-if="!swapFromEOS">
-            Transaction fee: 0.25%
+                Transaction fee: 0.25%
+                0.25% (min 1800 EFX + 3 EFX)
+            </p>
+            <p class="is-size-7 is-center has-text-centered	mt-3" v-else>
+                Transaction fee:
+                0.10% (min 1800 EFX + 3 EFX) + 90.0 EFX
+            </p>
+            <p class="has-text-centered notification is-warning is-light">
+                <strong>Important:</strong> The bridge is currently under maintenance. BSC to EOS swaps are not available at the moment.
+            </p>
+            <p class="has-text-centered notification is-warning is-light">
+                <strong>Important:</strong> pNetwork has recently introduced a new policy and introduced higher fees.
             </p>
         </div>
     </div>
@@ -124,7 +136,8 @@ export default {
                 }
             } else {
                 try {
-                    await this.$ptokens.swapBscToEos(this.efxAmount)
+                    alert('This feature is disabled for now.')
+                    // await this.$ptokens.swapBscToEos(this.efxAmount)
                 } catch (e) {
                     console.error('swap ptokes.swapBscToEos() error', e)
                     this.swapError = e.message
