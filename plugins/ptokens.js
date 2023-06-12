@@ -12,8 +12,6 @@ import {
   pTokensEvmProvider,
   pTokensEosioProvider
 } from 'ptokens'
-// import { providers } from 'web3modal';
-
 
 export default (context, inject) => {
 
@@ -46,12 +44,37 @@ export default (context, inject) => {
       },
       bscWallet() {
         return (context.$bsc) ? context.$bsc.wallet : null
-      },
-    },
-    created() {
-
+      }
     },
     methods: {
+      async initAssets () {
+        const provider = new pTokensNodeProvider('https://pnetwork-node-2a.eu.ngrok.io/v3')
+        const node = new pTokensNode(provider)
+
+        const bscBuilder = new pTokensEvmAssetBuilder(node)
+        bscBuilder
+          .setBlockchain(ChainId.BscMainnet)
+          .setSymbol('EFX') // EFX
+          .setDecimals(18) // the number of decimals in the ERC20 contract
+        const bscAsset = await bscBuilder.build()
+
+        const eosioBuilder = new pTokensEosioAssetBuilder(node)
+        eosioBuilder
+          .setBlockchain(ChainId.EosMainnet)
+          .setSymbol('EFX') // EFX
+          .setDecimals(4) // the number of decimals in the EOS contract
+        const eosioAsset = await eosioBuilder.build()
+
+        this.assets = {
+          bscAsset,
+          eosioAsset
+        }
+
+        return {
+          bscAsset,
+          eosioAsset
+        }
+      },
       async init (currentBscProvider) {
         try {
           // Set up provider and node to interact with pNetwork
@@ -129,21 +152,21 @@ export default (context, inject) => {
           this.statusText = 'Setup swap...'
           this.efxAmount = amount
           this.error = null
-  
+
           // Check if ptokens is initialized
           if(!this.eosioAsset || !this.bscAsset) {
             this.status = 'failed'
             this.error = 'Something went wrong setting up the swap';
             return
           }
-  
+
           // Check if wallets are connected
           if(!this.eosWallet || !this.bscWallet) {
             this.status = 'failed'
             this.error = 'Connect your wallets first';
             return
           }
-  
+
           // Check if EOS account exists before contuining
           let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
           if (!validEosAccount) {
@@ -151,7 +174,7 @@ export default (context, inject) => {
             this.error = 'EOS account not found';
             return
           }
-  
+
           // Build the swap
           this.swapBuilder
             .setSourceAsset(this.eosioAsset)
@@ -173,12 +196,12 @@ export default (context, inject) => {
             })
             .on('inputTxDetected', (tx) => {
               const [txInfo] = tx
-              this.bscTransactionId = txInfo.txHash
               console.info('inputTxDetected', tx)
               this.statusText = `Input transaction detected on BSC. Waiting for output transaction on BSC.`
             })
             .on('outputTxDetected', (tx) => {
               const [txInfo] = tx
+              this.bscTransactionId = txInfo.txHash
               console.info('outputTxDetected', tx)
               this.statusText = `Output transaction detected on BSC. Waiting for output transaction confirmation.`
             })
@@ -226,7 +249,7 @@ export default (context, inject) => {
             this.error = 'Connect your wallets first';
             return
           }
-  
+
           // Check if EOS account exists before contuining
           let validEosAccount = await context.$eos.isValidEosAccount(this.eosWallet.auth.accountName)
           if (!validEosAccount) {
@@ -234,14 +257,14 @@ export default (context, inject) => {
             this.error = 'EOS account not found';
             return
           }
-  
+
           // Build the swap
           this.swapBuilder
             .setSourceAsset(this.bscAsset)
             .addDestinationAsset(this.eosioAsset, this.eosWallet.auth.accountName)
             .setAmount(amount)
           this.swapExecutor = this.swapBuilder.build()
-  
+
           // Execute the swap
           await this.swapExecutor.execute()
             .on('inputTxBroadcasted', (tx) => {
