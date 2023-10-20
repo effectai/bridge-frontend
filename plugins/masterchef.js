@@ -77,7 +77,16 @@ export default (context, inject) => {
           active: true,
           apr: null,
           userLpStaked: 0
-        }]
+        },
+        // {
+        //   id: 5,
+        //   title: 'EFX-BNB',
+        //   contract: '0x5DB383654994361E3F03fe14915b44E9Ee9C1492',
+        //   active: true,
+        //   apr: null,
+        //   userLpStaked: 0
+        // }
+        ]
       }
     },
     computed: {
