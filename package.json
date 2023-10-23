@@ -28,7 +28,7 @@
     "eosjs": "^21.0.4",
     "eosjs-ecc": "^4.0.7",
     "nuxt": "^2.15.8",
-    "ptokens": "^1.0.5",
+    "ptokens": "^1.7.0",
     "ptokens-peosio-token": "^0.13.0",
     "web3": "^1.3.5",
     "web3-eth-contract": "^1.3.6",
@@ -37,8 +37,8 @@
   "devDependencies": {
     "@vue/runtime-dom": "^3.2.47",
     "dotenv": "^9.0.0",
-    "node-sass": "^6.0.1",
     "push-dir": "^0.4.1",
+    "sass": "^1.69.4",
     "sass-loader": "^10.1.1"
   }
 }

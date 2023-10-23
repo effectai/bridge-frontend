@@ -117,7 +117,7 @@ export default (context, inject) => {
       async init (currentProvider, farm) {
         try {
           this.loadContracts(currentProvider, farm)
-          this.getBalanceLpTokens()
+          await this.getBalanceLpTokens()
           this.isApproved()
           this.getLpReserves()
           await this.calculateAPR()
@@ -159,7 +159,7 @@ export default (context, inject) => {
           if(this.bscWallet) {
             const allowance = new BN(await this.pancakeContract.methods.allowance(this.bscWallet[0], this.farm.contract).call())
             let lpBalance = this.lpBalance || 0;
-            lpBalance = new BN(lpBalance);
+            lpBalance = new BN(parseFloat(lpBalance));
             this.approved = allowance.gt(lpBalance)
             if (this.approved) {
               this.getStakedLpTokens();

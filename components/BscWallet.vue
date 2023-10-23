@@ -29,10 +29,11 @@
               </a>
             </div>
             <div class="column is-half">
-              <div class="provider has-radius is-mobile"  @click="selectWallet('walletconnect')">
+              <div class="provider has-radius is-mobile has-background-grey">
                 <img src="@/assets/img/providers/walletconnect.svg">
                 WalletConnect
               </div>
+              <span>(coming soon)</span>
             </div>
           </div>
         </section>

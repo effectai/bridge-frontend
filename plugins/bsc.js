@@ -6,16 +6,16 @@ import { BN } from 'web3-utils';
 const web3 = new Web3(process.env.NUXT_ENV_BSC_RPC)
 
 
-const walletProvider = new WalletConnectProvider({
-  chainId: 56,
-  bridge: process.env.NUXT_ENV_WALLETCONNECT_BRIDGE_URL,
-  rpc: {
-    56: process.env.NUXT_ENV_BSC_RPC
-  },
-  qrcodeModalOptions: {
-    mobileLinks: ["metamask", "trust"]
-  }
-})
+// const walletProvider = new WalletConnectProvider({
+//   chainId: 56,
+//   bridge: process.env.NUXT_ENV_WALLETCONNECT_BRIDGE_URL,
+//   rpc: {
+//     56: process.env.NUXT_ENV_BSC_RPC
+//   },
+//   qrcodeModalOptions: {
+//     mobileLinks: ["metamask", "trust"]
+//   }
+// })
 
 export default (context, inject) => {
   const bsc = new Vue({
@@ -31,7 +31,7 @@ export default (context, inject) => {
         transactionError: null,
         metamask: window.ethereum || null,
         binance: window.BinanceChain || null,
-        walletConnect: walletProvider || null, //connect to mobile wallet; trust, metamask, ...
+        walletConnect: null, //connect to mobile wallet; trust, metamask, ...
         walletConnected: null, // Does it make sense to do this at the beginning?
         currentProvider: null
       }
