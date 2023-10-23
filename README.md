@@ -43,6 +43,12 @@ npm install
 npm run dev
 ```
 
+To set up a quick development environment you can use Docker:
+
+```shell
+sudo docker run --rm -it -v $(pwd):/app -w /app -p 3000:3000 node:16 bash
+```
+
 ## Node-sass Node version
 
 The `node-sass` package is very picky with which Node version it will work with.
