@@ -38,49 +38,50 @@ export default (context, inject) => {
         endBlock: null,
         latestBlockNumber: null,
         farm: null,
-        farms: [{
-          id: 0,
-          title: 'EFX-BNB',
-          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
-          active: false,
-          apr: null,
-          userLpStaked: 0
-        },
-        {
-          id: 1,
-          title: 'EFX-BNB',
-          contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
-          active: false,
-          apr: null,
-          userLpStaked: 0
-        },
-        {
-          id: 2,
-          title: 'EFX-BNB',
-          contract: '0x85545106c90D502C108F38B7eb9A8ec265F07415',
-          active: false,
-          apr: null,
-          userLpStaked: 0
-        },
-        {
-          id: 3,
-          title: 'EFX-BNB',
-          contract: '0x2ee04Eb081C6548BDDb729d64AA2912375882735',
-          active: false,
-          apr: null,
-          userLpStaked: 0
-        },
+        farms: [
         {
           id: 4,
-          title: 'EFX-BNB',
+          title: 'EFX-BNB #5',
           contract: '0xED73b3eE35864c1Bb6AEB6DeaAF2eF822479e5c4',
           active: false,
           apr: null,
           userLpStaked: 0
         },
         {
+          id: 3,
+          title: 'EFX-BNB #4',
+          contract: '0x2ee04Eb081C6548BDDb729d64AA2912375882735',
+          active: false,
+          apr: null,
+          userLpStaked: 0
+        },
+        {
+          id: 2,
+          title: 'EFX-BNB #3',
+          contract: '0x85545106c90D502C108F38B7eb9A8ec265F07415',
+          active: false,
+          apr: null,
+          userLpStaked: 0
+        },
+          {
+          id: 1,
+          title: 'EFX-BNB #2',
+          contract: '0xb8326DCe706DF2D14f51C6B2f2013B6490B6ad57',
+          active: false,
+          apr: null,
+          userLpStaked: 0
+        },
+        {
+          id: 0,
+          title: 'EFX-BNB #1',
+          contract: '0xE2F0627DCA576CCdbce0CED3E60E0E305b7D4E33',
+          active: false,
+          apr: null,
+          userLpStaked: 0
+        },
+        {
           id: 5,
-          title: 'EFX-BNB',
+          title: 'EFX-BNB #6',
           contract: '0x5DB383654994361E3F03fe14915b44E9Ee9C1492',
           active: true,
           apr: null,
