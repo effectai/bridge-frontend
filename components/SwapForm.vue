@@ -10,11 +10,11 @@
                 <p class="has-text-left">
                     <br> A minimum 10$ fee has been introduced by pNetwork, $10 for each transaction that doesn’t meet the
                     breakeven point.
-                    Transactions above the breaking point will be charged 0.25% for pegins (BSC to EOS) and 0.01% for
+                    Transactions above the breaking point will be charged 0.25% for pegins (BSC to EOS) and 0.1% for
                     pegouts (EOS to BSC).
                     <br>
                     <br>Pegin (BSC to EOS) breakeven point: $10,000 ($10/0.25%)
-                    <br>Pegout (EOS to BSC) breakeven point: $4,000 ($10/0.01%)
+                    <br>Pegout (EOS to BSC) breakeven point: $4,000 ($10/0.1%)
                     <br>
                     <br>Going forward a minimum of 5000 EFX is required to swap.
                 </p>
@@ -219,7 +219,7 @@ export default {
             /**
              * users will pay $10 for each transaction that doesn’t meet the breakeven point.
              * After the breakeven point they will pay 0.10% of the amount.
-             * Pegout breakeven point: $4,000 ($10/0.01%)
+             * Pegout breakeven point: $4,000 ($10/0.1%)
              */
             if (this.assets) {
                 const minimumEfx = Number(this.assets.eosioAsset._assetInfo.fees.minNodeOperatorFee) / Number(1e18)
